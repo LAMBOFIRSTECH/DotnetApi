@@ -7,7 +7,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/bin/Debug/net6.0/Tasks_WEB_API.dll",
+            "program": "${workspaceFolder}/bin/Debug/net6.0/TasksManagement_API.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
@@ -33,7 +33,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net6.0/Tasks_WEB_API/Tasks_WEB_API.Tests.dll",
+            "program": "${workspaceFolder}/bin/Debug/net6.0/TasksManagement_Tests.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
