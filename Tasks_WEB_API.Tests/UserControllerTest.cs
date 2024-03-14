@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using DotnetApi.Tasks_WEB_API.Controllers;
-using DotnetApi.Tasks_WEB_API.Interfaces;
+using Tasks_WEB_API.Controllers;
+using Tasks_WEB_API.Interfaces;
 using Xunit;
 
 namespace Tasks_WEB_API.Tests
