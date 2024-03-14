@@ -15,9 +15,9 @@ Mettre en place une API permettant d'exposer des dataset provenant d'une BD.
 
 ## Tests 
 
-- [ ] Tests unitaires
-    > - [ ] Test de retour d'actions
-    > - [ ] Test d'accès aux differents endpoints
+- [X] Tests unitaires
+    > - [X] Test de retour d'actions
+    > - [X] Test d'accès aux differents endpoints
     
 
 - [ ] Tests de charge
@@ -29,8 +29,8 @@ Mettre en place une API permettant d'exposer des dataset provenant d'une BD.
 
 ## Sécuriser les endpoints d'Api
  
-- [ ] Mettre en place les authorisations (de base et/ou via un token de connexion)
-  >  - [ ]  Utilisateur Admin : token JWT
+- [X] Mettre en place les authorisations (de base et/ou via un token de connexion)
+  >  - [X]  Utilisateur Admin : token JWT
   >  - [X]  Utilisateur non-Admin : une authentification de base
 
 
