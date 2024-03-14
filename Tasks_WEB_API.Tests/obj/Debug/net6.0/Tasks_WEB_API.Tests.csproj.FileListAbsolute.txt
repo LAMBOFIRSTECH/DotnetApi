@@ -169,3 +169,9 @@
 /home/lambo-ubuntu/Tasks_WEB_API/Tasks_WEB_API.Tests/bin/Debug/net6.0/Tasks_WEB_API.Tests/bin/Debug/net6.0/Tasks_WEB_API.Tests/bin/Debug/net6.0/Tasks_WEB_API.Tests/bin/Debug/net6.0/Tasks_WEB_API.Tests.runtimeconfig.json
 /home/lambo-ubuntu/Tasks_WEB_API/Tasks_WEB_API.Tests/bin/Debug/net6.0/Tasks_WEB_API.Tests/bin/Debug/net6.0/Tasks_WEB_API.Tests/bin/Debug/net6.0/Tasks_WEB_API.Tests/obj/project.assets.json
 /home/lambo-ubuntu/Tasks_WEB_API/Tasks_WEB_API.Tests/bin/Debug/net6.0/Tasks_WEB_API.Tests/bin/Debug/net6.0/Tasks_WEB_API.Tests/bin/Debug/net6.0/Tasks_WEB_API.Tests/obj/Tasks_WEB_API.Tests.csproj.nuget.dgspec.json
+/home/lambo-ubuntu/DotnetApi/Tasks_WEB_API.Tests/obj/Debug/net6.0/Tasks_WEB_API.Tests.csproj.AssemblyReference.cache
+/home/lambo-ubuntu/DotnetApi/Tasks_WEB_API.Tests/obj/Debug/net6.0/Tasks_WEB_API.Tests.GeneratedMSBuildEditorConfig.editorconfig
+/home/lambo-ubuntu/DotnetApi/Tasks_WEB_API.Tests/obj/Debug/net6.0/Tasks_WEB_API.Tests.csproj.CoreCompileInputs.cache
+/home/lambo-ubuntu/DotnetApi/Tasks_WEB_API.Tests/obj/Debug/net6.0/Tasks_WEB_API.Tests.dll
+/home/lambo-ubuntu/DotnetApi/Tasks_WEB_API.Tests/obj/Debug/net6.0/refint/Tasks_WEB_API.Tests.dll
+/home/lambo-ubuntu/DotnetApi/Tasks_WEB_API.Tests/obj/Debug/net6.0/Tasks_WEB_API.Tests.pdb

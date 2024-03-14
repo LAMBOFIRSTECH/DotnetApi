@@ -5,8 +5,7 @@ VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tasks_WEB_API", "Tasks_WEB_API.csproj", "{EB9AA63D-FE79-49E3-80B4-1D2AEFCBF9E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tasks_WEB_API.Tests", "Tasks_WEB_API.Tests\Tasks_WEB_API.Tests.csproj", "{37DBFF79-CB0D-4D1A-B495-86EAE1D335CE}"
-EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
