@@ -86,15 +86,12 @@ namespace TasksManagement_API.Repositories
 			{
 				throw new InvalidOperationException("Utilisateur non trouvé");
 			}
-
-			// Mettre à jour les propriétés de l'utilisateur partiellement en fonction des valeurs fournies
 			if (!string.IsNullOrEmpty(nom))
 			{
 				user.Nom = nom;
 			}
 			if (!string.IsNullOrEmpty(mdp))
 			{
-				// Assurez-vous de hacher le mot de passe fourni avant de le comparer
 				string hashedPassword = BCrypt.Net.BCrypt.HashPassword(mdp);
 				if (BCrypt.Net.BCrypt.Verify(mdp, user.Pass))
 				{
@@ -116,16 +113,11 @@ namespace TasksManagement_API.Repositories
 			{
 				user.Email = email;
 			}
-
-			// Valider les données de l'utilisateur
 			if (user.CheckHashPassword(mdp) && user.CheckEmailAdress(email))
 			{
 				await dataBaseMemoryContext.SaveChangesAsync();
 			}
-
 			return user;
 		}
-
-
 	}
 }

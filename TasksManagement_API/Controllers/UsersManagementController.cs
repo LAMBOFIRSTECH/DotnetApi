@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
-
-
 namespace TasksManagement_API.Controllers;
 
 [ApiController]
@@ -21,7 +19,6 @@ public class UsersManagementController : ControllerBase
 	/// </summary>
 	[Authorize(Policy = "AdminPolicy")]
 	[HttpGet("GetAllUsers")]
-	//[Authorize(Policy = "AdminPolicy",Roles =nameof(Utilisateur.Privilege.Admin))]
 	public async Task<ActionResult> GetUsers()
 	{
 		return Ok(await readMethods.GetUsers());
@@ -163,17 +160,33 @@ public class UsersManagementController : ControllerBase
 					  ex.Message.Trim());
 		}
 	}
+	
+	/// <summary>
+	/// Met à jour une partie des informations d'un utilisateur.
+	/// </summary>
+	/// <param name="id"></param>
+	/// <param name="nom"></param>
+	/// <param name="mdp"></param>
+	/// <param name="role"></param>
+	/// <param name="email"></param>
+	/// <returns></returns>
 	[HttpPatch("PatchUser")]
-	public async Task<IActionResult> PartialUpdateUser([FromBody] Utilisateur utilisateur)
+	public async Task<IActionResult> PartialUpdateUser(int id, string nom, [DataType(DataType.Password)] string mdp, string role, string email)
 	{
 		try
 		{
-			var item = await readMethods.GetUserById(utilisateur.ID);
+			var item = await readMethods.GetUserById(id);
 			if (item is null)
 			{
 				return NotFound($"Cet utilisateur n'existe plus dans le contexte de base de données");
 			}
-			await (item.ID == utilisateur.ID ? writeMethods.PartialUpdateUser(utilisateur.ID,utilisateur.Nom,utilisateur.Pass,utilisateur.Role.ToString(),utilisateur.Email) : Task.CompletedTask);
+			
+			Utilisateur.Privilege privilege;
+			if (!Enum.TryParse(role, true, out privilege))
+			{
+				return BadRequest("Le rôle spécifié n'est pas valide.");
+			}
+			await (item.ID == id ? writeMethods.PartialUpdateUser(id,nom,mdp,role,email) : Task.CompletedTask);
 			return Ok($"Les infos de l'utilisateur [{item.ID}] ont bien été modifiées.");
 		}
 		catch (Exception ex)
@@ -181,12 +194,5 @@ public class UsersManagementController : ControllerBase
 			return StatusCode(StatusCodes.Status500InternalServerError,
 					  ex.Message.Trim());
 		}
-
-
-
-
-
 	}
-
 }
-

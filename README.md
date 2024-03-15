@@ -5,13 +5,17 @@ Mettre en place une API permettant d'exposer des dataset provenant d'une BD.
 
 ## Les prerequis
 ### Soit via le prompt bash soit via NPM pour l'ajout des packages
-- `dotnet new webapi -o Tasks_WEB-API`
+- `dotnet new webapi -o TasksManagement_API`
 - `dotnet add package Microsoft.EntityFrameworkCore.InMemory --version 5.0.10`
 - `dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version=5.0.10`
 - `dotnet add package Microsoft.EntityFrameworkCore.Tools --version=5.0.10`
+- `dotnet new xunit -n TasksManagement_Tests`
 - `dotnet add package xunit --version=2.4.1`
 - `dotnet add package xunit.runner.visualstudio --version=2.4.1`
 - `dotnet add package BCrypt.Net-Next --version=4.0.3`
+- ```<ItemGroup>
+    <ProjectReference Include="..\TasksManagement_API\TasksManagement_API.csproj" />
+  </ItemGroup>``` 
 
 ## Tests 
 

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace TasksManagement_Tests
 {
-    public class UserControllerTest
+	public class UserControllerTest
 	{
 		const int userID = 1;
 		Mock<IReadUsersMethods>  mockReadMethods = new Mock<IReadUsersMethods>();
@@ -137,5 +137,13 @@ namespace TasksManagement_Tests
 			Assert.Equal(StatusCodes.Status404NotFound, notFound.StatusCode);
 
 		}
+		
+		
+		[Fact]
+		public async Task UpdatePartialUserReturns_NotFound_or_BadRequest_or_OkUpdating_6()
+		
+        {
+        	
+        }
 	}
 }
