@@ -2,7 +2,6 @@
 Mettre en place une API permettant de manipuler les données d'un serveur de base de données Mysql dockerisé.
 ------------------------------------------------------------------------------------------------------------
 ## Mettre en place un swagger d'API via openAInfos en net6.0
-[ApiHealthCheck](https://localhost:7082/health)
 ## Les prerequis
 ### Depuis la console et/ou via NPM pour l'ajout des packages
 - `dotnet new webapi -o TasksManagement_API`
@@ -19,14 +18,8 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
     <ProjectReference Include="..\TasksManagement_API\TasksManagement_API.csproj" />
   </ItemGroup>
 ``` 
-## Endpoints d'API
-    [ApiVersion] (https://localhost:7082/version)
-    [ApiHealthCheck](https://localhost:7082/health)
-    
-    > `/api/v1.0/UsersManagement/GetAllUsers`
-    > `/api/v1.0/UsersManagement/GetUserByID/?{id}`
-    > `/api/v1.0/UsersManagement/UpdateUser`
-    > `/api/v1.0/UsersManagement/DeleteUser/?{id}`
+
+##
 
 ## Tests 
 
@@ -54,6 +47,16 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
 - [X] Créer un modèle de données et les controleurs requis
 - [X] Appliquer le principe SOLID 
 - [ ] Utiliser SQLlite pour générer une base de données hébergée dans docker
+
+## Endpoints d'API
+
+    [ApiVersion](https://localhost:7082/version)
+    [ApiHealthCheck](https://localhost:7082/health)
+    
+    > `/api/v1.0/UsersManagement/GetAllUsers`
+    > `/api/v1.0/UsersManagement/GetUserByID/?{id}`
+    > `/api/v1.0/UsersManagement/UpdateUser`
+    > `/api/v1.0/UsersManagement/DeleteUser/?{id}`
 
 ## Representation
 ![](TasksManagement_API.png)
