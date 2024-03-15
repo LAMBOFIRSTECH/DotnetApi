@@ -20,10 +20,10 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
   </ItemGroup>
 ``` 
 ## Endpoints d'API
-    ![ApiVersion](https://localhost:7082/version)
-    ![ApiHealthCheck](https://localhost:7082/health)
+    [ApiVersion] (https://localhost:7082/version)
+    [ApiHealthCheck](https://localhost:7082/health)
     
-    - `/api/v1.0/UsersManagement/GetAllUsers`
+    > `/api/v1.0/UsersManagement/GetAllUsers`
     > `/api/v1.0/UsersManagement/GetUserByID/?{id}`
     > `/api/v1.0/UsersManagement/UpdateUser`
     > `/api/v1.0/UsersManagement/DeleteUser/?{id}`
@@ -56,4 +56,5 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
 - [ ] Utiliser SQLlite pour générer une base de données hébergée dans docker
 
 ## Representation
-![](task_manager_api.png)
+![](TasksManagement_API.png)
+![](schemaTaskManagement.png)
