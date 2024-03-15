@@ -19,7 +19,7 @@ public class UsersManagementController : ControllerBase
 	/// <summary>
 	/// Affiche la liste de tous les utilisateurs.
 	/// </summary>
-	[Authorize(Policy = "UserPolicy")]
+	[Authorize(Policy = "AdminPolicy")]
 	[HttpGet("GetAllUsers")]
 	//[Authorize(Policy = "AdminPolicy",Roles =nameof(Utilisateur.Privilege.Admin))]
 	public async Task<ActionResult> GetUsers()
@@ -74,7 +74,7 @@ public class UsersManagementController : ControllerBase
 	/// </remarks>
 
 	[HttpPost("CreateUser/")]
-	public async Task<IActionResult> CreateUser(int identifiant, string nom, [DataType(DataType.Password)] string mdp, string role, string email)
+	public async Task<IActionResult> CreateUser(int identifiant, string nom, [DataType(DataType.Password)] string mdp, string role, [DataType(DataType.EmailAddress)] string email)
 	{
 		try
 		{
