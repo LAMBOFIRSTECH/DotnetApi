@@ -1,7 +1,7 @@
-# DotnetApi
-Mettre en place une API permettant de manipuler les données d'un serveur de base de données Mysql dockerisé.
-------------------------------------------------------------------------------------------------------------
-## Mettre en place un swagger d'API via openAInfos en net6.0
+# DotnetApi project
+Mettre en place une API via openAInfos en net6.0 permettant de manipuler les données d'un serveur de base de données Mysql dockerisé.
+-------------------------------------------------------------------------------------------------------------------------------------
+
 ## Les prerequis
 ### Depuis la console et/ou via NPM pour l'ajout des packages
 - `dotnet new webapi -o TasksManagement_API`
