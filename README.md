@@ -4,7 +4,7 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
 ## Mettre en place un swagger d'API via openAInfos en net6.0
 
 ## Les prerequis
-### Soit via le prompt bash soit via NPM pour l'ajout des packages
+### Depuis la console et/ou via NPM pour l'ajout des packages
 - `dotnet new webapi -o TasksManagement_API`
 - `dotnet add package Microsoft.EntityFrameworkCore.InMemory --version 5.0.10`
 - `dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version=5.0.10`
@@ -18,15 +18,15 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
   <ItemGroup>
     <ProjectReference Include="..\TasksManagement_API\TasksManagement_API.csproj" />
   </ItemGroup>
-  ``` 
+``` 
 ## Endpoints d'API
-    - [ApiVersion](https://localhost:7082/version)
-    - [ApiHealthCheck](https://localhost:7082/health)
-    +
-    > - `/api/v1.0/UsersManagement/GetAllUsers`
-    > - `/api/v1.0/UsersManagement/GetUserByID/?{id}`
-    > - `/api/v1.0/UsersManagement/UpdateUser`
-    > - `/api/v1.0/UsersManagement/DeleteUser/?{id}`
+    [ApiVersion](https://localhost:7082/version)
+    [ApiHealthCheck](https://localhost:7082/health)
+    
+    > `/api/v1.0/UsersManagement/GetAllUsers`
+    > `/api/v1.0/UsersManagement/GetUserByID/?{id}`
+    > `/api/v1.0/UsersManagement/UpdateUser`
+    > `/api/v1.0/UsersManagement/DeleteUser/?{id}`
 
 ## Tests 
 
