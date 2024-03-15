@@ -19,9 +19,8 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
   </ItemGroup>
 ``` 
 
-##
-    [ApiVersion](https://localhost:7082/version)
-    [ApiHealthCheck](https://localhost:7082/health)
+- [ApiVersion](https://localhost:7082/version)
+- [ApiHealthCheck](https://localhost:7082/health)
 
 ## Tests 
 
