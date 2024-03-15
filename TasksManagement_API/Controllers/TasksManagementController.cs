@@ -48,9 +48,9 @@ public class TasksManagementController : ControllerBase
 			}
 			return NotFound("tache non trouvée.");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, $"Une erreur s'est produite dans la recherche de la ressource {Matricule}.");
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 
@@ -87,9 +87,9 @@ public class TasksManagementController : ControllerBase
 			await writeMethods.CreateTask(newTache);
 			return Ok("La ressource a bien été créée");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la création de la ressource tache.");
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 
@@ -113,10 +113,10 @@ public class TasksManagementController : ControllerBase
 
 			return Ok("La donnée a bien été supprimée");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError,
-					  "Error deleting data");
+					  ex.Message.Trim());
 		}
 	}
 
@@ -142,10 +142,10 @@ public class TasksManagementController : ControllerBase
 			}
 			return Ok($"Les infos de la tache [{item.Matricule}] ont bien été modifiées avec succès.");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError,
-					  "Error lors de la suppression de la ressource");
+					  ex.Message.Trim());
 		}
 	}
 }

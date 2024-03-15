@@ -45,9 +45,9 @@ public class UsersManagementController : ControllerBase
 			}
 			return NotFound("Utilisateur non trouvé.");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur s'est produite ");
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 
@@ -74,7 +74,7 @@ public class UsersManagementController : ControllerBase
 	/// </remarks>
 
 	[HttpPost("CreateUser/")]
-	public async Task<IActionResult> CreateUser(int identifiant, string nom, [DataType(DataType.Password)] string mdp, string role, [DataType(DataType.EmailAddress)] string email)
+	public async Task<IActionResult> CreateUser(int identifiant, string nom, [DataType(DataType.Password)] string mdp, string role, string email)
 	{
 		try
 		{
@@ -102,9 +102,9 @@ public class UsersManagementController : ControllerBase
 			await writeMethods.CreateUser(newUtilisateur);
 			return Ok("La ressource a bien été créée");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la création d'un utilisateur");
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 	/// <summary>
@@ -127,9 +127,9 @@ public class UsersManagementController : ControllerBase
 			await writeMethods.DeleteUserById(ID);
 			return Ok("La donnée a bien été supprimée");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, "Error deleting data");
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 
@@ -138,10 +138,15 @@ public class UsersManagementController : ControllerBase
 	/// </summary>
 	/// <param name="utilisateur"></param>
 	/// <returns></returns>
-	[Authorize(Policy = "AdminPolicy")]
+	//[Authorize(Policy = "AdminPolicy")]
 	[HttpPut("UpdateUser")]
 	public async Task<IActionResult> UpdateUser([FromBody] Utilisateur utilisateur)
 	{
+
+		if (utilisateur.ID <= 0)
+		{
+			throw new InvalidOperationException("L'identifiant ne peut pas etre inferieur ou égale à zero.");
+		}
 		try
 		{
 			var item = await readMethods.GetUserById(utilisateur.ID);
@@ -152,11 +157,36 @@ public class UsersManagementController : ControllerBase
 			await (item.ID == utilisateur.ID ? writeMethods.UpdateUser(utilisateur) : Task.CompletedTask);
 			return Ok($"Les infos de l'utilisateur [{item.ID}] ont bien été modifiées.");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError,
-					  "Error deleting data");
+					  ex.Message.Trim());
 		}
 	}
+	[HttpPatch("PatchUser")]
+	public async Task<IActionResult> PartialUpdateUser([FromBody] Utilisateur utilisateur)
+	{
+		try
+		{
+			var item = await readMethods.GetUserById(utilisateur.ID);
+			if (item is null)
+			{
+				return NotFound($"Cet utilisateur n'existe plus dans le contexte de base de données");
+			}
+			await (item.ID == utilisateur.ID ? writeMethods.PartialUpdateUser(utilisateur.ID,utilisateur.Nom,utilisateur.Pass,utilisateur.Role.ToString(),utilisateur.Email) : Task.CompletedTask);
+			return Ok($"Les infos de l'utilisateur [{item.ID}] ont bien été modifiées.");
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError,
+					  ex.Message.Trim());
+		}
+
+
+
+
+
+	}
+
 }
 

@@ -36,9 +36,9 @@ namespace TasksManagement_API.Controllers
 				return Ok(jwtTokenService.GenerateJwtToken(utilisateur.Email));
 			}
 			catch
-			(Exception)
+			(Exception ex)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur s'est produite ");
+				return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 			}
 		}
 	}
