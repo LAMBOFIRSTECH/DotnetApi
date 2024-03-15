@@ -1,4 +1,4 @@
-# TasksManagement_API
+# DotnetApi
 Mettre en place une API permettant de manipuler les données d'un serveur de base de données Mysql dockerisé.
 ------------------------------------------------------------------------------------------------------------
 ## Mettre en place un swagger d'API via openAInfos en net6.0
@@ -23,10 +23,10 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
     > - [ApiVersion](https://localhost:7082/version)
     > - [ApiHealthCheck](https://localhost:7082/health)
     >
-    > - `/api/v1.0/UsersManagement/GetAllUsers`
-    > - `/api/v1.0/UsersManagement/GetUserByID/?{id}`
-    > - `/api/v1.0/UsersManagement/UpdateUser`
-    > - `/api/v1.0/UsersManagement/DeleteUser/?{id}`
+    - `/api/v1.0/UsersManagement/GetAllUsers`
+    - `/api/v1.0/UsersManagement/GetUserByID/?{id}`
+    - `/api/v1.0/UsersManagement/UpdateUser`
+    - `/api/v1.0/UsersManagement/DeleteUser/?{id}`
 
 ## Tests 
 
