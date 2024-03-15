@@ -51,10 +51,10 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
 
 ## Endpoints d'API
 
-    > `/api/v1.0/UsersManagement/GetAllUsers`
-    > `/api/v1.0/UsersManagement/GetUserByID/?{id}`
-    > `/api/v1.0/UsersManagement/UpdateUser`
-    > `/api/v1.0/UsersManagement/DeleteUser/?{id}`
+> `/api/v1.0/UsersManagement/GetAllUsers`
+> `/api/v1.0/UsersManagement/GetUserByID/?{id}`
+> `/api/v1.0/UsersManagement/UpdateUser`
+> `/api/v1.0/UsersManagement/DeleteUser/?{id}`
 
 ## Representation
 ![](TasksManagement_API.png)
