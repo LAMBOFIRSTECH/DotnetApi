@@ -13,7 +13,8 @@ Mettre en place une API permettant d'exposer des dataset provenant d'une BD.
 - `dotnet add package xunit --version=2.4.1`
 - `dotnet add package xunit.runner.visualstudio --version=2.4.1`
 - `dotnet add package BCrypt.Net-Next --version=4.0.3`
-- ```
+- Dans le projet de Test Unitaire ajouter
+```
   <ItemGroup>
     <ProjectReference Include="..\TasksManagement_API\TasksManagement_API.csproj" />
   </ItemGroup>
