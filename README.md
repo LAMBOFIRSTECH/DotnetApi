@@ -20,6 +20,8 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
 ``` 
 
 ##
+    [ApiVersion](https://localhost:7082/version)
+    [ApiHealthCheck](https://localhost:7082/health)
 
 ## Tests 
 
@@ -50,9 +52,6 @@ Mettre en place une API permettant de manipuler les données d'un serveur de bas
 
 ## Endpoints d'API
 
-    [ApiVersion](https://localhost:7082/version)
-    [ApiHealthCheck](https://localhost:7082/health)
-    
     > `/api/v1.0/UsersManagement/GetAllUsers`
     > `/api/v1.0/UsersManagement/GetUserByID/?{id}`
     > `/api/v1.0/UsersManagement/UpdateUser`
