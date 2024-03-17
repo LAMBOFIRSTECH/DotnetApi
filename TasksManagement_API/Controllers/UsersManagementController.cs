@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
+using Tasks_WEB_API.SwaggerFilters;
+using Microsoft.AspNetCore.Http.Extensions;
+using System.Security.Cryptography.X509Certificates;
 namespace TasksManagement_API.Controllers;
 
 [ApiController]
@@ -12,7 +15,15 @@ public class UsersManagementController : ControllerBase
 {
 	private readonly IReadUsersMethods readMethods;
 	private readonly IWriteUsersMethods writeMethods;
-	public UsersManagementController(IReadUsersMethods readMethods, IWriteUsersMethods writeMethods) { this.readMethods = readMethods; this.writeMethods = writeMethods; }
+	private readonly RemoveParametersInUrl removeParametersInUrl;
+
+	public UsersManagementController(IReadUsersMethods readMethods, IWriteUsersMethods writeMethods, RemoveParametersInUrl removeParametersInUrl)
+	{
+		this.readMethods = readMethods; this.writeMethods = writeMethods;
+		this.removeParametersInUrl = removeParametersInUrl ?? throw new ArgumentNullException(nameof(removeParametersInUrl));
+
+
+	}
 
 	/// <summary>
 	/// Affiche la liste de tous les utilisateurs.
@@ -73,6 +84,7 @@ public class UsersManagementController : ControllerBase
 	[HttpPost("CreateUser/")]
 	public async Task<IActionResult> CreateUser(int identifiant, string nom, [DataType(DataType.Password)] string mdp, string role, string email)
 	{
+
 		try
 		{
 			Utilisateur.Privilege privilege;
@@ -95,9 +107,21 @@ public class UsersManagementController : ControllerBase
 				{
 					return Conflict("Cet utilisateur est déjà présent");
 				}
+				if (item.Nom == nom)
+				{
+					newUtilisateur.Nom = $"{nom}_1";
+				}
+				if (item.Nom == $"{nom}_1")
+				{
+					return Conflict("Cet utilisateur possède déjà ce role");
+				}
+
 			}
 			await writeMethods.CreateUser(newUtilisateur);
+
+			//string newUrl=await removeParametersInUrl.EraseParametersInUri();
 			return Ok("La ressource a bien été créée");
+
 		}
 		catch (Exception ex)
 		{
@@ -160,7 +184,7 @@ public class UsersManagementController : ControllerBase
 					  ex.Message.Trim());
 		}
 	}
-	
+
 	/// <summary>
 	/// Met à jour une partie des informations d'un utilisateur.
 	/// </summary>
@@ -180,14 +204,33 @@ public class UsersManagementController : ControllerBase
 			{
 				return NotFound($"Cet utilisateur n'existe plus dans le contexte de base de données");
 			}
-			
+
 			Utilisateur.Privilege privilege;
 			if (!Enum.TryParse(role, true, out privilege))
 			{
 				return BadRequest("Le rôle spécifié n'est pas valide.");
 			}
-			await (item.ID == id ? writeMethods.PartialUpdateUser(id,nom,mdp,role,email) : Task.CompletedTask);
+			await (item.ID == id ? writeMethods.PartialUpdateUser(id, nom, mdp, role, email) : Task.CompletedTask);
 			return Ok($"Les infos de l'utilisateur [{item.ID}] ont bien été modifiées.");
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError,
+					  ex.Message.Trim());
+		}
+	}
+
+	[HttpPatch("SetUserPassword")]
+	public async Task<IActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string mdp)
+	{
+		try
+		{
+			if (nom is null || mdp is null)
+			{
+				return Conflict("Veuillez remplir les champs");
+			}
+			await writeMethods.setUserPassword(nom, mdp);
+			return Ok($"Le mot de passe de l'utilisateur [{nom}] a bien été modifié.");
 		}
 		catch (Exception ex)
 		{

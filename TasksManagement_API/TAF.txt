@@ -1,4 +1,5 @@
 S--> Single resposability : Chaque classe doit avoir une seule responsabilité (créer un dossier repository précédé du nom de la classe et implémenter les méthodes de cette classe)
 O--> Rendre la classe extensible
 LID
-Créer un tag avant de git push IRead&IWrite..Methods
+Créer un tag avant de git push 
+Revoir cette méthode UpdateUser si elle fonctionne bien supp la méthode PartialUpdateUser 

@@ -12,7 +12,7 @@ public class TasksManagementController : ControllerBase
 {
 	private readonly IReadTasksMethods readMethods;
 	private readonly IWriteTasksMethods writeMethods;
-	public TasksManagementController(IReadTasksMethods readMethods,IWriteTasksMethods writeMethods)
+	public TasksManagementController(IReadTasksMethods readMethods, IWriteTasksMethods writeMethods)
 	{
 		this.readMethods = readMethods;
 		this.writeMethods = writeMethods;
@@ -148,4 +148,5 @@ public class TasksManagementController : ControllerBase
 					  ex.Message.Trim());
 		}
 	}
+
 }
