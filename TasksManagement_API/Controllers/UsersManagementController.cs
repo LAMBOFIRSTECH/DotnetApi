@@ -26,7 +26,9 @@ public class UsersManagementController : ControllerBase
 	[HttpGet("GetAllUsers")]
 	public async Task<ActionResult> GetUsers()
 	{
-		return Ok(await readMethods.GetUsers());
+		var users = await readMethods.GetUsers();
+		if (users.Any()){return Ok(users);}
+		return NotFound();
 	}
 
 	/// <summary>
@@ -34,7 +36,7 @@ public class UsersManagementController : ControllerBase
 	/// </summary>
 	/// <param name="ID"></param>
 	/// <returns></returns>
-	[Authorize(Policy = "UserPolicy")]
+	//[Authorize(Policy = "UserPolicy")]
 	[HttpGet("GetUserByID/{ID:int}")]
 	public async Task<ActionResult> GetUserById(int ID)
 	{

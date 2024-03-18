@@ -78,7 +78,7 @@ namespace TasksManagement_API.Repositories
 		public async Task<string> GetToken(string email)
 		{
 			var utilisateur = dataBaseMemoryContext.Utilisateurs
-				.Single(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
+				.SingleOrDefault(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
 			if (utilisateur is null)
 			{
 				throw new Exception("Droits insuffisants ou adresse mail inexistante !");
