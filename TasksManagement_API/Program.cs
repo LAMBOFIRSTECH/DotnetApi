@@ -36,11 +36,6 @@ internal class Program
 				{
 					Name = "Artur Lambo",
 					Email = "lamboartur94@gmail.com"
-				},
-				License = new OpenApiLicense
-				{
-					Name = "Example License",
-					Url = new Uri("https://example.com/license")
 				}
 			});
 			opt.OperationFilter<RemoveParameterFilter>();
