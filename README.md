@@ -55,7 +55,8 @@ Mettre en place une API via openAInfos en net6.0 permettant de manipuler les don
 
 > - `/api/v1.0/UsersManagement/GetAllUsers`
 > - `/api/v1.0/UsersManagement/GetUserByID/?{id}`
-> - `/api/v1.0/UsersManagement/UpdateUser`
+> - `/api/v1.0/UsersManagement/CreateUser`
+> - `/api/v1.0/UsersManagement/SetUserPassword`
 > - `/api/v1.0/UsersManagement/DeleteUser/?{id}`
 
       TasksManagement
