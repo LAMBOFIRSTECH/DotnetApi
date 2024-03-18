@@ -4,19 +4,23 @@ using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 namespace TasksManagement_API.Controllers
 {
-	[Route("[controller]")]
+	[ApiController]
+	[Route("api/v1.0/[controller]/")]
 	public class AccessTokenController : ControllerBase
 	{
-		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
-		private readonly IJwtTokenService jwtTokenService;
-
-		public AccessTokenController(DailyTasksMigrationsContext dataBaseMemoryContext, IJwtTokenService jwtTokenService)
+		private readonly IWriteUsersMethods writeMethods;
+		public AccessTokenController(IWriteUsersMethods writeMethods)
 		{
-			this.dataBaseMemoryContext = dataBaseMemoryContext;
-			this.jwtTokenService = jwtTokenService;
+
+			this.writeMethods = writeMethods;
 		}
-		[HttpPost]
-		public async Task<IActionResult> Login(string email)
+		/// <summary>
+		/// Permet de générer un token JWt pour l'utilisateur Admin en fonction de son adresse mail
+		/// </summary>
+		/// <param name="email"></param>
+		/// <returns></returns>
+		[HttpPost("Login")]
+		public async Task<ActionResult> Login(string email)
 		{
 			try
 			{
@@ -24,15 +28,8 @@ namespace TasksManagement_API.Controllers
 				{
 					return Conflict("Veuillez saisir une adresse mail valide");
 				}
-				var utilisateur = dataBaseMemoryContext.Utilisateurs
-				.Where(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin))
-				.SingleOrDefault();
-				if (utilisateur is null)
-				{
-					return Conflict("Droits insuffisants ou adresse mail inexistante !");
-				}
-				await Task.Delay(500);
-				return Ok(jwtTokenService.GenerateJwtToken(utilisateur.Email));
+				var token = await writeMethods.GetToken(email);
+				return Ok(token);
 			}
 			catch
 			(Exception ex)

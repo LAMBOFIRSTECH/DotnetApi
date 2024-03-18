@@ -17,6 +17,13 @@
             <param name="matricule"></param>
             <returns></returns>
         </member>
+        <member name="M:TasksManagement_API.Controllers.AccessTokenController.Login(System.String)">
+            <summary>
+            Permet de générer un token JWt pour l'utilisateur Admin en fonction de son adresse mail
+            </summary>
+            <param name="email"></param>
+            <returns></returns>
+        </member>
         <member name="M:TasksManagement_API.Controllers.TasksManagementController.GetAllTasks">
             <summary>
             Affiche la liste de toutes les taches.
@@ -93,11 +100,12 @@
             <param name="ID"></param>
             <returns></returns>
         </member>
-        <member name="M:TasksManagement_API.Controllers.UsersManagementController.UpdateUser(TasksManagement_API.Models.Utilisateur)">
+        <member name="M:TasksManagement_API.Controllers.UsersManagementController.UpdateUserPassword(System.String,System.String)">
             <summary>
-            Met à jour les informations d'un utilisateur.
+            Met à jour le mot de passe d'un utilisateur en fonction de son nom
             </summary>
-            <param name="utilisateur"></param>
+            <param name="nom"></param>
+            <param name="mdp"></param>
             <returns></returns>
         </member>
         <member name="T:TasksManagement_API.Models.Tache">

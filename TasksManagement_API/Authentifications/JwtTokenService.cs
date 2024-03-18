@@ -28,10 +28,11 @@ namespace TasksManagement_API.Authentifications
 		}
 		public string GenerateJwtToken(string email)
 		{
-			var utilisateur = dataBaseMemoryContext.Utilisateurs.Where(u => u.Email.ToUpper().Equals(email.ToUpper())).FirstOrDefault();
+			var utilisateur = dataBaseMemoryContext.Utilisateurs
+			.Single(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
 			if (utilisateur is null)
 			{
-				throw new ArgumentException();
+				throw new ArgumentException("Cet utilisateur n'existe pas");
 			}
 			var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(GetSigningKey()));
 			var tokenHandler = new JwtSecurityTokenHandler();

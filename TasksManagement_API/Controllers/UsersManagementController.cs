@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
 using Tasks_WEB_API.SwaggerFilters;
-using Microsoft.AspNetCore.Http.Extensions;
-using System.Security.Cryptography.X509Certificates;
+using SQLitePCL;
 namespace TasksManagement_API.Controllers;
 
 [ApiController]
@@ -15,14 +14,9 @@ public class UsersManagementController : ControllerBase
 {
 	private readonly IReadUsersMethods readMethods;
 	private readonly IWriteUsersMethods writeMethods;
-	private readonly RemoveParametersInUrl removeParametersInUrl;
-
-	public UsersManagementController(IReadUsersMethods readMethods, IWriteUsersMethods writeMethods, RemoveParametersInUrl removeParametersInUrl)
+	public UsersManagementController(IReadUsersMethods readMethods, IWriteUsersMethods writeMethods)
 	{
 		this.readMethods = readMethods; this.writeMethods = writeMethods;
-		this.removeParametersInUrl = removeParametersInUrl ?? throw new ArgumentNullException(nameof(removeParametersInUrl));
-
-
 	}
 
 	/// <summary>
@@ -82,7 +76,7 @@ public class UsersManagementController : ControllerBase
 	/// </remarks>
 
 	[HttpPost("CreateUser/")]
-	public async Task<IActionResult> CreateUser(int identifiant, string nom, [DataType(DataType.Password)] string mdp, string role, string email)
+	public async Task<ActionResult> CreateUser(int identifiant, string nom, [DataType(DataType.Password)] string mdp, string role, string email)
 	{
 
 		try
@@ -101,22 +95,23 @@ public class UsersManagementController : ControllerBase
 				Email = email
 			};
 			var listUtilisateurs = await readMethods.GetUsers();
-			foreach (var item in listUtilisateurs)
+			var utilisateurExistant = listUtilisateurs.FirstOrDefault(item => item.Nom == nom && item.Role == privilege);
+			if (utilisateurExistant != null)
 			{
-				if (item.Nom == nom && item.Role == privilege)
-				{
-					return Conflict("Cet utilisateur est déjà présent");
-				}
-				if (item.Nom == nom)
-				{
-					newUtilisateur.Nom = $"{nom}_1";
-				}
-				if (item.Nom == $"{nom}_1")
-				{
-					return Conflict("Cet utilisateur possède déjà ce role");
-				}
-
+				return Conflict("Cet utilisateur est déjà présent");
 			}
+
+			var utilisateurAvecMemeNom = listUtilisateurs.FirstOrDefault(item => item.Nom == nom);
+			if (utilisateurAvecMemeNom != null)
+			{
+				var nouveauNomUtilisateur = $"{nom}_1";
+				if (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
+				{
+					return Conflict("Cet utilisateur possède déjà ce rôle");
+				}
+				newUtilisateur.Nom = nouveauNomUtilisateur;
+			}
+
 			await writeMethods.CreateUser(newUtilisateur);
 
 			//string newUrl=await removeParametersInUrl.EraseParametersInUri();
@@ -135,7 +130,7 @@ public class UsersManagementController : ControllerBase
 	/// <returns></returns>
 	[Authorize(Policy = "AdminPolicy")]
 	[HttpDelete("DeleteUser/{ID:int}")]
-	public async Task<IActionResult> DeleteUserById(int ID)
+	public async Task<ActionResult> DeleteUserById(int ID)
 	{
 		var utilisateur = await readMethods.GetUserById(ID);
 		try
@@ -144,7 +139,6 @@ public class UsersManagementController : ControllerBase
 			{
 				return NotFound($"L'utilisateur id=[{ID}] n'a pas été trouvé dans le contexte de base de données");
 			}
-
 			await writeMethods.DeleteUserById(ID);
 			return Ok("La donnée a bien été supprimée");
 		}
@@ -155,81 +149,17 @@ public class UsersManagementController : ControllerBase
 	}
 
 	/// <summary>
-	/// Met à jour les informations d'un utilisateur.
+	/// Met à jour le mot de passe d'un utilisateur en fonction de son nom
 	/// </summary>
-	/// <param name="utilisateur"></param>
-	/// <returns></returns>
-	//[Authorize(Policy = "AdminPolicy")]
-	[HttpPut("UpdateUser")]
-	public async Task<IActionResult> UpdateUser([FromBody] Utilisateur utilisateur)
-	{
-
-		if (utilisateur.ID <= 0)
-		{
-			throw new InvalidOperationException("L'identifiant ne peut pas etre inferieur ou égale à zero.");
-		}
-		try
-		{
-			var item = await readMethods.GetUserById(utilisateur.ID);
-			if (item is null)
-			{
-				return NotFound($"Cet utilisateur n'existe plus dans le contexte de base de données");
-			}
-			await (item.ID == utilisateur.ID ? writeMethods.UpdateUser(utilisateur) : Task.CompletedTask);
-			return Ok($"Les infos de l'utilisateur [{item.ID}] ont bien été modifiées.");
-		}
-		catch (Exception ex)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError,
-					  ex.Message.Trim());
-		}
-	}
-
-	/// <summary>
-	/// Met à jour une partie des informations d'un utilisateur.
-	/// </summary>
-	/// <param name="id"></param>
 	/// <param name="nom"></param>
 	/// <param name="mdp"></param>
-	/// <param name="role"></param>
-	/// <param name="email"></param>
 	/// <returns></returns>
-	[HttpPatch("PatchUser")]
-	public async Task<IActionResult> PartialUpdateUser(int id, string nom, [DataType(DataType.Password)] string mdp, string role, string email)
-	{
-		try
-		{
-			var item = await readMethods.GetUserById(id);
-			if (item is null)
-			{
-				return NotFound($"Cet utilisateur n'existe plus dans le contexte de base de données");
-			}
-
-			Utilisateur.Privilege privilege;
-			if (!Enum.TryParse(role, true, out privilege))
-			{
-				return BadRequest("Le rôle spécifié n'est pas valide.");
-			}
-			await (item.ID == id ? writeMethods.PartialUpdateUser(id, nom, mdp, role, email) : Task.CompletedTask);
-			return Ok($"Les infos de l'utilisateur [{item.ID}] ont bien été modifiées.");
-		}
-		catch (Exception ex)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError,
-					  ex.Message.Trim());
-		}
-	}
-
 	[HttpPatch("SetUserPassword")]
-	public async Task<IActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string mdp)
+	public async Task<ActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string mdp)
 	{
 		try
 		{
-			if (nom is null || mdp is null)
-			{
-				return Conflict("Veuillez remplir les champs");
-			}
-			await writeMethods.setUserPassword(nom, mdp);
+			await writeMethods.SetUserPassword(nom, mdp);
 			return Ok($"Le mot de passe de l'utilisateur [{nom}] a bien été modifié.");
 		}
 		catch (Exception ex)

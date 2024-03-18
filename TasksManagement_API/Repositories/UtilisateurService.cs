@@ -6,9 +6,11 @@ namespace TasksManagement_API.Repositories
 	public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
 	{
 		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
-		public UtilisateurService(DailyTasksMigrationsContext dataBaseMemoryContext)
+		private readonly IJwtTokenService jwtTokenService;
+		public UtilisateurService(DailyTasksMigrationsContext dataBaseMemoryContext,IJwtTokenService jwtTokenService)
 		{
 			this.dataBaseMemoryContext = dataBaseMemoryContext;
+			this.jwtTokenService = jwtTokenService;
 		}
 		public async Task<List<Utilisateur>> GetUsers()
 		{
@@ -19,10 +21,10 @@ namespace TasksManagement_API.Repositories
 		}
 		public async Task<Utilisateur> GetUserById(int id)
 		{
-			var utilisateur = await dataBaseMemoryContext.Utilisateurs.FirstOrDefaultAsync(u => u.ID == id);
-			return utilisateur;
+			var utilisateur =  dataBaseMemoryContext.Utilisateurs.FirstOrDefault(u => u.ID == id);
+			await Task.Delay(200);
+			return utilisateur!;
 		}
-
 		public async Task<Utilisateur> CreateUser(Utilisateur utilisateur)
 		{
 			var password = utilisateur.Pass;
@@ -43,7 +45,6 @@ namespace TasksManagement_API.Repositories
 			}
 			return utilisateur;
 		}
-
 		public async Task DeleteUserById(int id)
 		{
 			var result = await dataBaseMemoryContext.Utilisateurs.FirstOrDefaultAsync(u => u.ID == id);
@@ -54,80 +55,14 @@ namespace TasksManagement_API.Repositories
 				await dataBaseMemoryContext.SaveChangesAsync();
 			}
 		}
-		public async Task<Utilisateur> UpdateUser(Utilisateur utilisateur)
-		{
-			var user = await dataBaseMemoryContext.Utilisateurs.FindAsync(utilisateur.ID);
-			dataBaseMemoryContext.Utilisateurs.Remove(user);
-			Utilisateur utilisateur1 = new()
-			{ ID = utilisateur.ID, Nom = utilisateur.Nom, Pass = string.Empty, Role = utilisateur.Role, Email = utilisateur.Email };
-			var email = utilisateur1.Email;
-			// var password = utilisateur1.Pass;
-			// if (!string.IsNullOrEmpty(password))
-			// {
-			// 	utilisateur1.SetHashPassword(password);utilisateur1.CheckHashPassword(password) && 
-			// }
-			if (!utilisateur1.CheckEmailAdress(email))
-			{
-				throw new ArgumentException("Adresse e-mail invalide");
-			}
-			if (utilisateur1.CheckEmailAdress(email))
-			{
-				dataBaseMemoryContext.Utilisateurs.Add(utilisateur1);
-				await dataBaseMemoryContext.SaveChangesAsync();
-			}
-			return utilisateur1;
-		}
 
-		public async Task<Utilisateur> PartialUpdateUser(int id, string nom, string mdp, string role, string email)
+		public async Task<Utilisateur> SetUserPassword(string nom, string mdp)
 		{
-
-			var user = await dataBaseMemoryContext.Utilisateurs.FindAsync(id);
+			var user = await dataBaseMemoryContext.Utilisateurs!.Where(u => u.Nom!.Equals(nom)).SingleOrDefaultAsync();
 			if (user == null)
 			{
 				throw new InvalidOperationException("Utilisateur non trouvé");
 			}
-			if (!string.IsNullOrEmpty(nom))
-			{
-				user.Nom = nom;
-			}
-			if (!string.IsNullOrEmpty(mdp))
-			{
-				string hashedPassword = BCrypt.Net.BCrypt.HashPassword(mdp);
-				if (BCrypt.Net.BCrypt.Verify(hashedPassword, user.Pass))
-				{
-					user.Pass = hashedPassword;
-				}
-			}
-			if (!string.IsNullOrEmpty(role))
-			{
-				if (Enum.TryParse(role, out Utilisateur.Privilege roleEnum))
-				{
-					user.Role = roleEnum;
-				}
-				else
-				{
-					throw new ArgumentException("Rôle non valide");
-				}
-			}
-			if (email == user.Email)
-			{
-				user.Email = email;
-			}
-			user.Email = email;
-			if (user.CheckHashPassword(mdp) && user.CheckEmailAdress(email))
-			{
-				await dataBaseMemoryContext.SaveChangesAsync();
-			}
-			return user;
-		}
-		public async Task<Utilisateur> setUserPassword(string nom, string mdp)
-		{
-			var user = await dataBaseMemoryContext.Utilisateurs.Where(u => u.Nom.Equals(nom)).SingleAsync();
-			if (user == null)
-			{
-				throw new InvalidOperationException("Utilisateur non trouvé");
-			}
-
 			if (user.CheckHashPassword(mdp))
 			{
 				throw new ArgumentException("Ce mot de passe existe déjà. Veuillez le modifier");
@@ -136,9 +71,20 @@ namespace TasksManagement_API.Repositories
 			{
 				user.Pass = user.SetHashPassword(mdp);
 				await dataBaseMemoryContext.SaveChangesAsync();
-
 			}
 			return user;
+		}
+
+		public async Task<string> GetToken(string email)
+		{
+			var utilisateur = dataBaseMemoryContext.Utilisateurs
+				.Single(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
+			if (utilisateur is null)
+			{
+				throw new Exception("Droits insuffisants ou adresse mail inexistante !");
+			}
+			await Task.Delay(500);
+			return jwtTokenService.GenerateJwtToken(utilisateur.Email);
 		}
 	}
 }

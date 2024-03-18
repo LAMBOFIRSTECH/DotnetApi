@@ -3,10 +3,9 @@ namespace TasksManagement_API.Interfaces
 {
 	public interface IWriteUsersMethods
 	{
+		Task<string> GetToken(string email);
 		Task<Utilisateur> CreateUser(Utilisateur utilisateur);
-		Task<Utilisateur> UpdateUser(Utilisateur utilisateur);
-		Task<Utilisateur> setUserPassword(string nom, string mdp);
-		Task<Utilisateur> PartialUpdateUser(int id,string nom,string mdp,string role,string email);
+		Task<Utilisateur> SetUserPassword(string nom, string mdp);
 		Task DeleteUserById(int id);
 	}
 }
