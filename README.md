@@ -51,10 +51,20 @@ Mettre en place une API via openAInfos en net6.0 permettant de manipuler les don
 
 ## Endpoints d'API
 
+      UsersManagement 
+
 > - `/api/v1.0/UsersManagement/GetAllUsers`
 > - `/api/v1.0/UsersManagement/GetUserByID/?{id}`
 > - `/api/v1.0/UsersManagement/UpdateUser`
 > - `/api/v1.0/UsersManagement/DeleteUser/?{id}`
+
+      TasksManagement
+
+> - `/api/v1.0/TasksManagement/GetAllTasks`
+> - `/api/v1.0/TasksManagement/GetTaskByID/{Matricule}`
+> - `/api/v1.0/TasksManagement/CreateTask`
+> - `/api/v1.0/TasksManagement/DeleteTask/{Matricule}`
+> - `/api/v1.0/TasksManagement/UpdateTask`
 
 ## Representation
 ![](TasksManagement_API.png)
