@@ -5,17 +5,14 @@ Mettre en place une API swagger en net6.0
 
 ## 1- Les prérequis
 
-### 1.1- Depuis la console 
-On va créer 01 dossier DotnetApi contenant 02 dossiers pour notre application et les tests unitaires. 
+### 1.1- Dans le dépot DotnetApi on crée : TasksManagement_API et TasksManagement_Tests
 
-![](ProjectFolders.png) 
-
-#### 1.1.1- Création des deux projets
 - `dotnet new webapi -o TasksManagement_API`
 - `dotnet new xunit -n TasksManagement_Tests`
 
+![](ProjectFolders.png) 
 
-#### 1.1.2- Ajout des packages via la console ou depuis NugetPackageManagement 
+#### 1.1.1- Ajout des packages via la console ou depuis NugetPackageManagement 
 - `dotnet add package Microsoft.EntityFrameworkCore.InMemory --version 6.0.0`
 - `dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version=6.0.0`
 - `dotnet add package Microsoft.EntityFrameworkCore.Tools --version=6.0.0`
@@ -25,7 +22,7 @@ On va créer 01 dossier DotnetApi contenant 02 dossiers pour notre application e
 - `dotnet add package xunit --version=2.4.1`
 - `dotnet add package xunit.runner.visualstudio --version=2.4.1`
 
-#### 1.1.3- Ajout du csproj TasksManagement_API dans le projet de Tests Unitaire
+#### 1.1.2- Ajout du csproj TasksManagement_API dans le projet de Tests Unitaire
 ```
   <ItemGroup>
     <ProjectReference Include="..\TasksManagement_API\TasksManagement_API.csproj" />
