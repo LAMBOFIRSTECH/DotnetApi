@@ -4,3 +4,4 @@ LID
 Créer un tag avant de git push 
 Revoir cette méthode UpdateUser si elle fonctionne bien supp la méthode PartialUpdateUser 
  docker run -d -p 5163:5163 -p 7082:7082 -e ASPNETCORE_HTTP_PORT=5163 -e ASPNETCORE_URLS=http://+:5163 --name API arturlambodocker/tasksmanagement_api:v1.0
+

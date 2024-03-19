@@ -25,7 +25,7 @@ Mettre en place une API swagger en net6.0
 #### 1.1.2- Ajout du csproj TasksManagement_API dans le projet de Tests Unitaire
 ```
   <ItemGroup>
-    <ProjectReference Include="..\TasksManagement_API\TasksManagement_API.csproj" />
+    <ProjectReference Include="..\TasksManagement_API\TasksManagement_API.csproj"/>
   </ItemGroup>
 ``` 
 
@@ -75,7 +75,7 @@ Mettre en place une API swagger en net6.0
 ## 6- Création de contexte de base de données par environnement
  
 - [X] Environnement de Développement : Base de Données en mémoire
-- [ ] Environnement de Stagging : Base de Données via SQLite
+- [ ] Environnement de Préproduction : Base de Données via SQLite
 - [ ] Environnement de Production : Base de Données en SQL via MySql (elle meme dans Docker)
 
 

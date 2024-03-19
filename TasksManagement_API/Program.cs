@@ -52,8 +52,12 @@ internal class Program
 								  policy.WithOrigins("https://localhost:7082", "http://lambo.lft:5163/");
 							  });
 		});
-
-		builder.Configuration.AddJsonFile("appsettings.json");
+		
+		// Load configuration from appsettings.json and appsettings.{Environment}.json
+	
+		//Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
+		builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true, reloadOnChange: true);
+		builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true, reloadOnChange: true);
 		builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 		{
 			string conStrings = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -72,7 +76,7 @@ internal class Program
 		builder.Services.AddScoped<IWriteUsersMethods, UtilisateurService>();
 		builder.Services.AddScoped<IReadTasksMethods, TacheService>();
 		builder.Services.AddScoped<IWriteTasksMethods, TacheService>();
-		builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
+		builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
 		builder.Services.AddAuthorization();
 		builder.Services.AddAuthentication("BasicAuthentication")
 			.AddScheme<AuthenticationSchemeOptions, AuthentificationBasic>("BasicAuthentication", options => { });
