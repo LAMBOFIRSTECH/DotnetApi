@@ -5,3 +5,11 @@ Créer un tag avant de git push
 Revoir cette méthode UpdateUser si elle fonctionne bien supp la méthode PartialUpdateUser 
  docker run -d -p 5163:5163 -p 7082:7082 -e ASPNETCORE_HTTP_PORT=5163 -e ASPNETCORE_URLS=http://+:5163 --name API arturlambodocker/tasksmanagement_api:v1.0
 
+dotnet run --environment <Production> --project TasksManagement_API
+dotnet run --launch-profile "TasksManagement_API-Production"  --environment "Production" --project TasksManagement_API
+Définir dans le fichier launchSettings.json :
+    - On peut spécifier le profie par environnement 
+    - Regarde aussi le fichier Programs et la façon dont on lance les environnements
+    - On peut aussi définir l'url de l'app par environment
+    - Il faut trouver le moyen de faire lire le fichier de conf appsettings qui va bien par environnement
+    - Gestion des secrets par environnement

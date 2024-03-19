@@ -56,8 +56,8 @@ internal class Program
 		// Load configuration from appsettings.json and appsettings.{Environment}.json
 	
 		//Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
+		// builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 		builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true, reloadOnChange: true);
-		builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true, reloadOnChange: true);
 		builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 		{
 			string conStrings = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -147,6 +147,14 @@ internal class Program
 			// Gérer les erreurs dans un environnement de production
 			app.UseExceptionHandler("/Error");
 			app.UseHsts();
+			app.UseSwagger();
+			app.UseSwaggerUI(con =>
+			 {
+				 con.SwaggerEndpoint("/swagger/1.0/swagger.json", "Daily Tasks Management API");
+
+				 con.RoutePrefix = string.Empty;
+
+			 });
 		}
 
 		app.UseCors(MyAllowSpecificOrigins);
