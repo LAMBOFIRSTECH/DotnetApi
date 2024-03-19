@@ -19,7 +19,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "TasksManagement_API-Staging": {
+    "TasksManagement_API-Preproduction": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
