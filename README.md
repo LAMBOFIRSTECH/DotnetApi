@@ -44,14 +44,15 @@ Mettre en place une API swagger en net6.0
   > - [X] Création d'un dossier pour les modèles de données
   > - [X] Création d'un dossier pour les controllers
 
+![](ProjectFolders_details.png) 
+
 - [X] Principe SOLID
     > - [X] Single-Responsabilities
     > - [X] Interfaces-Segragation
     > - [X] Dependances-Inversion
 
-![](ProjectFolders_details.png) 
 
-## 4- Tests 
+## 4- Implémentation des tests 
 
 - [X] Tests unitaires
     > - [X] Test de retour d'actions
@@ -62,15 +63,16 @@ Mettre en place une API swagger en net6.0
 
 - [ ] Tests de Sécurité
     > - [ ] Test d'injection SQL
+    > - [ ] Test d'attaque XSS
 
-## 5- Sécuriser les endpoints d'Api
+## 5- Sécurisation des endpoints d'Api
  
 - [X] Mettre en place les authorisations (de base et/ou via un token de connexion)
   >  - [X]  Utilisateur Admin : token JWT Bearer
   >  - [X]  Utilisateur non-Admin : une authentification de base {login:password}
 
 
-## 6- Créer une base de données
+## 6- Création de contexte de base de données par environnement
  
 - [X] Environnement de Développement : Base de Données en mémoire
 - [ ] Environnement de Stagging : Base de Données via SQLite
@@ -95,6 +97,6 @@ Mettre en place une API swagger en net6.0
 > - `/api/v1.0/TasksManagement/DeleteTask/{Matricule}`
 > - `/api/v1.0/TasksManagement/UpdateTask`
 
-## 8- Representation
+## 8- Representation du swagger d'api
 ![](TasksManagement_API.png)
 ![](schemaTaskManagement.png)
