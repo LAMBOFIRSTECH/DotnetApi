@@ -6,7 +6,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.DependencyInjection;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
-using TasksManagement_API.Repositories;
+using TasksManagement_API.ServicesRepositories;
 using TasksManagement_API.Authentifications;
 using TasksManagement_API.SwaggerFilters;
 using TasksManagement_API.Controllers;
@@ -60,19 +60,19 @@ internal class Program
 
 			opt.UseInMemoryDatabase(conStrings);
 		});
-		
+
 		builder.Services.AddControllersWithViews();
 		builder.Services.AddRouting();
 		builder.Services.AddScoped<RemoveParametersInUrl>();
 		builder.Services.AddHttpContextAccessor();
-		
+
 		builder.Services.AddHealthChecks();
-		
+
 		builder.Services.AddScoped<IReadUsersMethods, UtilisateurService>();
 		builder.Services.AddScoped<IWriteUsersMethods, UtilisateurService>();
 		builder.Services.AddScoped<IReadTasksMethods, TacheService>();
 		builder.Services.AddScoped<IWriteTasksMethods, TacheService>();
-		builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
+		builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
 		builder.Services.AddAuthorization();
 		builder.Services.AddAuthentication("BasicAuthentication")
 			.AddScheme<AuthenticationSchemeOptions, AuthentificationBasic>("BasicAuthentication", options => { });
@@ -133,6 +133,10 @@ internal class Program
 				 con.RoutePrefix = string.Empty;
 
 			 });
+		}
+		else if (app.Environment.IsStaging())
+		{
+
 		}
 		else if (app.Environment.IsProduction())
 		{

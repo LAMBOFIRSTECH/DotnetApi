@@ -1,18 +1,32 @@
 # DotnetApi project
-Mettre en place une API via openAInfos en net6.0 permettant de manipuler les données d'un serveur de base de données Mysql dockerisé.
--------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
+Mettre en place une API swagger en net6.0
+----------------------------------------------------------------------------------------------------
 
 ## Les prerequis
-### Depuis la console et/ou via NPM pour l'ajout des packages
+
+### Depuis la console 
+On va créer 01 dossier DotnetApi contenant 02 dossiers pour notre application et les tests unitaires. 
+
+![](ProjectFolders.png) 
+
+#### Création des deux projets
 - `dotnet new webapi -o TasksManagement_API`
-- `dotnet add package Microsoft.EntityFrameworkCore.InMemory --version 5.0.10`
-- `dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version=5.0.10`
-- `dotnet add package Microsoft.EntityFrameworkCore.Tools --version=5.0.10`
 - `dotnet new xunit -n TasksManagement_Tests`
+
+![](ProjectFolders_details.png) 
+
+#### Ajout des packages via la console ou depuis NugetPackageManagement 
+- `dotnet add package Microsoft.EntityFrameworkCore.InMemory --version 6.0.0`
+- `dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version=6.0.0`
+- `dotnet add package Microsoft.EntityFrameworkCore.Tools --version=6.0.0`
+- `dotnet add package Microsoft.Extensions.Logging --version=6.0.0`
+- `dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version=6.0.0`
+- `dotnet add package BCrypt.Net-Next --version=4.0.3`
 - `dotnet add package xunit --version=2.4.1`
 - `dotnet add package xunit.runner.visualstudio --version=2.4.1`
-- `dotnet add package BCrypt.Net-Next --version=4.0.3`
-- Dans le projet de Test Unitaire ajouter
+
+Dans le projet de Test Unitaire ajouter
 ```
   <ItemGroup>
     <ProjectReference Include="..\TasksManagement_API\TasksManagement_API.csproj" />

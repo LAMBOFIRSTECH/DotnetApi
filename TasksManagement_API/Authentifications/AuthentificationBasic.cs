@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using TasksManagement_API.Interfaces;
-namespace TasksManagement_API.Repositories
+namespace TasksManagement_API.Authentifications
 {
 	public class AuthentificationBasic : AuthenticationHandler<AuthenticationSchemeOptions>
 	{
