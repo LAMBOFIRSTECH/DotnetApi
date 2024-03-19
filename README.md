@@ -10,7 +10,7 @@ Mettre en place une API swagger en net6.0
 - `dotnet new webapi -o TasksManagement_API`
 - `dotnet new xunit -n TasksManagement_Tests`
 
-![](ProjectFolders.png) 
+         ![](ProjectFolders.png) 
 
 #### 1.1.1- Ajout des packages via la console ou depuis NugetPackageManagement 
 - `dotnet add package Microsoft.EntityFrameworkCore.InMemory --version 6.0.0`
@@ -44,7 +44,7 @@ Mettre en place une API swagger en net6.0
   > - [X] Création d'un dossier pour les modèles de données
   > - [X] Création d'un dossier pour les controllers
 
-![](ProjectFolders_details.png) 
+         ![](ProjectFolders_details.png) 
 
 - [X] Principe SOLID
     > - [X] Single-Responsabilities
