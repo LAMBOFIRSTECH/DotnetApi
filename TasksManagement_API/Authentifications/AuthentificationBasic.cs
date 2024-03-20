@@ -30,7 +30,7 @@ namespace TasksManagement_API.Authentifications
 				var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
 				if (authHeader.Scheme.Equals("Basic", StringComparison.OrdinalIgnoreCase))
 				{
-					var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
+					var credentialBytes = Convert.FromBase64String(authHeader.Parameter!);
 					var credentials = Encoding.UTF8.GetString(credentialBytes).Split(':', 2);
 					var username = credentials[0];
 					var password = credentials[1];

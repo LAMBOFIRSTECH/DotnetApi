@@ -9,7 +9,7 @@
     }
   },
   "profiles": {
-    "TasksManagement_API": {
+    "TasksManagement_API-Development": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -26,8 +26,8 @@
       "applicationUrl": "https://localhost:7152;http://localhost:5105",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Preproduction",
-        "ASPNETCORE_DETAILEDERRORS": "1",
-        "ASPNETCORE_SHUTDOWNTIMEOUTSECONDS": "3"
+        "ASPNETCORE_DETAILEDERRORS": "3",
+        "ASPNETCORE_SHUTDOWNTIMEOUTSECONDS": "30"
       }
     },
     "TasksManagement_API-Production": {

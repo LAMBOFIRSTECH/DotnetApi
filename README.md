@@ -12,9 +12,11 @@ Mettre en place une API swagger en net6.0
 
 ![](ProjectFolders.png) 
 
-#### 1.1.1- Ajout des packages via la console ou depuis NugetPackageManagement 
+#### 1.1.1- Ajout des packages via la console ou depuis NugetPackageManagement
+ 
 - `dotnet add package Microsoft.EntityFrameworkCore.InMemory --version 6.0.0`
 - `dotnet add package Microsoft.EntityFrameworkCore.Sqlite --version=6.0.0`
+- `dotnet add package MySql.EntityFrameworkCore --version=6.0.0`
 - `dotnet add package Microsoft.EntityFrameworkCore.Tools --version=6.0.0`
 - `dotnet add package Microsoft.Extensions.Logging --version=6.0.0`
 - `dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer --version=6.0.0`
@@ -86,7 +88,7 @@ Mettre en place une API swagger en net6.0
 > - `/api/v1.0/UsersManagement/GetAllUsers`
 > - `/api/v1.0/UsersManagement/GetUserByID/?{id}`
 > - `/api/v1.0/UsersManagement/CreateUser`
-> - `/api/v1.0/UsersManagement/SetUserPassword/?{nom}?{mdp}`
+> - `/api/v1.0/UsersManagement/SetUserPassword/?{nom}&{mdp}`
 > - `/api/v1.0/UsersManagement/DeleteUser/?{id}`
 
 ### 7.2- TasksManagementController
@@ -96,6 +98,10 @@ Mettre en place une API swagger en net6.0
 > - `/api/v1.0/TasksManagement/CreateTask`
 > - `/api/v1.0/TasksManagement/DeleteTask/{Matricule}`
 > - `/api/v1.0/TasksManagement/UpdateTask`
+
+### 7.3- AccessTokenController
+
+> - `/api/v1.0/AccessToken/Login/?{email}`
 
 ## 8- Representation du swagger d'api
 ![](TasksManagement_API.png)

@@ -56,7 +56,7 @@ internal class Program
 		// Load configuration from appsettings.json and appsettings.{Environment}.json
 	
 		//Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
-		// builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+		
 		builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true, reloadOnChange: true);
 		builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 		{

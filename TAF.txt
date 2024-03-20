@@ -14,3 +14,4 @@ Définir dans le fichier launchSettings.json :
     - Il faut trouver le moyen de faire lire le fichier de conf appsettings qui va bien par environnement
     - Gestion des secrets par environnement
     - dans appsetings Issuer et audience définir une liste d'urls
+    -Quand on merge sur Master éviter de merger le fichier launchSettings.json car pas utiliser en Production

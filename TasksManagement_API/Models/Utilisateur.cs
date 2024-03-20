@@ -21,6 +21,7 @@ public class Utilisateur
 	/// </summary>
 	[Key]
 	public int ID { get; set; }
+	//public Guid UserId { get; set; } A revoir
 	[Required]
 	public string? Nom { get; set; }
 

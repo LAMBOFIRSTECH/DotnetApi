@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
 using Tasks_WEB_API.SwaggerFilters;
-using SQLitePCL;
 namespace TasksManagement_API.Controllers;
 
 [ApiController]
@@ -36,7 +35,7 @@ public class UsersManagementController : ControllerBase
 	/// </summary>
 	/// <param name="ID"></param>
 	/// <returns></returns>
-	//[Authorize(Policy = "UserPolicy")]
+	[Authorize(Policy = "UserPolicy")]
 	[HttpGet("GetUserByID/{ID:int}")]
 	public async Task<ActionResult> GetUserById(int ID)
 	{
