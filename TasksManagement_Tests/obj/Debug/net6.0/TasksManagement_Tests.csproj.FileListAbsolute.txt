@@ -2,7 +2,6 @@
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/obj/Debug/net6.0/TasksManagement_Tests.GeneratedMSBuildEditorConfig.editorconfig
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/obj/Debug/net6.0/TasksManagement_Tests.csproj.CoreCompileInputs.cache
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/appsettings.Development.json
-/home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/appsettings.json
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/appsettings.Production.json
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/xunit.runner.visualstudio.dotnetcore.testadapter.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/xunit.runner.reporters.netcoreapp10.dll
@@ -20,7 +19,6 @@
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Microsoft.VisualStudio.CodeCoverage.Shim.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Microsoft.Data.Sqlite.dll
-/home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Microsoft.DotNet.PlatformAbstractions.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Abstractions.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Design.dll
@@ -45,9 +43,7 @@
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Moq.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Newtonsoft.Json.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/SQLitePCLRaw.batteries_v2.dll
-/home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/SQLitePCLRaw.nativelibrary.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/SQLitePCLRaw.core.dll
-/home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/SQLitePCLRaw.provider.dynamic_cdecl.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Swashbuckle.AspNetCore.Annotations.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Swashbuckle.AspNetCore.Swagger.dll
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/Swashbuckle.AspNetCore.SwaggerGen.dll
@@ -144,3 +140,8 @@
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/obj/Debug/net6.0/TasksManagement_Tests.pdb
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/obj/Debug/net6.0/TasksManagement_Tests.genruntimeconfig.cache
 /home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/obj/Debug/net6.0/ref/TasksManagement_Tests.dll
+/home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/appsettings.Preproduction.json
+/home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/NuGet.Frameworks.dll
+/home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/SQLitePCLRaw.provider.e_sqlite3.dll
+/home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/runtimes/linux-s390x/native/libe_sqlite3.so
+/home/lambo-ubuntu/DotnetApi/TasksManagement_Tests/bin/Debug/net6.0/runtimes/osx-arm64/native/libe_sqlite3.dylib

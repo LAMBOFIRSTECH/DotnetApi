@@ -21,7 +21,7 @@ namespace TasksManagement_API.Authentifications
 		public string GetSigningKey()
 		{
 			var JwtSettings = configuration.GetSection("JwtSettings");
-			int secretKeyLength = int.Parse(JwtSettings["SecretKey"]);
+			int secretKeyLength = int.Parse(JwtSettings["JwtSecretKey"]);
 			var randomSecretKey = new RandomUserSecret();
 			string signingKey = randomSecretKey.GenerateRandomKey(secretKeyLength);
 			return signingKey;

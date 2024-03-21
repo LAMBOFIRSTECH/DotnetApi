@@ -7,10 +7,12 @@ namespace TasksManagement_API.ServicesRepositories
 	{
 		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
 		private readonly IJwtTokenService jwtTokenService;
-		public UtilisateurService(DailyTasksMigrationsContext dataBaseMemoryContext,IJwtTokenService jwtTokenService)
+		private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
+		public UtilisateurService(DailyTasksMigrationsContext dataBaseMemoryContext, IJwtTokenService jwtTokenService, Microsoft.Extensions.Configuration.IConfiguration configuration)
 		{
 			this.dataBaseMemoryContext = dataBaseMemoryContext;
 			this.jwtTokenService = jwtTokenService;
+			this.configuration = configuration;
 		}
 		public async Task<List<Utilisateur>> GetUsers()
 		{
@@ -21,7 +23,7 @@ namespace TasksManagement_API.ServicesRepositories
 		}
 		public async Task<Utilisateur> GetUserById(int id)
 		{
-			var utilisateur =  dataBaseMemoryContext.Utilisateurs.FirstOrDefault(u => u.ID == id);
+			var utilisateur = dataBaseMemoryContext.Utilisateurs.FirstOrDefault(u => u.ID == id);
 			await Task.Delay(200);
 			return utilisateur!;
 		}
@@ -85,6 +87,21 @@ namespace TasksManagement_API.ServicesRepositories
 			}
 			await Task.Delay(500);
 			return jwtTokenService.GenerateJwtToken(utilisateur.Email);
+		}
+
+		public bool CheckUserSecret(string secretPass)
+		{
+			string secretUserPass = configuration["TasksManagement_API:ServiceApiKey"];
+			if (string.IsNullOrEmpty(secretUserPass))
+			{
+				throw new NotImplementedException("noyaux");
+				
+			}
+			var Pass = BCrypt.Net.BCrypt.HashPassword($"{secretPass}");
+
+			BCrypt.Net.BCrypt.Verify(Pass, secretUserPass);
+			return true;
+
 		}
 	}
 }

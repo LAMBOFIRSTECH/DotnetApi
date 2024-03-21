@@ -15,3 +15,7 @@ Définir dans le fichier launchSettings.json :
     - Gestion des secrets par environnement
     - dans appsetings Issuer et audience définir une liste d'urls
     -Quand on merge sur Master éviter de merger le fichier launchSettings.json car pas utiliser en Production
+
+dotnet user-secrets init  --project TasksManagement_API : Pour utiliser les secrets utilisateur, exécutez la commande en se servant de l'outil Secret Manager
+ dotnet user-secrets set  "TasksManagement:ServiceApiKey" "password$1" --project TasksManagement_API : Nous permet de définir un mot de passe pour notre ServiceApiKey dans le project
+ NB: plus besoin de renseigner cela dans les fichiers de configurations appsettings.* cependant on peut toujours le lire en utilisant IConfiguration.

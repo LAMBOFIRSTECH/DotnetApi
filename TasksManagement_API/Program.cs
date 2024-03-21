@@ -52,15 +52,14 @@ internal class Program
 								  policy.WithOrigins("https://localhost:7082", "http://lambo.lft:5163/");
 							  });
 		});
-		
-		// Load configuration from appsettings.json and appsettings.{Environment}.json
 	
-		//Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
+		// Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
 		
 		builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true, reloadOnChange: true);
 		builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 		{
-			string conStrings = builder.Configuration.GetConnectionString("DefaultConnection");
+			var item = builder.Configuration.GetSection("TasksManagement");
+			var conStrings=item["DefaultConnection"];
 
 			opt.UseInMemoryDatabase(conStrings);
 		});
@@ -88,7 +87,7 @@ internal class Program
 			.AddScheme<JwtBearerOptions, JwtBearerAuthentification>("JwtAuthentification", options =>
 			{
 				var JwtSettings = builder.Configuration.GetSection("JwtSettings");
-				var secretKeyLength = int.Parse(JwtSettings["SecretKey"]);
+				var secretKeyLength = int.Parse(JwtSettings["JwtSecretKey"]);
 				var randomSecretKey = new RandomUserSecret();
 				var signingKey = randomSecretKey.GenerateRandomKey(secretKeyLength);
 
