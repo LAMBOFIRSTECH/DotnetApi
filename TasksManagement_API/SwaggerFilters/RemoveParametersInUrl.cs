@@ -1,3 +1,4 @@
+using System.Net;
 using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using TasksManagement_API.Interfaces;
@@ -23,29 +24,45 @@ namespace Tasks_WEB_API.SwaggerFilters
 		}
 		public async Task<bool> AccessToken(List<string> queryParamsToRemove)
 		{
+			HttpResponseMessage responseMessage = null;
 			string requestUrl = httpContextAccessor.HttpContext!.Request.GetEncodedUrl();
 			var uriBuilder = new UriBuilder(requestUrl);
 			try
 			{
+				// Récupération et encryptage de la valeur secretUser
 				var query = HttpUtility.ParseQueryString(uriBuilder.Query);
 				var secret = query["secretUser"];
 				writeUsersMethods.EncryptUserSecret(secret!);
 				var newQuery = HttpUtility.ParseQueryString(uriBuilder.Query);
 				newQuery.Set("secretUser", writeUsersMethods.EncryptUserSecret(secret!));
-				//PB ici bas
-				var toto = uriBuilder.Uri.Segments;
+
+				// Reconstruction de la nouvelle Url
+				var uriNoQuery = new UriBuilder(requestUrl) { Query = string.Empty }.Uri;
+				var newUrl = uriNoQuery.ToString() + newQuery.ToString();
 				await Task.Delay(20);
 
-				return true;
+				// Envoyez votre requête POST à la nouvelle URL
+				using var httpClient = new HttpClient();
+				ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+				responseMessage = await httpClient.PostAsync(newUrl, null);
+				
+				responseMessage.EnsureSuccessStatusCode();
+
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Une erreur est survenue lors de la suppression des paramètres de l'URL {uriBuilder} : {ex.Message}");
-				throw; // Renvoyer l'exception pour la gérer à un niveau supérieur si nécessaire
+				if (responseMessage == null)
+				{
+					responseMessage = new HttpResponseMessage();
+				}
+				responseMessage.StatusCode = HttpStatusCode.InternalServerError;
+				responseMessage.ReasonPhrase = string.Format("RestHttpClient.SendRequest failed: {0}", ex);
 			}
+			return true;
 		}
-
-
+		
+		
+		
 		public async Task<bool> EncryptParametersInUri(List<string> queryParamsToRemove)
 		{
 			string requestUrl = httpContextAccessor.HttpContext!.Request.GetEncodedUrl();

@@ -15,6 +15,8 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Tasks_WEB_API.SwaggerFilters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using System.Net;
 
 internal class Program
 {
@@ -52,24 +54,38 @@ internal class Program
 								  policy.WithOrigins("https://localhost:7082", "http://lambo.lft:5163/");
 							  });
 		});
-	
+
 		// Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
-		
+
 		builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true, reloadOnChange: true);
 		builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 		{
 			var item = builder.Configuration.GetSection("TasksManagement_API");
-			var conStrings=item["DefaultConnection"];
+			var conStrings = item["DefaultConnection"];
 
 			opt.UseInMemoryDatabase(conStrings);
 		});
 
 		builder.Services.AddControllersWithViews();
 		builder.Services.AddRouting();
-		builder.Services.AddHttpContextAccessor(); 
+		builder.Services.AddHttpContextAccessor();
 		builder.Services.AddDataProtection();
 		builder.Services.AddHealthChecks();
-	
+		
+		// Pour la gestion du certificat https : avoid SSL connection not establish
+		builder.Services.Configure<KestrelServerOptions>(options =>
+		{
+			var kestrelSection = builder.Configuration.GetSection("Kestrel");
+			var httpsSection = kestrelSection.GetSection("EndPoints:Https");
+			var certificateFile = httpsSection["Certificate:File"];
+			var certificatePass = httpsSection["Certificate:Password"];
+			
+			options.Listen(IPAddress.Any, 7082, listenOptions =>
+			{
+				listenOptions.UseHttps(certificateFile, certificatePass);
+			});
+		});
+
 		builder.Services.AddScoped<RemoveParametersInUrl>();
 		builder.Services.AddScoped<IRemoveParametersIn, RemoveParametersInUrl>();
 		builder.Services.AddScoped<IReadUsersMethods, UtilisateurService>();
@@ -77,9 +93,9 @@ internal class Program
 		builder.Services.AddScoped<IReadTasksMethods, TacheService>();
 		builder.Services.AddScoped<IWriteTasksMethods, TacheService>();
 		builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
-		
+
 		builder.Services.AddAuthorization();
-		
+
 		// On va ajouter l'authentification basic avec le nom "BasicAuthentication" sans options
 		builder.Services.AddAuthentication("BasicAuthentication")
 			.AddScheme<AuthenticationSchemeOptions, AuthentificationBasic>("BasicAuthentication", options => { });
@@ -162,7 +178,7 @@ internal class Program
 		app.UseCors(MyAllowSpecificOrigins);
 		var rewriteOptions = new RewriteOptions()
 			 .AddRewrite(@"^www\.taskmoniroting/Taskmanagement", "https://localhost:7082/index.html", true);
-		//app.UseHttpsRedirection();
+		app.UseHttpsRedirection();
 		app.UseRewriter(rewriteOptions);
 		app.UseRouting();
 		app.UseAuthentication();

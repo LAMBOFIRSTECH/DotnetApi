@@ -19,3 +19,33 @@ Définir dans le fichier launchSettings.json :
 dotnet user-secrets init  --project TasksManagement_API : Pour utiliser les secrets utilisateur, exécutez la commande en se servant de l'outil Secret Manager
  dotnet user-secrets set  "TasksManagement:ServiceApiKey" "password$1" --project TasksManagement_API : Nous permet de définir un mot de passe pour notre ServiceApiKey dans le project
  NB: plus besoin de renseigner cela dans les fichiers de configurations appsettings.* cependant on peut toujours le lire en utilisant IConfiguration.
+
+ The SSL connection could not be established
+ -> Vérifier la présence du certificat https 
+ openssl x509 -in /usr/local/share/ca-certificates/aspnet/https.crt -text -noout
+ - si oui :
+ -> mettre à jour 
+ -> openssl pour vérifier sa validité
+
+ -si non :
+ 1: Générez la clé privée protégée par un mot de passe avec OpenSSL
+ -> openssl genrsa -aes256 -out /usr/local/share/ca-certificates/aspnet/https.key -passout pass:lambohttps 4096 
+
+ -> powershell : $certname = "{certificateName}" <lambo.lft>
+                $cert = New-SelfSignedCertificate -Subject "CN=$certname" -CertStoreLocation "Cert:\CurrentUser\My" -KeyExportPolicy Exportable -KeySpec Signature -KeyLength 2048 -KeyAlgorithm RSA -HashAlgorithm SHA256
+                $mypwd = ConvertTo-SecureString -String "{myPassword}" -Force -AsPlainText  ## Replace {myPassword} <lambo>
+                
+Cert:\CurrentUser\My : c'est le magasin de certificat personnalisé sous windows
+Cert:\LocalMachine\Root: c'est le magasin de certificats racine sous windows
+
+ 2: Générez le certificat SSL auto-signé en utilisant la clé privée que vous avez générée
+ -> openssl req -x509 -new -nodes -key /usr/local/share/ca-certificates/aspnet/https.key -sha256 -out /usr/local/share/ca-certificates/aspnet/https.crt -passin pass:lambohttps -subj "/CN=localhost" -days 365
+
+ 3: Mettez à jour le magasin de certificats pour inclure votre certificat auto-signé
+ -> sudo update-ca-certificates
+
+https.crt https.key : donner les droits à tous les utilisateurs 644
+dans appsettings on doit dire qu'il utilise notre certificat : kestrel
+dans Programs on injecte une dependance kestrel
+
+cacher ServiceApiKey dans la configuration

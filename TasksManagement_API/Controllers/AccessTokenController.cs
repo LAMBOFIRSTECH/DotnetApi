@@ -8,12 +8,12 @@ namespace TasksManagement_API.Controllers
 	[Route("api/v1.0/[controller]/")]
 	public class AccessTokenController : ControllerBase
 	{
-		private readonly IWriteUsersMethods writeMethods;
+		private readonly IReadUsersMethods readMethods;
 		private readonly IRemoveParametersIn removeParametersInUrl;
-		public AccessTokenController(IWriteUsersMethods writeMethods, IRemoveParametersIn removeParametersInUrl)
+		public AccessTokenController(IReadUsersMethods readMethods, IRemoveParametersIn removeParametersInUrl)
 		{
 
-			this.writeMethods = writeMethods;
+			this.readMethods = readMethods;
 			this.removeParametersInUrl = removeParametersInUrl;
 
 
@@ -35,16 +35,18 @@ namespace TasksManagement_API.Controllers
 				}
 
 				var uriParams = new List<string>() { $"{email},{secretUser}" };
-				await removeParametersInUrl.AccessToken(uriParams);
-				if (writeMethods.CheckUserSecret(secretUser))
+				var result = await removeParametersInUrl.AccessToken(uriParams);
+				if (!result)
 				{
-					var token = await writeMethods.GetToken(email);
-					return Ok(token);
+					return Conflict(result);// A revoir
 				}
-				else
+				if (!readMethods.CheckUserSecret(secretUser))
 				{
 					return Unauthorized("Mot de passe de clé secrète incorrect");
 				}
+				var token = await readMethods.GetToken(email);
+				return Ok(token);
+
 			}
 			catch
 			(Exception ex)
