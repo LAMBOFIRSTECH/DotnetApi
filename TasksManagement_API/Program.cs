@@ -58,7 +58,7 @@ internal class Program
 		builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true, reloadOnChange: true);
 		builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 		{
-			var item = builder.Configuration.GetSection("TasksManagement");
+			var item = builder.Configuration.GetSection("TasksManagement_API");
 			var conStrings=item["DefaultConnection"];
 
 			opt.UseInMemoryDatabase(conStrings);
@@ -66,24 +66,27 @@ internal class Program
 
 		builder.Services.AddControllersWithViews();
 		builder.Services.AddRouting();
-		builder.Services.AddScoped<RemoveParametersInUrl>();
-		builder.Services.AddHttpContextAccessor();
-
+		builder.Services.AddHttpContextAccessor(); 
+		builder.Services.AddDataProtection();
 		builder.Services.AddHealthChecks();
-
+	
+		builder.Services.AddScoped<RemoveParametersInUrl>();
+		builder.Services.AddScoped<IRemoveParametersIn, RemoveParametersInUrl>();
 		builder.Services.AddScoped<IReadUsersMethods, UtilisateurService>();
 		builder.Services.AddScoped<IWriteUsersMethods, UtilisateurService>();
 		builder.Services.AddScoped<IReadTasksMethods, TacheService>();
 		builder.Services.AddScoped<IWriteTasksMethods, TacheService>();
 		builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
+		
 		builder.Services.AddAuthorization();
+		
+		// On va ajouter l'authentification basic avec le nom "BasicAuthentication" sans options
 		builder.Services.AddAuthentication("BasicAuthentication")
 			.AddScheme<AuthenticationSchemeOptions, AuthentificationBasic>("BasicAuthentication", options => { });
 
-
-		// Ajouter l'authentification JWT avec le nom "JwtAuthentification"
+		// On va ajouter l'authentification JWT Bearer avec le nom "JwtAuthentification"
 		builder.Services.AddAuthentication("JwtAuthentification")
-			// Ajouter le schéma d'authentification personnalisé JwtBearer avec les options par défaut
+			// On va ajouter le schéma d'authentification personnalisé JwtBearer avec les options par défaut
 			.AddScheme<JwtBearerOptions, JwtBearerAuthentification>("JwtAuthentification", options =>
 			{
 				var JwtSettings = builder.Configuration.GetSection("JwtSettings");

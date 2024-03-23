@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Tasks_WEB_API.SwaggerFilters;
 using TasksManagement_API.Interfaces;
-using TasksManagement_API.Models;
 namespace TasksManagement_API.Controllers
 {
 	[ApiController]
@@ -10,10 +9,14 @@ namespace TasksManagement_API.Controllers
 	public class AccessTokenController : ControllerBase
 	{
 		private readonly IWriteUsersMethods writeMethods;
-		public AccessTokenController(IWriteUsersMethods writeMethods)
+		private readonly IRemoveParametersIn removeParametersInUrl;
+		public AccessTokenController(IWriteUsersMethods writeMethods, IRemoveParametersIn removeParametersInUrl)
 		{
 
 			this.writeMethods = writeMethods;
+			this.removeParametersInUrl = removeParametersInUrl;
+
+
 		}
 		/// <summary>
 		/// Permet de générer un token JWt pour l'utilisateur Admin en fonction de son adresse mail
@@ -31,6 +34,8 @@ namespace TasksManagement_API.Controllers
 					return Conflict("Veuillez remplir tous les champs");
 				}
 
+				var uriParams = new List<string>() { $"{email},{secretUser}" };
+				await removeParametersInUrl.AccessToken(uriParams);
 				if (writeMethods.CheckUserSecret(secretUser))
 				{
 					var token = await writeMethods.GetToken(email);

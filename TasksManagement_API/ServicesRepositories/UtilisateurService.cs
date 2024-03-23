@@ -1,18 +1,22 @@
 using Microsoft.EntityFrameworkCore;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
+using Microsoft.AspNetCore.DataProtection;
 namespace TasksManagement_API.ServicesRepositories
 {
 	public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
 	{
 		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
+		private readonly IDataProtectionProvider provider;
 		private readonly IJwtTokenService jwtTokenService;
 		private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
-		public UtilisateurService(DailyTasksMigrationsContext dataBaseMemoryContext, IJwtTokenService jwtTokenService, Microsoft.Extensions.Configuration.IConfiguration configuration)
+		private const string Purpose = "my protection purpose"; //On donne une intention pour l'encryptage explire dans 90jours
+		public UtilisateurService(DailyTasksMigrationsContext dataBaseMemoryContext, IJwtTokenService jwtTokenService, Microsoft.Extensions.Configuration.IConfiguration configuration, IDataProtectionProvider provider)
 		{
 			this.dataBaseMemoryContext = dataBaseMemoryContext;
 			this.jwtTokenService = jwtTokenService;
 			this.configuration = configuration;
+			this.provider = provider;
 		}
 		public async Task<List<Utilisateur>> GetUsers()
 		{
@@ -91,17 +95,28 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public bool CheckUserSecret(string secretPass)
 		{
-			string secretUserPass = configuration["TasksManagement_API:ServiceApiKey"];
-			if (string.IsNullOrEmpty(secretUserPass))
+			string secretUserPass = configuration["TasksManagement_API:SecretApiKey"];
+			if (string.IsNullOrEmpty(secretPass))
 			{
-				throw new NotImplementedException("noyaux");
-				
+				throw new NotImplementedException("La clé secrete est inexistante");
+
 			}
 			var Pass = BCrypt.Net.BCrypt.HashPassword($"{secretPass}");
 
-			BCrypt.Net.BCrypt.Verify(Pass, secretUserPass);
+			BCrypt.Net.BCrypt.Verify(secretUserPass, Pass);
 			return true;
 
+		}
+		public string EncryptUserSecret(string plainText)
+		{
+			var protector = provider.CreateProtector(Purpose);
+			return protector.Protect(plainText);
+		}
+
+		public string DecryptUserSecret(string cipherText)
+		{
+			var protector = provider.CreateProtector(Purpose);
+			return protector.Unprotect(cipherText);
 		}
 	}
 }
