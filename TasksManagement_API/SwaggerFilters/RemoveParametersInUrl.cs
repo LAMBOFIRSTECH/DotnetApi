@@ -43,7 +43,7 @@ namespace Tasks_WEB_API.SwaggerFilters
 
 				// Envoyez votre requête POST à la nouvelle URL
 				using var httpClient = new HttpClient();
-				ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+				//ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 				responseMessage = await httpClient.PostAsync(newUrl, null);
 				
 				responseMessage.EnsureSuccessStatusCode();

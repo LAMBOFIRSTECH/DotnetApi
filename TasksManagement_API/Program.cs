@@ -71,16 +71,16 @@ internal class Program
 		builder.Services.AddHttpContextAccessor();
 		builder.Services.AddDataProtection();
 		builder.Services.AddHealthChecks();
-		
+
 		// Pour la gestion du certificat https : avoid SSL connection not establish
 		builder.Services.Configure<KestrelServerOptions>(options =>
 		{
-			var kestrelSection = builder.Configuration.GetSection("Kestrel");
-			var httpsSection = kestrelSection.GetSection("EndPoints:Https");
-			var certificateFile = httpsSection["Certificate:File"];
-			var certificatePass = httpsSection["Certificate:Password"];
-			
-			options.Listen(IPAddress.Any, 7082, listenOptions =>
+			var kestrelSection = builder.Configuration.GetSection("Kestrel:EndPoints:Https");
+			var certificateFile = kestrelSection["Certificate:File"];
+			var certificatePass = kestrelSection["Certificate:Password"];
+			var host = Dns.GetHostEntry("lambo-lft.net"); // A dresse dans windows etc/host potentiellemnt sur serveur distant 
+
+			options.Listen(host.AddressList[0], 7083, listenOptions =>
 			{
 				listenOptions.UseHttps(certificateFile, certificatePass);
 			});

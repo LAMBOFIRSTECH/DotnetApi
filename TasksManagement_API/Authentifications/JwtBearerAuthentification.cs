@@ -10,7 +10,6 @@ namespace TasksManagement_API.Authentifications
 {
 	public class JwtBearerAuthentification : AuthenticationHandler<JwtBearerOptions>
 	{
-
 		public JwtBearerAuthentification(IOptionsMonitor<JwtBearerOptions> options,
 		ILoggerFactory logger,
 		UrlEncoder encoder,
@@ -19,10 +18,8 @@ namespace TasksManagement_API.Authentifications
 		{
 			
 		}
-
 		protected override Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
-
 			if (!Request.Headers.ContainsKey("Authorization"))
 				return Task.FromResult(AuthenticateResult.Fail("Authorization header missing"));
 			try
@@ -46,15 +43,11 @@ namespace TasksManagement_API.Authentifications
 				// Créer un ticket d'authentification réussi avec le principal
 				var ticket = new AuthenticationTicket(principal, Scheme.Name);
 				return Task.FromResult(AuthenticateResult.Success(ticket));
-
 			}
 			catch (Exception ex)
 			{
 				return Task.FromResult(AuthenticateResult.Fail($"Echec d'authentication : {ex.Message}"));
 			}
 		}
-
-
 	}
-
 }
