@@ -7,7 +7,7 @@ namespace TasksManagement_API.Interfaces
 {
     public interface IRemoveParametersIn
     {
-        Task<bool> AccessToken(List<string> queryParamsToRemove);
+        Task<string> AccessToken();
         Task<bool> UsersManagement(List<string> queryParamsToRemove);
     }
 }

@@ -22,32 +22,33 @@ namespace Tasks_WEB_API.SwaggerFilters
 		{
 			throw new NotImplementedException();
 		}
-		public async Task<bool> AccessToken(List<string> queryParamsToRemove)
+		public async Task<string> AccessToken()
 		{
+			var newUrl = "";
 			HttpResponseMessage responseMessage = null;
-			string requestUrl = httpContextAccessor.HttpContext!.Request.GetEncodedUrl();
-			var uriBuilder = new UriBuilder(requestUrl);
 			try
 			{
+				string requestUrl = httpContextAccessor.HttpContext!.Request.GetEncodedUrl();
+				var uriBuilder = new UriBuilder(requestUrl);
 				// Récupération et encryptage de la valeur secretUser
 				var query = HttpUtility.ParseQueryString(uriBuilder.Query);
 				var secret = query["secretUser"];
-				writeUsersMethods.EncryptUserSecret(secret!);
 				var newQuery = HttpUtility.ParseQueryString(uriBuilder.Query);
 				newQuery.Set("secretUser", writeUsersMethods.EncryptUserSecret(secret!));
 
 				// Reconstruction de la nouvelle Url
 				var uriNoQuery = new UriBuilder(requestUrl) { Query = string.Empty }.Uri;
-				var newUrl = uriNoQuery.ToString() + newQuery.ToString();
+				newUrl = uriNoQuery.ToString() + newQuery.ToString();
 				await Task.Delay(20);
 
-				// Envoyez votre requête POST à la nouvelle URL
-				using var httpClient = new HttpClient();
-				//ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-				responseMessage = await httpClient.PostAsync(newUrl, null);
-				
-				responseMessage.EnsureSuccessStatusCode();
+				// Configurez HttpClientHandler pour ignorer la validation du certificat SSL
+				var handler = new HttpClientHandler();
+				handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
 
+				// Envoyez votre requête POST à la nouvelle URL en utilisant HttpClient avec le HttpClientHandler configuré
+				using var httpClient = new HttpClient(handler);
+				responseMessage = await httpClient.PostAsync(newUrl, null);
+				responseMessage.EnsureSuccessStatusCode();
 			}
 			catch (Exception ex)
 			{
@@ -56,50 +57,12 @@ namespace Tasks_WEB_API.SwaggerFilters
 					responseMessage = new HttpResponseMessage();
 				}
 				responseMessage.StatusCode = HttpStatusCode.InternalServerError;
-				responseMessage.ReasonPhrase = string.Format("RestHttpClient.SendRequest failed: {0}", ex);
+				responseMessage.ReasonPhrase = "RestHttpClient.SendRequest failed: {0}" + ex.Message.Trim();
 			}
-			return true;
+			return newUrl;
 		}
-		
-		
-		
-		public async Task<bool> EncryptParametersInUri(List<string> queryParamsToRemove)
-		{
-			string requestUrl = httpContextAccessor.HttpContext!.Request.GetEncodedUrl();
-			var uriBuilder = new UriBuilder(requestUrl);
-			try
-			{
-				// Supprimer les paramètres dont vous ne voulez pas dans votre URL
-				var query = HttpUtility.ParseQueryString(uriBuilder.Query);
-				var secret = query["secretUser"];
-				writeUsersMethods.EncryptUserSecret(secret!);
-				var newQuery = HttpUtility.ParseQueryString(uriBuilder.Query);
-				newQuery.Set("secretUser", writeUsersMethods.EncryptUserSecret(secret!));
-				var toto = uriBuilder.Uri.Segments;
-
-
-				string url = uriBuilder.Uri.ToString() + newQuery;
-
-
-				// Utilisez la nouvelle URL construite sans les paramètres
-				var newUrl = uriBuilder.Uri.ToString();
-				Console.WriteLine("----------------------------------");
-
-				// Envoyez votre requête POST à la nouvelle URL
-				using var httpClient = new HttpClient();
-				var response = await httpClient.PostAsync(newUrl, null);
-				Console.WriteLine(response.RequestMessage!.RequestUri);
-				response.EnsureSuccessStatusCode();
-
-				return true;
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine($"Une erreur est survenue lors de la suppression des paramètres de l'URL {uriBuilder} : {ex.Message}");
-				throw; // Renvoyer l'exception pour la gérer à un niveau supérieur si nécessaire
-			}
-		}
-
 
 	}
+
 }
+

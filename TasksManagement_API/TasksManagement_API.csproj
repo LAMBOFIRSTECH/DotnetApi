@@ -27,6 +27,7 @@
     <PackageReference Include="Moq" Version="4.16.1" /> <!-- Pour les tests mockés-->
     <PackageReference Include="xunit" Version="2.4.1" /> <!-- Framework pour les tests unitaires-->
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" /> <!-- Runner de tests pour vscode-->
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="6.0.0" /> <!--Ajout d'un certificat-->
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Staging'">

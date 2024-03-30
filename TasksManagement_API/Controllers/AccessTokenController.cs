@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Castle.Core.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Tasks_WEB_API.SwaggerFilters;
 using TasksManagement_API.Interfaces;
@@ -35,10 +36,10 @@ namespace TasksManagement_API.Controllers
 				}
 
 				var uriParams = new List<string>() { $"{email},{secretUser}" };
-				var result = await removeParametersInUrl.AccessToken(uriParams);
-				if (!result)
+				var newUrl = await removeParametersInUrl.AccessToken();
+				if (newUrl.IsNullOrEmpty())
 				{
-					return Conflict(result);// A revoir
+					return Conflict(newUrl);// A revoir
 				}
 				if (!readMethods.CheckUserSecret(secretUser))
 				{
@@ -46,6 +47,33 @@ namespace TasksManagement_API.Controllers
 				}
 				var token = await readMethods.GetToken(email);
 				return Ok(token);
+
+				// using (var httpClient = new HttpClient())
+				// {
+				// 	// Créez les données à envoyer dans le corps de la requête
+				// 	var requestData = new List<KeyValuePair<string?, string?>>()
+				// 	{
+				// 		new KeyValuePair<string?, string?>("email", email),
+				// 		new KeyValuePair<string?, string?>("secretUser", secretUser)
+				// 	};
+
+				// 	// Créez la requête POST avec les données
+				// 	var response = await httpClient.PostAsync(newUrl, new FormUrlEncodedContent(requestData));
+
+				// 	// Vérifiez si la requête a réussi
+				// 	if (response.IsSuccessStatusCode)
+				// 	{
+				// 		// Traitez la réponse réussie si nécessaire
+				// 		var token = await response.Content.ReadAsStringAsync();
+				// 		return Ok(token);
+				// 	}
+				// 	else
+				// 	{
+				// 		// Gérez les erreurs de la requête
+				// 		return Conflict($"Erreur lors de l'obtention du jeton : {response.StatusCode}");
+				// 	}
+				// }
+
 
 			}
 			catch
