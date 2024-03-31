@@ -153,14 +153,15 @@ public class UsersManagementController : ControllerBase
 	/// Met à jour le mot de passe d'un utilisateur en fonction de son nom
 	/// </summary>
 	/// <param name="nom"></param>
-	/// <param name="mdp"></param>
+	/// <param name="password"></param>
+	/// <param name="newpassword"></param>
 	/// <returns></returns>
 	[HttpPatch("SetUserPassword")]
-	public async Task<ActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string mdp)
+	public async Task<ActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string password,  [DataType(DataType.Password)] string newpassword)
 	{
 		try
 		{
-			await writeMethods.SetUserPassword(nom, mdp);
+			await writeMethods.SetUserPassword(nom, password);
 			return Ok($"Le mot de passe de l'utilisateur [{nom}] a bien été modifié.");
 		}
 		catch (Exception ex)

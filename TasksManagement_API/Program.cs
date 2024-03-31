@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Server.Kestrel.Core;
 using System.Net;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using System.Security.Cryptography.X509Certificates;
-using Xunit.Sdk;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 var builder = WebApplication.CreateBuilder(args);
