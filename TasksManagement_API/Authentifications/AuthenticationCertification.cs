@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.Extensions.Options;
+using TasksManagement_API.Models;
 
 namespace TasksManagement_API.Authentifications
 {
@@ -25,9 +26,10 @@ namespace TasksManagement_API.Authentifications
 		protected override Task<AuthenticateResult> HandleAuthenticateAsync()
 		{
 			var cert = Context.Connection.ClientCertificate;
+			Console.WriteLine(cert+"le certificat est ici");
 			if (cert == null)
 			{
-				return Task.FromResult(AuthenticateResult.Fail("No client certificate provided"));
+				return Task.FromResult(AuthenticateResult.Fail("Le certificat client n'a pas été fourni"));
 			}
 			var events= Options.Events;
 			try
@@ -37,7 +39,8 @@ namespace TasksManagement_API.Authentifications
 
 				// Si l'authentification réussit, vous pouvez créer les claims pour l'utilisateur
 				var claims = new List<Claim>{
-					new Claim(ClaimTypes.NameIdentifier, cert.Subject)
+					new Claim(ClaimTypes.NameIdentifier, cert.Subject),
+					new Claim(ClaimTypes.Role, nameof(Utilisateur.Privilege.Admin))
 			// Ajoutez d'autres claims selon vos besoins
 					};
 
@@ -51,12 +54,12 @@ namespace TasksManagement_API.Authentifications
 			catch (Exception ex)
 			{
 			// Si une exception se produit pendant l'authentification, déclenchez l'événement OnAuthenticationFailed
-            var failedContext = new CertificateAuthenticationFailedContext(Context, Scheme, Options)
-            {
-                Exception = ex
-            };
-            
-             events!.OnAuthenticationFailed(failedContext);
+			var failedContext = new CertificateAuthenticationFailedContext(Context, Scheme, Options)
+			{
+				Exception = ex
+			};
+			
+			 events!.OnAuthenticationFailed(failedContext);
 
 				return Task.FromResult(AuthenticateResult.Fail($"Echec d'authentication : {ex.Message}"));
 			}

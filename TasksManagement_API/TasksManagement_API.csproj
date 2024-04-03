@@ -39,6 +39,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.0.0" /> <!-- Annotations Swagger-->
     <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="17.7.0" /> <!-- Bour les tests d'injections SQl pour Sqlite en la Préproduction-->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.0" /> <!-- Base de données légère Sqlite pour la Préprod-->
+    <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Production'">

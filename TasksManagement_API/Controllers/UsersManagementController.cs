@@ -26,7 +26,7 @@ public class UsersManagementController : ControllerBase
 	public async Task<ActionResult> GetUsers()
 	{
 		var users = await readMethods.GetUsers();
-		if (users.Any()){return Ok(users);}
+		if (users.Any()) { return Ok(users); }
 		return NotFound();
 	}
 
@@ -157,10 +157,14 @@ public class UsersManagementController : ControllerBase
 	/// <param name="newpassword"></param>
 	/// <returns></returns>
 	[HttpPatch("SetUserPassword")]
-	public async Task<ActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string password,  [DataType(DataType.Password)] string newpassword)
+	public async Task<ActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string password, [DataType(DataType.Password)] string newpassword)
 	{
 		try
 		{
+			if (password != newpassword)
+			{
+				return Conflict("Veuillez saisir le meme mot de passe");
+			}
 			await writeMethods.SetUserPassword(nom, password);
 			return Ok($"Le mot de passe de l'utilisateur [{nom}] a bien été modifié.");
 		}

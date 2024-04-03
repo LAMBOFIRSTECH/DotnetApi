@@ -17,6 +17,8 @@ using System.Net;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using System.Security.Authentication;
+using Microsoft.AspNetCore.Connections.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -69,21 +71,36 @@ builder.Services.AddDataProtection();
 builder.Services.AddHealthChecks();
 
 // Kestrel -> serveur web par defaut dans aspnet :Cest le gestionnaires des connexions entrantes y compris les connexions en https : On va spécifier le certificat à utiliser pour les connection en HTTPS.
+var kestrelSection = builder.Configuration.GetSection("Kestrel:EndPoints:Https");
+var certificateFile = kestrelSection["Certificate:File"];
+var certificatePassword = kestrelSection["Certificate:Password"];
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-	var kestrelSection = builder.Configuration.GetSection("Kestrel:EndPoints:Https");
-	var certificateFile = kestrelSection["Certificate:File"];
-	var certificatePassword = kestrelSection["Certificate:Password"];
 	var host = Dns.GetHostEntry("lambo.net");
 	options.Listen(host.AddressList[0], 7083, listenOptions =>
 	{
 		listenOptions.UseHttps(certificateFile, certificatePassword);
-		
+		listenOptions.Use(next =>
+	   {
+		   return async context =>
+		   {
+			   var tlsFeature = context.Features.Get<ITlsHandshakeFeature>();
+			   if (tlsFeature != null && tlsFeature.CipherAlgorithm == CipherAlgorithmType.Null)
+			   {
+				   throw new NotSupportedException("Prohibited cipher: Null cipher algorithm");
+			   }
+
+			   await next(context);
+		   };
+	   });
 	});
+
+
 	options.Limits.MaxConcurrentConnections = 5;
 	options.ConfigureHttpsDefaults(opt =>
 	{
 		opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate; // le client doit fournir un certificaat valid pour que l'authentification réussit
+
 	});
 });
 
@@ -108,9 +125,13 @@ builder.Services.AddAuthentication("CertificateAuthentication")
 
 	.AddScheme<CertificateAuthenticationOptions, AuthenticationCertification>("CertificateAuthentication", options =>
 	{
+
 		options.AllowedCertificateTypes = CertificateTypes.All;
-		options.ChainTrustValidationMode = X509ChainTrustMode.System;
-		options.ValidateValidityPeriod = true;
+		options.ChainTrustValidationMode = X509ChainTrustMode.CustomRootTrust; // Mode de confiance personnalisée pour la racine
+		options.CustomTrustStore = new X509Certificate2Collection(); // Collection personnalisée de certificats de confiance
+
+		options.CustomTrustStore.Import(certificateFile, certificatePassword, X509KeyStorageFlags.MachineKeySet);
+
 
 		options.Events = new CertificateAuthenticationEvents()
 		{
@@ -118,8 +139,6 @@ builder.Services.AddAuthentication("CertificateAuthentication")
 			   {
 				   var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<AuthenticationCertification>>();
 				   logger.LogError($"Authentication failed: {context.Exception}");
-
-
 				   return Task.CompletedTask;
 			   }
 		};
@@ -167,12 +186,13 @@ builder.Services.AddAuthorization(options =>
 
 	 // Politique d'autorisation pour les utilisateurs non-administrateurs
 	 options.AddPolicy("UserPolicy", policy =>
-		 policy.RequireRole(nameof(Utilisateur.Privilege.UserX))
+		policy.RequireRole(nameof(Utilisateur.Privilege.UserX))
 			   .RequireAuthenticatedUser()  // L'utilisateur doit être authentifié
 			   .AddAuthenticationSchemes("BasicAuthentication"));
 
-	 //  options.AddPolicy("CertPolicy", policy =>
-	 //  policy.AuthenticationSchemes.Add("CertificateAuthentication"));
+	 options.AddPolicy("CertPolicy", policy =>
+	 	policy.RequireRole(nameof(Utilisateur.Privilege.Admin))
+			  .AuthenticationSchemes.Add("CertificateAuthentication"));
 
  });
 
@@ -217,6 +237,22 @@ app.UseRewriter(rewriteOptions);
 
 app.UseHttpsRedirection();
 app.UseRouting();
+// app.Use(async (context, next) =>
+//         {
+//             if (context.Request.IsHttps)
+//             {
+//                 var clientCert = context.Connection.ClientCertificate;
+//                 if (clientCert == null)
+//                 {
+//                     // Le certificat client n'est pas fourni, retournez une réponse indiquant que le certificat client est requis
+//                     context.Response.StatusCode = StatusCodes.Status403Forbidden;
+//                     await context.Response.WriteAsync("Certificat client requis pour accéder à cette ressource.");
+//                     return;
+//                 }
+//             }
+
+//             await next();
+//         });
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseEndpoints(endpoints =>

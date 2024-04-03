@@ -1,6 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 using Castle.Core.Internal;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using Tasks_WEB_API.SwaggerFilters;
 using TasksManagement_API.Interfaces;
 namespace TasksManagement_API.Controllers
@@ -10,12 +13,17 @@ namespace TasksManagement_API.Controllers
 	public class AccessTokenController : ControllerBase
 	{
 		private readonly IReadUsersMethods readMethods;
+		private readonly IWriteUsersMethods writeUsersMethods;
 		private readonly IRemoveParametersIn removeParametersInUrl;
-		public AccessTokenController(IReadUsersMethods readMethods, IRemoveParametersIn removeParametersInUrl)
+		public AccessTokenController(IReadUsersMethods readMethods, IRemoveParametersIn removeParametersInUrl, IWriteUsersMethods writeUsersMethods)
 		{
 
 			this.readMethods = readMethods;
+			this.writeUsersMethods = writeUsersMethods;
 			this.removeParametersInUrl = removeParametersInUrl;
+			Log.Logger = new LoggerConfiguration()
+			.WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+			.CreateLogger();
 
 
 		}
@@ -25,60 +33,61 @@ namespace TasksManagement_API.Controllers
 		/// <param name="email"></param>
 		/// <param name="secretUser"></param>
 		/// <returns></returns>
+		[Authorize(Policy = "CertPolicy")]
 		[HttpPost("Login")]
-		public async Task<ActionResult> Login([DataType(DataType.EmailAddress)] string email, [DataType(DataType.Password)] string secretUser)
+		public async Task<ActionResult> Login(string email, [DataType(DataType.Password)] string secretUser)
 		{
+			string regexMatch = "(?<alpha>\\w+)@(?<mailing>[aA-zZ]+)\\.(?<domaine>[aA-zZ]+$)";
+
+			Match check = Regex.Match(email, regexMatch);
+			if (secretUser is null)
+			{
+				return Conflict("Veuillez remplir tous les champs");
+			}
+			if (!check.Success)
+			{
+				return NotFound("Cette adresse mail est invalide");
+			};
+
+			if (!readMethods.CheckUserSecret(secretUser))
+			{
+				return Unauthorized("Mot de passe de clé secrète incorrect");
+			}
+			var uriParams = $"{email},{writeUsersMethods.EncryptUserSecret(secretUser)}";
+
+			var newUrl = await removeParametersInUrl.AccessToken();
+			if (newUrl.IsNullOrEmpty())
+			{
+				return BadRequest(newUrl);
+			}
+
 			try
 			{
-				if (email is null || secretUser is null)
+				using (var httpClient = new HttpClient())
 				{
-					return Conflict("Veuillez remplir tous les champs");
+					var request = new HttpRequestMessage(HttpMethod.Post, newUrl);
+
+					// Ajout du corps de la requête avec les paramètres requis
+					request.Content = new StringContent(uriParams);
+
+					var response = await httpClient.SendAsync(request);
+
+					if (response.IsSuccessStatusCode)
+					{
+						var token = await readMethods.GetToken(email);
+						return Ok(token);
+					}
+					else
+					{
+						Log.Error("Échec de la connexion SSL : {StatusCode} - {ReasonPhrase}", response.StatusCode, response.ReasonPhrase);
+						return StatusCode((int)response.StatusCode, "La requête a échoué");
+					}
 				}
-
-				var uriParams = new List<string>() { $"{email},{secretUser}" };
-				var newUrl = await removeParametersInUrl.AccessToken();
-				if (newUrl.IsNullOrEmpty())
-				{
-					return Conflict(newUrl);// A revoir
-				}
-				if (!readMethods.CheckUserSecret(secretUser))
-				{
-					return Unauthorized("Mot de passe de clé secrète incorrect");
-				}
-				var token = await readMethods.GetToken(email);
-				return Ok(token);
-
-				// using (var httpClient = new HttpClient())
-				// {
-				// 	// Créez les données à envoyer dans le corps de la requête
-				// 	var requestData = new List<KeyValuePair<string?, string?>>()
-				// 	{
-				// 		new KeyValuePair<string?, string?>("email", email),
-				// 		new KeyValuePair<string?, string?>("secretUser", secretUser)
-				// 	};
-
-				// 	// Créez la requête POST avec les données
-				// 	var response = await httpClient.PostAsync(newUrl, new FormUrlEncodedContent(requestData));
-
-				// 	// Vérifiez si la requête a réussi
-				// 	if (response.IsSuccessStatusCode)
-				// 	{
-				// 		// Traitez la réponse réussie si nécessaire
-				// 		var token = await response.Content.ReadAsStringAsync();
-				// 		return Ok(token);
-				// 	}
-				// 	else
-				// 	{
-				// 		// Gérez les erreurs de la requête
-				// 		return Conflict($"Erreur lors de l'obtention du jeton : {response.StatusCode}");
-				// 	}
-				// }
-
-
 			}
-			catch
-			(Exception ex)
+
+			catch (Exception ex)
 			{
+				Log.Error(ex, "Une erreur s'est produite lors de la connexion");
 				return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 			}
 		}
