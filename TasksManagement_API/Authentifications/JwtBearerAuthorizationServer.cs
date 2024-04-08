@@ -8,9 +8,9 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace TasksManagement_API.Authentifications
 {
-	public class JwtBearerAuthentification : AuthenticationHandler<JwtBearerOptions>
+	public class JwtBearerAuthorizationServer : AuthenticationHandler<JwtBearerOptions>
 	{
-		public JwtBearerAuthentification(IOptionsMonitor<JwtBearerOptions> options,
+		public JwtBearerAuthorizationServer(IOptionsMonitor<JwtBearerOptions> options,
 		ILoggerFactory logger,
 		UrlEncoder encoder,
 		ISystemClock clock)
@@ -30,7 +30,7 @@ namespace TasksManagement_API.Authentifications
 					return Task.FromResult(AuthenticateResult.Fail("Schéma d'authentification invalide"));
 				}
 				// Récupérer le jeton JWT à partir de l'en-tête d'autorisation
-				var jwtToken = authHeader.Parameter;
+				var authHeaderKey = authHeader.Parameter;
 				var tokenValidationParameters = Options.TokenValidationParameters;
 				
 				if (tokenValidationParameters == null)
@@ -38,7 +38,7 @@ namespace TasksManagement_API.Authentifications
 
 				var tokenHandler = new JwtSecurityTokenHandler();
 				SecurityToken securityToken;
-				var principal = tokenHandler.ValidateToken(jwtToken, tokenValidationParameters, out securityToken);
+				var principal = tokenHandler.ValidateToken(authHeaderKey, tokenValidationParameters, out securityToken);
 
 				// Créer un ticket d'authentification réussi avec le principal
 				var ticket = new AuthenticationTicket(principal, Scheme.Name);

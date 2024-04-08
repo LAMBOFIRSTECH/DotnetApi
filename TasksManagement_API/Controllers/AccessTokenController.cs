@@ -4,11 +4,10 @@ using Castle.Core.Internal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using Tasks_WEB_API.SwaggerFilters;
 using TasksManagement_API.Interfaces;
 namespace TasksManagement_API.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("api/v1.0/[controller]/")]
 	public class AccessTokenController : ControllerBase
 	{

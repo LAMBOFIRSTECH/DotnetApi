@@ -55,7 +55,9 @@ builder.Services.AddCors(options =>
 
 // Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
 
-builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", optional: true, reloadOnChange: true);
+builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", 
+optional: true, reloadOnChange: true
+);
 builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 {
 	var item = builder.Configuration.GetSection("TasksManagement_API");
@@ -110,7 +112,7 @@ builder.Services.AddScoped<IReadUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IWriteUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IReadTasksMethods, TacheService>();
 builder.Services.AddScoped<IWriteTasksMethods, TacheService>();
-builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
+builder.Services.AddTransient<IJwtTokenService, JwtBearerAuthentificationService>();
 
 builder.Services.AddAuthorization();
 
@@ -150,9 +152,9 @@ builder.Services.AddAuthentication("BasicAuthentication")
 	.AddScheme<AuthenticationSchemeOptions, AuthentificationBasic>("BasicAuthentication", options => { });
 
 // On va ajouter l'authentification JWT Bearer avec le nom "JwtAuthentification"
-builder.Services.AddAuthentication("JwtAuthentification")
+builder.Services.AddAuthentication("JwtAuthorization")
 	// On va ajouter le schéma d'authentification personnalisé JwtBearer avec les options par défaut
-	.AddScheme<JwtBearerOptions, JwtBearerAuthentification>("JwtAuthentification", options =>
+	.AddScheme<JwtBearerOptions, JwtBearerAuthorizationServer>("JwtAuthorization", options =>
 	{
 		var JwtSettings = builder.Configuration.GetSection("JwtSettings");
 		var secretKeyLength = int.Parse(JwtSettings["JwtSecretKey"]);
@@ -181,7 +183,7 @@ builder.Services.AddAuthorization(options =>
 	 options.AddPolicy("AdminPolicy", policy =>
 		 policy.RequireRole(nameof(Utilisateur.Privilege.Admin))
 			   .RequireAuthenticatedUser()
-			   .AddAuthenticationSchemes("JwtAuthentification"));
+			   .AddAuthenticationSchemes("JwtAuthorization"));
 
 
 	 // Politique d'autorisation pour les utilisateurs non-administrateurs

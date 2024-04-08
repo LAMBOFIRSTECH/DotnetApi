@@ -4,16 +4,15 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
-using Microsoft.OpenApi.Extensions;
 
 namespace TasksManagement_API.Authentifications
 {
-	public class JwtTokenService : IJwtTokenService
+    public class JwtBearerAuthentificationService : IJwtTokenService
 	{
 		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
 		private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
 
-		public JwtTokenService(DailyTasksMigrationsContext dataBaseMemoryContext, Microsoft.Extensions.Configuration.IConfiguration configuration)
+		public JwtBearerAuthentificationService(DailyTasksMigrationsContext dataBaseMemoryContext, Microsoft.Extensions.Configuration.IConfiguration configuration)
 		{
 			this.dataBaseMemoryContext = dataBaseMemoryContext;
 			this.configuration = configuration;
