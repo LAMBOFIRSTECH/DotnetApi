@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
-using Tasks_WEB_API.SwaggerFilters;
 namespace TasksManagement_API.Controllers;
 
 [ApiController]

@@ -1,11 +1,10 @@
-using System.Net;
 using System.Web;
 using Microsoft.AspNetCore.Http.Extensions;
 using TasksManagement_API.Interfaces;
 
 namespace Tasks_WEB_API.SwaggerFilters
 {
-	public class RemoveParametersInUrl : IRemoveParametersIn
+    public class RemoveParametersInUrl : IRemoveParametersIn
 	{
 		private readonly IHttpContextAccessor httpContextAccessor;
 		private readonly IWriteUsersMethods writeUsersMethods;
