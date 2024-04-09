@@ -5,10 +5,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using TasksManagement_API.Interfaces;
 namespace TasksManagement_API.Authentifications
 {
-	public class AuthentificationBasic : AuthenticationHandler<AuthenticationSchemeOptions>
+    public class AuthentificationBasic : AuthenticationHandler<AuthenticationSchemeOptions>
 	{
 		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
 		public AuthentificationBasic(DailyTasksMigrationsContext dataBaseMemoryContext, IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -65,7 +64,6 @@ namespace TasksManagement_API.Authentifications
 				return AuthenticateResult.Fail($"Authentication failed: {ex.Message}");
 			}
 		}
-
 		private async Task<bool> IsValidCredentials(string username, string password)
 		{
 			var utilisateur = dataBaseMemoryContext.Utilisateurs.FirstOrDefault(u => u.Nom == username);

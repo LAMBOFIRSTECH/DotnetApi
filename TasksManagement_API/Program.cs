@@ -19,6 +19,7 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 using System.Security.Authentication;
 using Microsoft.AspNetCore.Connections.Features;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -55,7 +56,7 @@ builder.Services.AddCors(options =>
 
 // Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
 
-builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json", 
+builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json",
 optional: true, reloadOnChange: true
 );
 builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
@@ -81,20 +82,20 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 	var host = Dns.GetHostEntry("lambo.net");
 	options.Listen(host.AddressList[0], 7083, listenOptions =>
 	{
-		listenOptions.UseHttps(certificateFile, certificatePassword);
-		listenOptions.Use(next =>
-	   {
-		   return async context =>
-		   {
-			   var tlsFeature = context.Features.Get<ITlsHandshakeFeature>();
-			   if (tlsFeature != null && tlsFeature.CipherAlgorithm == CipherAlgorithmType.Null)
-			   {
-				   throw new NotSupportedException("Prohibited cipher: Null cipher algorithm");
-			   }
+		var toto = listenOptions.UseHttps(certificateFile, certificatePassword);
+		// 	listenOptions.Use(next =>
+		//    {
+		// 	   return async context =>
+		// 	   {
+		// 		   var tlsFeature = context.Features.Get<ITlsHandshakeFeature>();
+		// 		   if (tlsFeature != null && tlsFeature.CipherAlgorithm == CipherAlgorithmType.Null)
+		// 		   {
+		// 			   throw new NotSupportedException("Prohibited cipher: Null cipher algorithm");
+		// 		   }
 
-			   await next(context);
-		   };
-	   });
+		// 		   await next(context);
+		// 	   };
+		//    });
 	});
 
 
@@ -116,19 +117,18 @@ builder.Services.AddTransient<IJwtTokenService, JwtBearerAuthentificationService
 
 builder.Services.AddAuthorization();
 
-// On va ajouter l'authentification via un certificat SSL/TLS avec le nom "CertificateAuthentication" pour l'access token
+// On va ajouter l'authentification via un certificat SSL/TLS 
 builder.Services.AddAuthentication("CertificateAuthentication")
-   .AddCertificate()
-   .AddCertificateCache(options =>
+.AddCertificate()
+   .AddCertificateCache(opt =>
 		{
-			options.CacheSize = 1024;
-			options.CacheEntryExpiration = TimeSpan.FromMinutes(2); // Activer la mise en cache pour des besoins de performances
+			opt.CacheSize = 1024;
+			opt.CacheEntryExpiration = TimeSpan.FromMinutes(2); // Activer la mise en cache pour des besoins de performances
 		})
 
 	.AddScheme<CertificateAuthenticationOptions, AuthenticationCertification>("CertificateAuthentication", options =>
 	{
-
-		options.AllowedCertificateTypes = CertificateTypes.All;
+		options.AllowedCertificateTypes = CertificateTypes.All; //On précise le type de certificate
 		options.ChainTrustValidationMode = X509ChainTrustMode.CustomRootTrust; // Mode de confiance personnalisée pour la racine
 		options.CustomTrustStore = new X509Certificate2Collection(); // Collection personnalisée de certificats de confiance
 
@@ -137,14 +137,23 @@ builder.Services.AddAuthentication("CertificateAuthentication")
 
 		options.Events = new CertificateAuthenticationEvents()
 		{
-			OnAuthenticationFailed = context =>
-			   {
-				   var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<AuthenticationCertification>>();
-				   logger.LogError($"Authentication failed: {context.Exception}");
-				   return Task.CompletedTask;
-			   }
+			OnCertificateValidated = context =>
+			{
+				var validationService =
+					context.HttpContext.RequestServices
+					.GetRequiredService<AuthenticationCertification>();
+
+				if (validationService.ValidateCertificate(
+					context.ClientCertificate))
+				{
+					context.Success();
+				}
+
+				return Task.CompletedTask;
+			}
 		};
 	});
+
 
 
 // On va ajouter l'authentification basic avec le nom "BasicAuthentication" sans options
@@ -192,10 +201,6 @@ builder.Services.AddAuthorization(options =>
 			   .RequireAuthenticatedUser()  // L'utilisateur doit être authentifié
 			   .AddAuthenticationSchemes("BasicAuthentication"));
 
-	 options.AddPolicy("CertPolicy", policy =>
-	 	policy.RequireRole(nameof(Utilisateur.Privilege.Admin))
-			  .AuthenticationSchemes.Add("CertificateAuthentication"));
-
  });
 
 var app = builder.Build();
@@ -239,22 +244,22 @@ app.UseRewriter(rewriteOptions);
 
 app.UseHttpsRedirection();
 app.UseRouting();
-// app.Use(async (context, next) =>
-//         {
-//             if (context.Request.IsHttps)
-//             {
-//                 var clientCert = context.Connection.ClientCertificate;
-//                 if (clientCert == null)
-//                 {
-//                     // Le certificat client n'est pas fourni, retournez une réponse indiquant que le certificat client est requis
-//                     context.Response.StatusCode = StatusCodes.Status403Forbidden;
-//                     await context.Response.WriteAsync("Certificat client requis pour accéder à cette ressource.");
-//                     return;
-//                 }
-//             }
+app.Use(async (context, next) =>
+		{
+			if (context.Request.IsHttps)
+			{
+				var clientCert = context.Connection.ClientCertificate;
+				if (clientCert == null)
+				{
+					// Le certificat client n'est pas fourni, retournez une réponse indiquant que le certificat client est requis
+					context.Response.StatusCode = StatusCodes.Status403Forbidden;
+					await context.Response.WriteAsync("Certificat client requis pour accéder à cette ressource.");
+					return;
+				}
+			}
 
-//             await next();
-//         });
+			await next();
+		});
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseEndpoints(endpoints =>
