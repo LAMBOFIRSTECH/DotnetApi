@@ -14,7 +14,8 @@ public class UsersManagementController : ControllerBase
 	private readonly IWriteUsersMethods writeMethods;
 	public UsersManagementController(IReadUsersMethods readMethods, IWriteUsersMethods writeMethods)
 	{
-		this.readMethods = readMethods; this.writeMethods = writeMethods; 	}
+		this.readMethods = readMethods; this.writeMethods = writeMethods;
+	}
 
 	/// <summary>
 	/// Affiche la liste de tous les utilisateurs.
@@ -163,7 +164,7 @@ public class UsersManagementController : ControllerBase
 			{
 				return Conflict("Le mot de passe saisi existe déjà.");
 			}
-			
+
 			await writeMethods.SetUserPassword(nom, newpassword);
 			return Ok($"Le mot de passe de l'utilisateur [{nom}] a bien été modifié.");
 		}
