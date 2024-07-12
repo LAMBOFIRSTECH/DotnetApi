@@ -109,7 +109,7 @@ builder.Services.AddScoped<IWriteUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IReadTasksMethods, TacheService>();
 builder.Services.AddScoped<IWriteTasksMethods, TacheService>();
 builder.Services.AddTransient<IJwtTokenService, JwtBearerAuthentificationService>();
-
+builder.Services.AddLogging();
 builder.Services.AddAuthorization();
 
 // On va ajouter l'authentification via un certificat SSL/TLS 
