@@ -18,14 +18,14 @@ namespace TasksManagement_API.ServicesRepositories
 			this.configuration = configuration;
 			this.provider = provider;
 		}
-		
+
 		public async Task<string> GetToken(string email)
 		{
 			var utilisateur = dataBaseMemoryContext.Utilisateurs
 				.SingleOrDefault(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
 			if (utilisateur is null)
 			{
-				throw new Exception("Droits insuffisants ou adresse mail inexistante !");
+				return "Droits insuffisants ou adresse mail inexistante !";
 			}
 			await Task.Delay(500);
 			return jwtTokenService.GenerateJwtToken(utilisateur.Email);
@@ -41,7 +41,8 @@ namespace TasksManagement_API.ServicesRepositories
 			}
 			var Pass = BCrypt.Net.BCrypt.HashPassword($"{secretPass}");
 
-			BCrypt.Net.BCrypt.Verify(secretUserPass, Pass);
+			var BCryptResult = BCrypt.Net.BCrypt.Verify(secretUserPass, Pass);
+			if (!BCryptResult.Equals(true)) { return false; }
 			return true;
 		}
 		public async Task<List<Utilisateur>> GetUsers()
@@ -51,7 +52,7 @@ namespace TasksManagement_API.ServicesRepositories
 
 			return listUtilisateur;
 		}
-		
+
 		public async Task<Utilisateur> GetUserById(int id)
 		{
 			var utilisateur = dataBaseMemoryContext.Utilisateurs.FirstOrDefault(u => u.ID == id);
@@ -72,7 +73,7 @@ namespace TasksManagement_API.ServicesRepositories
 			var protector = provider.CreateProtector(Purpose);
 			return protector.Unprotect(cipherText);
 		}
-		
+
 		public async Task<Utilisateur> CreateUser(Utilisateur utilisateur)
 		{
 			var password = utilisateur.Pass;
@@ -112,7 +113,7 @@ namespace TasksManagement_API.ServicesRepositories
 			}
 			return user;
 		}
-		
+
 		public async Task DeleteUserById(int id)
 		{
 			var result = await dataBaseMemoryContext.Utilisateurs.FirstOrDefaultAsync(u => u.ID == id);

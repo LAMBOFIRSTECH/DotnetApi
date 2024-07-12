@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.Extensions.Options;
 using TasksManagement_API.Interfaces;
-using TasksManagement_API.Models;
 
 namespace TasksManagement_API.Authentifications
 {
@@ -26,6 +25,10 @@ namespace TasksManagement_API.Authentifications
 		{
 			var cert = Context.Connection.ClientCertificate;
 			Console.WriteLine(cert + "le certificat est ici");//
+			if (cert is null)
+			{
+				throw new ArgumentException("Aucun certificat fourni par le client");
+			}
 			var checkValidCertificate = ValidateCertificate(cert);
 			var events = Options.Events;
 			try
@@ -70,7 +73,7 @@ namespace TasksManagement_API.Authentifications
 				return false;
 			}
 
-			if (!clientCertificate!.Subject.Contains("CN=YourClientName")) //check
+			if (!clientCertificate!.Subject.Contains("CN=LamboFT-RootCA")) //check
 			{
 				Logger.LogError("Invalid client certificate.", clientCertificate.Subject);
 				return false;

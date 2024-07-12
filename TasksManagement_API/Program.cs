@@ -17,9 +17,6 @@ using System.Net;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
-using System.Security.Authentication;
-using Microsoft.AspNetCore.Connections.Features;
-using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -82,7 +79,8 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 	var host = Dns.GetHostEntry("lambo.net");
 	options.Listen(host.AddressList[0], 7083, listenOptions =>
 	{
-		var toto = listenOptions.UseHttps(certificateFile, certificatePassword);
+		listenOptions.UseHttps(certificateFile, certificatePassword);
+	});
 		// 	listenOptions.Use(next =>
 		//    {
 		// 	   return async context =>
@@ -96,9 +94,6 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 		// 		   await next(context);
 		// 	   };
 		//    });
-	});
-
-
 	options.Limits.MaxConcurrentConnections = 5;
 	options.ConfigureHttpsDefaults(opt =>
 	{
@@ -244,22 +239,22 @@ app.UseRewriter(rewriteOptions);
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.Use(async (context, next) =>
-		{
-			if (context.Request.IsHttps)
-			{
-				var clientCert = context.Connection.ClientCertificate;
-				if (clientCert == null)
-				{
-					// Le certificat client n'est pas fourni, retournez une réponse indiquant que le certificat client est requis
-					context.Response.StatusCode = StatusCodes.Status403Forbidden;
-					await context.Response.WriteAsync("Certificat client requis pour accéder à cette ressource.");
-					return;
-				}
-			}
+// app.Use(async (context, next) =>
+// 		{
+// 			if (context.Request.IsHttps)
+// 			{
+// 				var clientCert = context.Connection.ClientCertificate;
+// 				if (clientCert == null)
+// 				{
+// 					// Le certificat client n'est pas fourni, retournez une réponse indiquant que le certificat client est requis
+// 					context.Response.StatusCode = StatusCodes.Status403Forbidden;
+// 					await context.Response.WriteAsync("Certificat client requis pour accéder à cette ressource.");
+// 					return;
+// 				}
+// 			}
 
-			await next();
-		});
+// 			await next();
+// 		});
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseEndpoints(endpoints =>
