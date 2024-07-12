@@ -1,5 +1,9 @@
+/* groovylint-disable-next-line CompileStatic */
 pipeline {
-    agent any
+    agent
+    {
+        label 'Linux'
+    }
 
     stages {
         stage('Checkout') {
@@ -13,10 +17,10 @@ pipeline {
         stage('Build') {
             steps {
                 // Étape pour compiler le code (remplacez cette section par votre propre logique de build)
+                echo 'Building...'
                 sh 'ls /var/lib/jenkins/'
                 script: {
-                  /* groovylint-disable-next-line LineLength */
-                sh 'docker run -d -p 5163:5163 -p 7082:7082 -e ASPNETCORE_HTTP_PORT=5163 -e ASPNETCORE_URLS=http://+:5163 --name API arturlambodocker/tasksmanagement_api:v1.0'
+                sh 'dotnet clean'
                 }
             }
 
@@ -30,6 +34,7 @@ pipeline {
 
             stage('Deploy') {
                 steps {
+                    /* groovylint-disable-next-line LineLength */
                     // Étape pour déployer l'application (remplacez cette section par votre propre logique de déploiement)
                     echo "C'est l'étape de déploiement ici"
                 }
