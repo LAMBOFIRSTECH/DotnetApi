@@ -1,45 +1,96 @@
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
+using Castle.Core.Internal;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using TasksManagement_API.Interfaces;
-using TasksManagement_API.Models;
 namespace TasksManagement_API.Controllers
 {
-	[Route("[controller]")]
+	[ApiController]
+	[Route("api/v1.0/[controller]/")]
 	public class AccessTokenController : ControllerBase
 	{
-		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
-		private readonly IJwtTokenService jwtTokenService;
+		private readonly IReadUsersMethods readMethods;
+		private readonly IWriteUsersMethods writeUsersMethods;
+		private readonly IRemoveParametersIn removeParametersInUrl;
+		public AccessTokenController(IReadUsersMethods readMethods, IRemoveParametersIn removeParametersInUrl, IWriteUsersMethods writeUsersMethods)
+		{
 
-		public AccessTokenController(DailyTasksMigrationsContext dataBaseMemoryContext, IJwtTokenService jwtTokenService)
-		{
-			this.dataBaseMemoryContext = dataBaseMemoryContext;
-			this.jwtTokenService = jwtTokenService;
+			this.readMethods = readMethods;
+			this.writeUsersMethods = writeUsersMethods;
+			this.removeParametersInUrl = removeParametersInUrl;
+			Log.Logger = new LoggerConfiguration()
+			.WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+			.CreateLogger();
+
+
 		}
-		[HttpPost]
-		public async Task<IActionResult> Login(string email)
+		/// <summary>
+		/// Permet de générer un token JWt pour l'utilisateur Admin en fonction de son adresse mail
+		/// </summary>
+		/// <param name="email"></param>
+		/// <param name="secretUser"></param>
+		/// <returns></returns>
+		[HttpPost("Login")]
+		public async Task<ActionResult> Login(string email, [DataType(DataType.Password)] string secretUser)
 		{
-			try
+			string regexMatch = "(?<alpha>\\w+)@(?<mailing>[aA-zZ]+)\\.(?<domaine>[aA-zZ]+$)";
+
+			Match check = Regex.Match(email, regexMatch);
+			if (secretUser is null)
 			{
-				if (email is null)
-				{
-					return Conflict("Veuillez saisir une adresse mail valide");
-				}
-				var utilisateur = dataBaseMemoryContext.Utilisateurs.Where(u => u.Email.ToUpper().Equals(email.ToUpper())).FirstOrDefault();
-				if (utilisateur is null)
-				{
-					return Conflict("L'adresse mail n'existe pas dans le contexte");
-				}
-				if (utilisateur.Role != 0)
-				{
-					return Unauthorized("Vous ne disposez pas des droits suffisant !");
-				}
-				await Task.Delay(500);
-				return Ok(jwtTokenService.GenerateJwtToken(utilisateur.Email));
+				return Conflict("Veuillez remplir tous les champs");
 			}
-			catch
-			(Exception)
+			if (!check.Success)
 			{
-				return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur s'est produite ");
+				return NotFound("Cette adresse mail est invalide");
+			};
+
+			if (!readMethods.CheckUserSecret(secretUser) == true)
+			{
+				return Unauthorized("Votre clé secrète incorrect");
 			}
+			var token = await readMethods.GetToken(email);
+			return Ok(token);
+			// var uriParams = $"{email},{writeUsersMethods.EncryptUserSecret(secretUser)}";
+
+			// var newUrl = await removeParametersInUrl.AccessToken();
+			// if (newUrl.IsNullOrEmpty())
+			// {
+			// 	return BadRequest(newUrl);
+			// }
+
+			// try
+			// {
+			// 	using (var httpClient = new HttpClient())
+			// 	{
+			// 		var request = new HttpRequestMessage(HttpMethod.Post, newUrl);
+
+			// 		// Ajout du corps de la requête avec les paramètres requis
+			// 		request.Content = new StringContent(uriParams);
+
+			// 		var response = await httpClient.SendAsync(request);
+
+			// 		if (response.IsSuccessStatusCode)
+			// 		{
+			// 			var token = await readMethods.GetToken(email);
+			// 			return Ok(token);
+			// 		}
+			// 		else
+			// 		{
+			// 			Log.Error("Échec de la connexion SSL : {StatusCode} - {ReasonPhrase}", response.StatusCode, response.ReasonPhrase);
+			// 			return StatusCode((int)response.StatusCode, "La requête a échoué");
+			// 		}
+			// 	}
+			// }
+
+			// catch (Exception ex)
+			// {
+			// 	Log.Error(ex, "Une erreur s'est produite lors de la connexion");
+			// 	return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
+			// }
 		}
 	}
 }

@@ -4,17 +4,11 @@
         <name>TasksManagement_API</name>
     </assembly>
     <members>
-        <member name="M:TasksManagement_API.Repositories.TacheService.GetTaches">
+        <member name="M:TasksManagement_API.Controllers.AccessTokenController.Login(System.String)">
             <summary>
-            Renvoie la liste des taches.
+            Permet de générer un token JWt pour l'utilisateur Admin en fonction de son adresse mail
             </summary>
-            <returns></returns>
-        </member>
-        <member name="M:TasksManagement_API.Repositories.TacheService.GetTaskById(System.Nullable{System.Int32})">
-            <summary>
-            Renvoie une tache spécifique en fonction de son matricule
-            </summary>
-            <param name="matricule"></param>
+            <param name="email"></param>
             <returns></returns>
         </member>
         <member name="M:TasksManagement_API.Controllers.TasksManagementController.GetAllTasks">
@@ -93,11 +87,12 @@
             <param name="ID"></param>
             <returns></returns>
         </member>
-        <member name="M:TasksManagement_API.Controllers.UsersManagementController.UpdateUser(TasksManagement_API.Models.Utilisateur)">
+        <member name="M:TasksManagement_API.Controllers.UsersManagementController.UpdateUserPassword(System.String,System.String)">
             <summary>
-            Met à jour les informations d'un utilisateur.
+            Met à jour le mot de passe d'un utilisateur en fonction de son nom
             </summary>
-            <param name="utilisateur"></param>
+            <param name="nom"></param>
+            <param name="mdp"></param>
             <returns></returns>
         </member>
         <member name="T:TasksManagement_API.Models.Tache">
@@ -119,6 +114,19 @@
             <summary>
             Représente l'identifiant unique d'un utilisateur.
             </summary>
+        </member>
+        <member name="M:TasksManagement_API.ServicesRepositories.TacheService.GetTaches">
+            <summary>
+            Renvoie la liste des taches.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:TasksManagement_API.ServicesRepositories.TacheService.GetTaskById(System.Nullable{System.Int32})">
+            <summary>
+            Renvoie une tache spécifique en fonction de son matricule
+            </summary>
+            <param name="matricule"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

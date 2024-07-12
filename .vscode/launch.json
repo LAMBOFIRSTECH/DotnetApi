@@ -7,9 +7,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/bin/Debug/net6.0/TasksManagement_API.dll",
+            "program": "${workspaceFolder}/TasksManagement_API/bin/Debug/net6.0/TasksManagement_API.dll",
             "args": [],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/TasksManagement_API/",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {
@@ -17,10 +17,10 @@
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT":  "Development"
             },
             "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
+                "/Views": "${workspaceFolder}/TasksManagement_Tests/Views"
             }
         },
         {
@@ -33,9 +33,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/bin/Debug/net6.0/TasksManagement_Tests.dll",
+            "program": "${workspaceFolder}/TasksManagement_Tests/bin/Debug/net6.0/TasksManagement_Tests.dll",
             "args": [],
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/TasksManagement_Tests",
             "stopAtEntry": false,
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development"

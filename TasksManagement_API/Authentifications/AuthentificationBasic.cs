@@ -5,10 +5,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Security.Claims;
-using TasksManagement_API.Interfaces;
-namespace TasksManagement_API.Repositories
+namespace TasksManagement_API.Authentifications
 {
-	public class AuthentificationBasic : AuthenticationHandler<AuthenticationSchemeOptions>
+    public class AuthentificationBasic : AuthenticationHandler<AuthenticationSchemeOptions>
 	{
 		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
 		public AuthentificationBasic(DailyTasksMigrationsContext dataBaseMemoryContext, IOptionsMonitor<AuthenticationSchemeOptions> options,
@@ -30,7 +29,7 @@ namespace TasksManagement_API.Repositories
 				var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
 				if (authHeader.Scheme.Equals("Basic", StringComparison.OrdinalIgnoreCase))
 				{
-					var credentialBytes = Convert.FromBase64String(authHeader.Parameter);
+					var credentialBytes = Convert.FromBase64String(authHeader.Parameter!);
 					var credentials = Encoding.UTF8.GetString(credentialBytes).Split(':', 2);
 					var username = credentials[0];
 					var password = credentials[1];
@@ -65,7 +64,6 @@ namespace TasksManagement_API.Repositories
 				return AuthenticateResult.Fail($"Authentication failed: {ex.Message}");
 			}
 		}
-
 		private async Task<bool> IsValidCredentials(string username, string password)
 		{
 			var utilisateur = dataBaseMemoryContext.Utilisateurs.FirstOrDefault(u => u.Nom == username);

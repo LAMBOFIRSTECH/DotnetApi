@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
-
-
 namespace TasksManagement_API.Controllers;
 
 [ApiController]
@@ -14,17 +12,21 @@ public class UsersManagementController : ControllerBase
 {
 	private readonly IReadUsersMethods readMethods;
 	private readonly IWriteUsersMethods writeMethods;
-	public UsersManagementController(IReadUsersMethods readMethods, IWriteUsersMethods writeMethods) { this.readMethods = readMethods; this.writeMethods = writeMethods; }
+	public UsersManagementController(IReadUsersMethods readMethods, IWriteUsersMethods writeMethods)
+	{
+		this.readMethods = readMethods; this.writeMethods = writeMethods;
+	}
 
 	/// <summary>
 	/// Affiche la liste de tous les utilisateurs.
 	/// </summary>
 	[Authorize(Policy = "AdminPolicy")]
 	[HttpGet("GetAllUsers")]
-	//[Authorize(Policy = "AdminPolicy",Roles =nameof(Utilisateur.Privilege.Admin))]
 	public async Task<ActionResult> GetUsers()
 	{
-		return Ok(await readMethods.GetUsers());
+		var users = await readMethods.GetUsers();
+		if (users.Any()) { return Ok(users); }
+		return NotFound();
 	}
 
 	/// <summary>
@@ -45,9 +47,9 @@ public class UsersManagementController : ControllerBase
 			}
 			return NotFound("Utilisateur non trouvé.");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, "Une erreur s'est produite ");
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 
@@ -74,8 +76,9 @@ public class UsersManagementController : ControllerBase
 	/// </remarks>
 
 	[HttpPost("CreateUser/")]
-	public async Task<IActionResult> CreateUser(int identifiant, string nom, [DataType(DataType.Password)] string mdp, string role, [DataType(DataType.EmailAddress)] string email)
+	public async Task<ActionResult> CreateUser(int identifiant, string nom, [DataType(DataType.Password)] string mdp, string role, string email)
 	{
+
 		try
 		{
 			Utilisateur.Privilege privilege;
@@ -92,19 +95,32 @@ public class UsersManagementController : ControllerBase
 				Email = email
 			};
 			var listUtilisateurs = await readMethods.GetUsers();
-			foreach (var item in listUtilisateurs)
+			var utilisateurExistant = listUtilisateurs.FirstOrDefault(item => item.Nom == nom && item.Role == privilege);
+			if (utilisateurExistant != null)
 			{
-				if (item.Nom == nom && item.Role == privilege)
-				{
-					return Conflict("Cet utilisateur est déjà présent");
-				}
+				return Conflict("Cet utilisateur est déjà présent");
 			}
+
+			var utilisateurAvecMemeNom = listUtilisateurs.FirstOrDefault(item => item.Nom == nom);
+			if (utilisateurAvecMemeNom != null)
+			{
+				var nouveauNomUtilisateur = $"{nom}_1";
+				if (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
+				{
+					return Conflict("Cet utilisateur possède déjà ce rôle");
+				}
+				newUtilisateur.Nom = nouveauNomUtilisateur;
+			}
+
 			await writeMethods.CreateUser(newUtilisateur);
+
+			//string newUrl=await removeParametersInUrl.EraseParametersInUri();
 			return Ok("La ressource a bien été créée");
+
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la création d'un utilisateur");
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 	/// <summary>
@@ -114,7 +130,7 @@ public class UsersManagementController : ControllerBase
 	/// <returns></returns>
 	[Authorize(Policy = "AdminPolicy")]
 	[HttpDelete("DeleteUser/{ID:int}")]
-	public async Task<IActionResult> DeleteUserById(int ID)
+	public async Task<ActionResult> DeleteUserById(int ID)
 	{
 		var utilisateur = await readMethods.GetUserById(ID);
 		try
@@ -123,40 +139,39 @@ public class UsersManagementController : ControllerBase
 			{
 				return NotFound($"L'utilisateur id=[{ID}] n'a pas été trouvé dans le contexte de base de données");
 			}
-
 			await writeMethods.DeleteUserById(ID);
 			return Ok("La donnée a bien été supprimée");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, "Error deleting data");
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 
 	/// <summary>
-	/// Met à jour les informations d'un utilisateur.
+	/// Met à jour le mot de passe d'un utilisateur en fonction de son nom
 	/// </summary>
-	/// <param name="utilisateur"></param>
+	/// <param name="nom"></param>
+	/// <param name="password"></param>
+	/// <param name="newpassword"></param>
 	/// <returns></returns>
-	[Authorize(Policy = "AdminPolicy")]
-	[HttpPut("UpdateUser")]
-	public async Task<IActionResult> UpdateUser([FromBody] Utilisateur utilisateur)
+	[HttpPatch("SetUserPassword")]
+	public async Task<ActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string password, [DataType(DataType.Password)] string newpassword)
 	{
 		try
 		{
-			var item = await readMethods.GetUserById(utilisateur.ID);
-			if (item is null)
+			if (password == newpassword)
 			{
-				return NotFound($"Cet utilisateur n'existe plus dans le contexte de base de données");
+				return Conflict("Le mot de passe saisi existe déjà.");
 			}
-			await (item.ID == utilisateur.ID ? writeMethods.UpdateUser(utilisateur) : Task.CompletedTask);
-			return Ok($"Les infos de l'utilisateur [{item.ID}] ont bien été modifiées.");
+
+			await writeMethods.SetUserPassword(nom, newpassword);
+			return Ok($"Le mot de passe de l'utilisateur [{nom}] a bien été modifié.");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError,
-					  "Error deleting data");
+					  ex.Message.Trim());
 		}
 	}
 }
-

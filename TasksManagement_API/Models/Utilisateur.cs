@@ -1,12 +1,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
-using System.Xml.Serialization;
-using Microsoft.AspNetCore.Components;
-using Swashbuckle.AspNetCore.Annotations;
 using Newtonsoft.Json;
-using TasksManagement_API.SwaggerFilters;
+using System.Text.RegularExpressions;
 
 namespace TasksManagement_API.Models;
 /// <summary>
@@ -20,12 +15,11 @@ public class Utilisateur
 	/// </summary>
 	[Key]
 	public int ID { get; set; }
+	//public Guid UserId { get; set; } A revoir
 	[Required]
 	public string? Nom { get; set; }
-	
+
 	[Required]
-	[DataType(DataType.EmailAddress)]
-	[EmailAddress]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 	public string Email { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -34,10 +28,10 @@ public class Utilisateur
 	[EnumDataType(typeof(Privilege))]
 	[Required]
 	public Privilege Role { get; set; }
-	
+
 	[Required]
+	[Category("Security")]
 	[System.Text.Json.Serialization.JsonIgnore] // set à disable le mot de passe dans la serialisation json
-	[SwaggerSchema(Description = "Mot de passe de l'utilisateur", Format = "password")]
 	public string? Pass { get; set; }
 	public bool CheckHashPassword(string? password)
 	{
@@ -49,6 +43,16 @@ public class Utilisateur
 		{
 			Pass = BCrypt.Net.BCrypt.HashPassword($"{password}");
 		}
-		return Pass;
+		return Pass!;
+	}
+	public bool CheckEmailAdress(string? email)
+	{
+		string regexMatch = "(?<alpha>\\w+)@(?<mailing>[aA-zZ]+)\\.(?<domaine>[aA-zZ]+$)";
+		if (string.IsNullOrEmpty(email))
+		{
+			return false;
+		}
+		Match check = Regex.Match(email, regexMatch);
+		return check.Success;	
 	}
 }

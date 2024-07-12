@@ -3,19 +3,23 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.DependencyInjection;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
-using TasksManagement_API.Repositories;
+using TasksManagement_API.ServicesRepositories;
 using TasksManagement_API.Authentifications;
 using TasksManagement_API.SwaggerFilters;
-using TasksManagement_API.Controllers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using Tasks_WEB_API.SwaggerFilters;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using System.Net;
+using Microsoft.AspNetCore.Authentication.Certificate;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Server.Kestrel.Https;
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -30,11 +34,6 @@ builder.Services.AddSwaggerGen(opt =>
 		{
 			Name = "Artur Lambo",
 			Email = "lamboartur94@gmail.com"
-		},
-		License = new OpenApiLicense
-		{
-			Name = "Example License",
-			Url = new Uri("https://example.com/license")
 		}
 	});
 	opt.OperationFilter<RemoveParameterFilter>();
@@ -48,35 +47,121 @@ builder.Services.AddCors(options =>
 	options.AddPolicy(name: MyAllowSpecificOrigins,
 					  policy =>
 					  {
-						  policy.WithOrigins("https://localhost:7082", "http://lambo.lft:5163/");
+						  policy.WithOrigins("https://lambo.net:7082", "http://lambo.net:5163/");
 					  });
 });
 
-builder.Configuration.AddJsonFile("appsettings.json");
+// Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
+
+builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json",
+optional: true, reloadOnChange: true
+);
 builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 {
-	string conStrings = builder.Configuration.GetConnectionString("DefaultConnection");
+	var item = builder.Configuration.GetSection("TasksManagement_API");
+	var conStrings = item["DefaultConnection"];
 
 	opt.UseInMemoryDatabase(conStrings);
 });
+
+builder.Services.AddControllersWithViews();
+builder.Services.AddRouting();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddDataProtection();
 builder.Services.AddHealthChecks();
+
+// Kestrel -> serveur web par defaut dans aspnet :Cest le gestionnaires des connexions entrantes y compris les connexions en https : On va spécifier le certificat à utiliser pour les connection en HTTPS.
+var kestrelSection = builder.Configuration.GetSection("Kestrel:EndPoints:Https");
+var certificateFile = kestrelSection["Certificate:File"];
+var certificatePassword = kestrelSection["Certificate:Password"];
+builder.Services.Configure<KestrelServerOptions>(options =>
+{
+	var host = Dns.GetHostEntry("lambo.net");
+	options.Listen(host.AddressList[0], 7083, listenOptions =>
+	{
+		listenOptions.UseHttps(certificateFile, certificatePassword);
+	});
+		// 	listenOptions.Use(next =>
+		//    {
+		// 	   return async context =>
+		// 	   {
+		// 		   var tlsFeature = context.Features.Get<ITlsHandshakeFeature>();
+		// 		   if (tlsFeature != null && tlsFeature.CipherAlgorithm == CipherAlgorithmType.Null)
+		// 		   {
+		// 			   throw new NotSupportedException("Prohibited cipher: Null cipher algorithm");
+		// 		   }
+
+		// 		   await next(context);
+		// 	   };
+		//    });
+	options.Limits.MaxConcurrentConnections = 5;
+	options.ConfigureHttpsDefaults(opt =>
+	{
+		opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate; // le client doit fournir un certificaat valid pour que l'authentification réussit
+
+	});
+});
+
+builder.Services.AddScoped<RemoveParametersInUrl>();
+builder.Services.AddScoped<IRemoveParametersIn, RemoveParametersInUrl>();
 builder.Services.AddScoped<IReadUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IWriteUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IReadTasksMethods, TacheService>();
 builder.Services.AddScoped<IWriteTasksMethods, TacheService>();
-builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
+builder.Services.AddTransient<IJwtTokenService, JwtBearerAuthentificationService>();
+builder.Services.AddLogging();
 builder.Services.AddAuthorization();
+
+// On va ajouter l'authentification via un certificat SSL/TLS 
+builder.Services.AddAuthentication("CertificateAuthentication")
+.AddCertificate()
+   .AddCertificateCache(opt =>
+		{
+			opt.CacheSize = 1024;
+			opt.CacheEntryExpiration = TimeSpan.FromMinutes(2); // Activer la mise en cache pour des besoins de performances
+		})
+
+	.AddScheme<CertificateAuthenticationOptions, AuthenticationCertification>("CertificateAuthentication", options =>
+	{
+		options.AllowedCertificateTypes = CertificateTypes.All; //On précise le type de certificate
+		options.ChainTrustValidationMode = X509ChainTrustMode.CustomRootTrust; // Mode de confiance personnalisée pour la racine
+		options.CustomTrustStore = new X509Certificate2Collection(); // Collection personnalisée de certificats de confiance
+
+		options.CustomTrustStore.Import(certificateFile, certificatePassword, X509KeyStorageFlags.MachineKeySet);
+
+
+		options.Events = new CertificateAuthenticationEvents()
+		{
+			OnCertificateValidated = context =>
+			{
+				var validationService =
+					context.HttpContext.RequestServices
+					.GetRequiredService<AuthenticationCertification>();
+
+				if (validationService.ValidateCertificate(
+					context.ClientCertificate))
+				{
+					context.Success();
+				}
+
+				return Task.CompletedTask;
+			}
+		};
+	});
+
+
+
+// On va ajouter l'authentification basic avec le nom "BasicAuthentication" sans options
 builder.Services.AddAuthentication("BasicAuthentication")
 	.AddScheme<AuthenticationSchemeOptions, AuthentificationBasic>("BasicAuthentication", options => { });
 
-
-// Ajouter l'authentification JWT avec le nom "JwtAuthentification"
-builder.Services.AddAuthentication("JwtAuthentification")
-	// Ajouter le schéma d'authentification personnalisé JwtBearer avec les options par défaut
-	.AddScheme<JwtBearerOptions, JwtBearerAuthentification>("JwtAuthentification", options =>
+// On va ajouter l'authentification JWT Bearer avec le nom "JwtAuthentification"
+builder.Services.AddAuthentication("JwtAuthorization")
+	// On va ajouter le schéma d'authentification personnalisé JwtBearer avec les options par défaut
+	.AddScheme<JwtBearerOptions, JwtBearerAuthorizationServer>("JwtAuthorization", options =>
 	{
 		var JwtSettings = builder.Configuration.GetSection("JwtSettings");
-		var secretKeyLength = int.Parse(JwtSettings["SecretKey"]);
+		var secretKeyLength = int.Parse(JwtSettings["JwtSecretKey"]);
 		var randomSecretKey = new RandomUserSecret();
 		var signingKey = randomSecretKey.GenerateRandomKey(secretKeyLength);
 
@@ -102,12 +187,12 @@ builder.Services.AddAuthorization(options =>
 	 options.AddPolicy("AdminPolicy", policy =>
 		 policy.RequireRole(nameof(Utilisateur.Privilege.Admin))
 			   .RequireAuthenticatedUser()
-			   .AddAuthenticationSchemes("JwtAuthentification"));
+			   .AddAuthenticationSchemes("JwtAuthorization"));
 
 
 	 // Politique d'autorisation pour les utilisateurs non-administrateurs
 	 options.AddPolicy("UserPolicy", policy =>
-		 policy.RequireRole(nameof(Utilisateur.Privilege.UserX))
+		policy.RequireRole(nameof(Utilisateur.Privilege.UserX))
 			   .RequireAuthenticatedUser()  // L'utilisateur doit être authentifié
 			   .AddAuthenticationSchemes("BasicAuthentication"));
 
@@ -126,19 +211,50 @@ if (app.Environment.IsDevelopment())
 
 	 });
 }
+else if (app.Environment.IsStaging())
+{
+
+}
 else if (app.Environment.IsProduction())
 {
 	// Gérer les erreurs dans un environnement de production
 	app.UseExceptionHandler("/Error");
 	app.UseHsts();
+	app.UseSwagger();
+	app.UseSwaggerUI(con =>
+	 {
+		 con.SwaggerEndpoint("/swagger/1.0/swagger.json", "Daily Tasks Management API");
+
+		 con.RoutePrefix = string.Empty;
+
+	 });
 }
 
-app.UseCors(MyAllowSpecificOrigins);
+//app.UseCors(MyAllowSpecificOrigins);
 var rewriteOptions = new RewriteOptions()
-	 .AddRewrite(@"^www\.taskmoniroting/Taskmanagement", "https://localhost:7082/index.html", true);
-//app.UseHttpsRedirection();
+	.AddRewrite(@"^index\.html$", "https://lambo.net/index.html", true)
+	.AddRedirectToHttpsPermanent();
 app.UseRewriter(rewriteOptions);
+
+
+app.UseHttpsRedirection();
 app.UseRouting();
+// app.Use(async (context, next) =>
+// 		{
+// 			if (context.Request.IsHttps)
+// 			{
+// 				var clientCert = context.Connection.ClientCertificate;
+// 				if (clientCert == null)
+// 				{
+// 					// Le certificat client n'est pas fourni, retournez une réponse indiquant que le certificat client est requis
+// 					context.Response.StatusCode = StatusCodes.Status403Forbidden;
+// 					await context.Response.WriteAsync("Certificat client requis pour accéder à cette ressource.");
+// 					return;
+// 				}
+// 			}
+
+// 			await next();
+// 		});
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseEndpoints(endpoints =>

@@ -3,16 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 namespace TasksManagement_API.Controllers;
-
 [ApiController]
-//[Area("TasksDocumentation")]
-[Route("api/v1.0/")]
+[Route("api/v1.0/[controller]/")]
 
 public class TasksManagementController : ControllerBase
 {
 	private readonly IReadTasksMethods readMethods;
 	private readonly IWriteTasksMethods writeMethods;
-	public TasksManagementController(IReadTasksMethods readMethods,IWriteTasksMethods writeMethods)
+	public TasksManagementController(IReadTasksMethods readMethods, IWriteTasksMethods writeMethods)
 	{
 		this.readMethods = readMethods;
 		this.writeMethods = writeMethods;
@@ -23,7 +21,7 @@ public class TasksManagementController : ControllerBase
 	/// </summary>
 	/// <returns></returns>
 	[Authorize(Policy = "UserPolicy")]
-	[HttpGet("~/GetAllTasks")]
+	[HttpGet("GetAllTasks/")]
 	public async Task<IActionResult> GetAllTasks()
 	{
 		var taches = await readMethods.GetTaches();
@@ -36,7 +34,7 @@ public class TasksManagementController : ControllerBase
 	/// <param name="Matricule"></param>
 	/// <returns></returns>
 	[Authorize(Policy = "UserPolicy")]
-	[HttpGet("~/GetTaskByID/{Matricule:int}")]
+	[HttpGet("GetTaskByID/{Matricule:int}")]
 	public async Task<IActionResult> SelectTask(int Matricule)
 	{
 		try
@@ -48,9 +46,9 @@ public class TasksManagementController : ControllerBase
 			}
 			return NotFound("tache non trouvée.");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, $"Une erreur s'est produite dans la recherche de la ressource {Matricule}.");
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 
@@ -59,7 +57,7 @@ public class TasksManagementController : ControllerBase
 	/// </summary>
 	/// <param name="tache"></param>
 	/// <returns></returns>
-	[HttpPost("~/CreateTask")]
+	[HttpPost("CreateTask/")]
 	public async Task<IActionResult> CreateTask([FromBody] Tache tache)
 	{
 		try
@@ -76,20 +74,19 @@ public class TasksManagementController : ControllerBase
 				}
 			};
 			var listTaches = await readMethods.GetTaches();
-			foreach (var item in listTaches)
-			{
-				if (item.Matricule == tache.Matricule)
-				{
+			var tacheExistante = listTaches.FirstOrDefault(item => item.Matricule == tache.Matricule);
 
-					return Conflict("Cette tache est déjà présente");
-				}
+			if (tacheExistante != null)
+			{
+				return Conflict("Cette tache est déjà présente");
 			}
+
 			await writeMethods.CreateTask(newTache);
 			return Ok("La ressource a bien été créée");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, "Erreur lors de la création de la ressource tache.");
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 
@@ -99,7 +96,7 @@ public class TasksManagementController : ControllerBase
 	/// <param name="Matricule"></param>
 	/// <returns></returns>
 	[Authorize(Policy = "AdminPolicy")]
-	[HttpDelete("~/DeleteTask/{Matricule:int}")]
+	[HttpDelete("DeleteTask/{Matricule:int}")]
 	public async Task<IActionResult> DeleteTaskById(int Matricule)
 	{
 		var tache = await readMethods.GetTaskById(Matricule);
@@ -113,10 +110,10 @@ public class TasksManagementController : ControllerBase
 
 			return Ok("La donnée a bien été supprimée");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError,
-					  "Error deleting data");
+					  ex.Message.Trim());
 		}
 	}
 
@@ -126,7 +123,7 @@ public class TasksManagementController : ControllerBase
 	/// <param name="tache"></param>
 	/// <returns></returns>
 	[Authorize(Policy = "AdminPolicy")]
-	[HttpPut("~/UpdateTask")]
+	[HttpPut("UpdateTask/")]
 	public async Task<IActionResult> UpdateTask([FromBody] Tache tache)
 	{
 		try
@@ -142,10 +139,11 @@ public class TasksManagementController : ControllerBase
 			}
 			return Ok($"Les infos de la tache [{item.Matricule}] ont bien été modifiées avec succès.");
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
 			return StatusCode(StatusCodes.Status500InternalServerError,
-					  "Error lors de la suppression de la ressource");
+					  ex.Message.Trim());
 		}
 	}
+
 }

@@ -4,16 +4,15 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
-using Microsoft.OpenApi.Extensions;
 
 namespace TasksManagement_API.Authentifications
 {
-	public class JwtTokenService : IJwtTokenService
+    public class JwtBearerAuthentificationService : IJwtTokenService
 	{
 		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
 		private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
 
-		public JwtTokenService(DailyTasksMigrationsContext dataBaseMemoryContext, Microsoft.Extensions.Configuration.IConfiguration configuration)
+		public JwtBearerAuthentificationService(DailyTasksMigrationsContext dataBaseMemoryContext, Microsoft.Extensions.Configuration.IConfiguration configuration)
 		{
 			this.dataBaseMemoryContext = dataBaseMemoryContext;
 			this.configuration = configuration;
@@ -21,17 +20,18 @@ namespace TasksManagement_API.Authentifications
 		public string GetSigningKey()
 		{
 			var JwtSettings = configuration.GetSection("JwtSettings");
-			int secretKeyLength = int.Parse(JwtSettings["SecretKey"]);
+			int secretKeyLength = int.Parse(JwtSettings["JwtSecretKey"]);
 			var randomSecretKey = new RandomUserSecret();
 			string signingKey = randomSecretKey.GenerateRandomKey(secretKeyLength);
 			return signingKey;
 		}
 		public string GenerateJwtToken(string email)
 		{
-			var utilisateur = dataBaseMemoryContext.Utilisateurs.Where(u => u.Email.ToUpper().Equals(email.ToUpper())).FirstOrDefault();
+			var utilisateur = dataBaseMemoryContext.Utilisateurs
+			.Single(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
 			if (utilisateur is null)
 			{
-				throw new ArgumentException();
+				throw new ArgumentException("Cet utilisateur n'existe pas");
 			}
 			var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(GetSigningKey()));
 			var tokenHandler = new JwtSecurityTokenHandler();

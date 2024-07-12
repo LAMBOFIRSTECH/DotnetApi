@@ -1,0 +1,51 @@
+S--> Single resposability : Chaque classe doit avoir une seule responsabilité (créer un dossier repository précédé du nom de la classe et implémenter les méthodes de cette classe)
+O--> Rendre la classe extensible
+LID
+Créer un tag avant de git push 
+Revoir cette méthode UpdateUser si elle fonctionne bien supp la méthode PartialUpdateUser 
+ docker run -d -p 5163:5163 -p 7082:7082 -e ASPNETCORE_HTTP_PORT=5163 -e ASPNETCORE_URLS=http://+:5163 --name API arturlambodocker/tasksmanagement_api:v1.0
+
+dotnet run --environment <Production> --project TasksManagement_API
+dotnet run --launch-profile "TasksManagement_API-Production"  --environment "Production" --project TasksManagement_API
+Définir dans le fichier launchSettings.json :
+    - On peut spécifier le profie par environnement 
+    - Regarde aussi le fichier Programs et la façon dont on lance les environnements
+    - On peut aussi définir l'url de l'app par environment
+    - Il faut trouver le moyen de faire lire le fichier de conf appsettings qui va bien par environnement
+    - Gestion des secrets par environnement
+    - dans appsetings Issuer et audience définir une liste d'urls
+    -Quand on merge sur Master éviter de merger le fichier launchSettings.json car pas utiliser en Production
+
+dotnet user-secrets init  --project TasksManagement_API : Pour utiliser les secrets utilisateur, exécutez la commande en se servant de l'outil Secret Manager
+ dotnet user-secrets set  "TasksManagement:ServiceApiKey" "password$1" --project TasksManagement_API : Nous permet de définir un mot de passe pour notre ServiceApiKey dans le project
+ NB: plus besoin de renseigner cela dans les fichiers de configurations appsettings.* cependant on peut toujours le lire en utilisant IConfiguration.
+
+ The SSL connection could not be established
+ -> Vérifier la présence du certificat https 
+ openssl x509 -in /usr/local/share/ca-certificates/aspnet/https.crt -text -noout
+ - si oui :
+ -> mettre à jour 
+ -> openssl pour vérifier sa validité
+
+ -si non :
+ 1: Générez la clé privée protégée par un mot de passe avec OpenSSL
+ -> openssl genrsa -aes256 -out /usr/local/share/ca-certificates/aspnet/https.key -passout pass:lambohttps 4096 
+
+ -> powershell : $certname = "{certificateName}" <lambo.lft>
+                $cert = New-SelfSignedCertificate -Subject "CN=$certname" -CertStoreLocation "Cert:\CurrentUser\My" -KeyExportPolicy Exportable -KeySpec Signature -KeyLength 2048 -KeyAlgorithm RSA -HashAlgorithm SHA256
+                $mypwd = ConvertTo-SecureString -String "{myPassword}" -Force -AsPlainText  ## Replace {myPassword} <lambo>
+                
+Cert:\CurrentUser\My : c'est le magasin de certificat personnalisé sous windows
+Cert:\LocalMachine\Root: c'est le magasin de certificats racine sous windows
+
+ 2: Générez le certificat SSL auto-signé en utilisant la clé privée que vous avez générée
+ -> openssl req -x509 -new -nodes -key /usr/local/share/ca-certificates/aspnet/https.key -sha256 -out /usr/local/share/ca-certificates/aspnet/https.crt -passin pass:lambohttps -subj "/CN=localhost" -days 365
+
+ 3: Mettez à jour le magasin de certificats pour inclure votre certificat auto-signé
+ -> sudo update-ca-certificates
+
+https.crt https.key : donner les droits à tous les utilisateurs 644
+dans appsettings on doit dire qu'il utilise notre certificat : kestrel
+dans Programs on injecte une dependance kestrel
+
+cacher ServiceApiKey dans la configuration
