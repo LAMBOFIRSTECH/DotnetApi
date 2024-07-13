@@ -1,7 +1,7 @@
 /* groovylint-disable-next-line CompileStatic */
 pipeline {
     agent {
-        label 'Linux'
+        label 'AD Docker Linux API Kubernetes'
     }
 
     stages {
@@ -16,7 +16,7 @@ pipeline {
             steps {
                 // Étape pour compiler le code (remplacez cette section par votre propre logique de build)
                 echo 'Building...'
-                sh 'ls /home/jenkins_linux_slave/workspace/Dotnet-Api-TasksManagement/'
+                sh 'ls /var/lib/jenkins/workspace/Dotnet-Api-TasksManagement/'
                 
                 //sh 'dotnet clean'  // Corrigé : Utilisez simplement sh 'dotnet clean' sans le bloc script
             }
