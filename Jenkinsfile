@@ -42,7 +42,8 @@ pipeline {
         // Actions à effectuer après l'exécution du pipeline
         success {
             echo 'Le pipeline s\'est exécuté avec succès!'
-            //sh 'rm -f Jenkinsfile' // Enlevez le Jenkinsfile si nécessaire
+            sh 'rm -f Jenkinsfile' // Enlevez le Jenkinsfile si nécessaire
+            sh 'rm -f Dockerfile' // Enlevez le Dockerfile si nécessaire
         }
 
         failure {
