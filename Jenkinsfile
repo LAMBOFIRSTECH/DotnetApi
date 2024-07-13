@@ -1,6 +1,6 @@
 /* groovylint-disable-next-line CompileStatic */
 pipeline {
-    agent any
+    agent {label 'Master'}
 
     stages {
         stage('Checkout') {
@@ -14,7 +14,7 @@ pipeline {
             steps {
                 // Étape pour compiler le code (remplacez cette section par votre propre logique de build)
                 echo 'Building...'
-                sh 'ls /var/lib/jenkins/workspace/Dotnet-Api-TasksManagement/'
+                sh 'ls /var/lib/jenkins/workspace/'
                 
                 //sh 'dotnet clean'  // Corrigé : Utilisez simplement sh 'dotnet clean' sans le bloc script
             }
