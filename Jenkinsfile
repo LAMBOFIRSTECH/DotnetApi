@@ -16,7 +16,8 @@ pipeline {
             steps {
                 // Étape pour compiler le code (remplacez cette section par votre propre logique de build)
                 echo 'Building...'
-                sh 'ls /var/lib/jenkins/'
+                sh 'ls /home/jenkins_linux_slave/workspace/Dotnet-Api-TasksManagement/'
+                
                 //sh 'dotnet clean'  // Corrigé : Utilisez simplement sh 'dotnet clean' sans le bloc script
             }
         }
