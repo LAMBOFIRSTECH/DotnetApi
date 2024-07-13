@@ -44,6 +44,7 @@ pipeline {
             echo 'Le pipeline s\'est exécuté avec succès!'
             sh 'rm -f Jenkinsfile' // Enlevez le Jenkinsfile si nécessaire
             sh 'rm -f Dockerfile' // Enlevez le Dockerfile si nécessaire
+            sh 'rm  *.sh *.txt *.png' // Enlevez le Dockerfile si nécessaire
         }
 
         failure {
