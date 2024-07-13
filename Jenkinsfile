@@ -49,7 +49,10 @@ pipeline {
 
         failure {
             echo 'Le pipeline a échoué!'
-            // Ajoutez ici des actions supplémentaires à effectuer en cas d'échec
+        }
+        always {
+            // Nettoyage après le build
+            cleanWs()
         }
     }
 }
