@@ -1,7 +1,7 @@
 /* groovylint-disable-next-line CompileStatic */
 pipeline {
     agent {
-        label 'AD Docker Linux API Kubernetes'
+        label 'Docker-Linux-Kubernetes-AD-API'
     }
 
     stages {
