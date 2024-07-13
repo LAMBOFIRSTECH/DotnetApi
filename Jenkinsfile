@@ -1,6 +1,6 @@
 /* groovylint-disable-next-line CompileStatic */
 pipeline {
-    agent Any
+    agent any
 
     stages {
         stage('Checkout') {
