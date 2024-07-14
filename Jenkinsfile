@@ -1,6 +1,6 @@
 /* groovylint-disable-next-line CompileStatic */
 pipeline {
-    agent {label 'Master'}
+    agent { label 'Linux' }
 
     stages {
         stage('Checkout') {
@@ -14,9 +14,13 @@ pipeline {
             steps {
                 // Étape pour compiler le code (remplacez cette section par votre propre logique de build)
                 echo 'Building...'
-                sh 'ls /var/lib/jenkins/workspace/'
-                
-                //sh 'dotnet clean'  // Corrigé : Utilisez simplement sh 'dotnet clean' sans le bloc script
+                sh '''
+                   docker ps -a
+                   docker images
+                   cd /home/jenkins_linux_slave/workspace/
+                   ls
+                   '''
+            //sh 'dotnet clean'  // Corrigé : Utilisez simplement sh 'dotnet clean' sans le bloc script
             }
         }
 
@@ -47,10 +51,6 @@ pipeline {
 
         failure {
             echo 'Le pipeline a échoué!'
-        }
-        always {
-            // Nettoyage après le build
-            cleanWs()
         }
     }
 }
