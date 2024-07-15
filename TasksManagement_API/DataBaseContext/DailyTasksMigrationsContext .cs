@@ -19,3 +19,4 @@ public class DailyTasksMigrationsContext : DbContext
 		base.OnModelCreating(modelBuilder);
 	}
 }
+

@@ -4,6 +4,7 @@ pipeline {
     environment {
         WORKSPACE_DIR = "${env.WORKSPACE}/Dotnet-Api-TasksManagement" // Définir la variable d'environnement
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
+        APP_NAME = "TasksManagement_API"
     }
 
     stages {
@@ -14,24 +15,22 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build ') {
             steps {
-                // Étape pour compiler le code (remplacez cette section par votre propre logique de build)
-                echo 'Building...'
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                   cd ${API_DIR}
-                   dotnet clean
-                   dotnet build
+                   cd ${WORKSPACE_DIR}
+                   ls
                    '''
             }
         }
 
-        stage('Test') {
+        stage('Lancement de Test Unitaires') {
             steps {
                 // Étape pour exécuter les tests (remplacez cette section par votre propre logique de test)
-                // Lancer le dotnet test sur l'application.
-                echo "C'est l'étape de test ici"
+                sh '''
+                   ls -ld
+                   '''
             }
         }
 
@@ -39,9 +38,9 @@ pipeline {
             steps {
                 // Étape pour déployer l'application (remplacez cette section par votre propre logique de déploiement)
                 echo "C'est l'étape de déploiement ici"
-                /* groovylint-disable-next-line GStringExpressionWithinString */
+                /* groovylint-disable-next-line DuplicateStringLiteral, GStringExpressionWithinString */
                 sh '''
-                   dotnet run
+                   ls -ld
                    '''
             }
         }
