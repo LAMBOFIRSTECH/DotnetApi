@@ -30,6 +30,7 @@ pipeline {
                 //Pousser l'image sur une registry
                 
                 sh '''
+                   cp ../Certs/ApiNet6Certificate.pfx .
                    docker build -t api-tasks .
                    '''
             }

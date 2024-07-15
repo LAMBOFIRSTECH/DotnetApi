@@ -16,7 +16,7 @@ RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj"  -c  Relea
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 
 WORKDIR /apiRepo
 COPY --from=build /app/ ./
-COPY ./Certs/ApiNet6Certificate.pfx /apiRepo/certificate.pfx
+COPY ../Certs/ApiNet6Certificate.pfx /apiRepo/certificate.pfx
 
 EXPOSE 5163
 EXPOSE 7082
