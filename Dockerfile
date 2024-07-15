@@ -17,6 +17,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /apiRepo
 COPY --from=build /app/ ./
 COPY ./Certs/ApiNet6Certificate.pfx /apiRepo/certificate.pfx
+# Définir les variables d'environnement pour le mot de passe du certificat
+ENV Certificate__Password="lambo"
 
 EXPOSE 5163
 EXPOSE 7082

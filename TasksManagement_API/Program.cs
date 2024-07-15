@@ -76,13 +76,13 @@ var certificateFile = kestrelSection["Certificate:File"];
 var certificatePassword = kestrelSection["Certificate:Password"];
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-	var host = Dns.GetHostEntry("lambo.net");
-	options.Listen(host.AddressList[0], 7083, listenOptions =>
+	//var host = Dns.GetHostEntry("lambo.net"); //Listen(host.AddressList[0]
+	options.ListenLocalhost(5163,  listenOptions =>
 	{
 		listenOptions.UseHttps(certificateFile, certificatePassword);
 	});
 		// 	listenOptions.Use(next =>
-		//    {
+		//    { 
 		// 	   return async context =>
 		// 	   {
 		// 		   var tlsFeature = context.Features.Get<ITlsHandshakeFeature>();
