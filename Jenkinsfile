@@ -4,31 +4,30 @@ pipeline {
     environment {
         WORKSPACE_DIR = "${env.WORKSPACE}/Dotnet-Api-TasksManagement" // Définir la variable d'environnement
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
-        APP_NAME = "TasksManagement_API"
+        APP_NAME = 'TasksManagement_API'
     }
 
     stages {
-        stage('Pré-traitement ') {
-            steps {
-                /* groovylint-disable-next-line GStringExpressionWithinString */
-                sh '''
-                    df -h ./
-                   '''
-            }
-        }
         stage('Clonage du référentiel GitHub') {
             steps {
                 // Étape pour récupérer le code depuis le référentiel Git
                 checkout scm
             }
         }
+        stage('Pré-traitement ') {
+            steps {
+                /* groovylint-disable-next-line GStringExpressionWithinString */
+                sh '''
+                    mv ../Certs ./
+                   '''
+            }
+        }
 
-      
         stage("Build de l'image docker") {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 //Pousser l'image sur une registry
-                
+
                 sh '''
                    cp ../Certs/ApiNet6Certificate.pfx .
                    docker build -t api-tasks .
