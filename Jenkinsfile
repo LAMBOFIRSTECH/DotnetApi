@@ -8,19 +8,28 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+        stage('Pré-traitement ') {
+            steps {
+                /* groovylint-disable-next-line GStringExpressionWithinString */
+                sh '''
+                   rm -rf *
+                   '''
+            }
+        }
+        stage('Clonage du référentiel GitHub') {
             steps {
                 // Étape pour récupérer le code depuis le référentiel Git
                 checkout scm
             }
         }
 
+      
         stage('Build ') {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
+                
                 sh '''
-                   cd ${WORKSPACE_DIR}
-                   ls
+                   docker build -t api-tasks .
                    '''
             }
         }
@@ -29,7 +38,7 @@ pipeline {
             steps {
                 // Étape pour exécuter les tests (remplacez cette section par votre propre logique de test)
                 sh '''
-                   ls -ld
+                   whoami
                    '''
             }
         }
@@ -40,7 +49,7 @@ pipeline {
                 echo "C'est l'étape de déploiement ici"
                 /* groovylint-disable-next-line DuplicateStringLiteral, GStringExpressionWithinString */
                 sh '''
-                   ls -ld
+                   ls -ld *
                    '''
             }
         }
