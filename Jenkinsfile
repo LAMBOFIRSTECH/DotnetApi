@@ -12,7 +12,7 @@ pipeline {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                   rm -rf *
+                    find . -mindepth 1 -maxdepth 1 ! -name 'Certs' -exec rm -rf {} +
                    '''
             }
         }
