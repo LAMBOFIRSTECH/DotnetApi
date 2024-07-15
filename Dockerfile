@@ -5,9 +5,11 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /source
 
 # Copie des fichiers du projet
-COPY ./TasksManagement_API/*.csproj . 
+COPY ./TasksManagement_API/*.csproj ./TasksManagement_API/
 # Restauration des dépendances
 RUN dotnet restore "./TasksManagement_API/TasksManagement_API.csproj" --disable-parallel
+
+COPY ./TasksManagement_API/ ./TasksManagement_API/
 # Publication de la solution
 RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj"  -c  Release -o /app --no-restore
 # Phase finale
