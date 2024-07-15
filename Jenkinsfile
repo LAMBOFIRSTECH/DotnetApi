@@ -18,7 +18,8 @@ pipeline {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                    mv ../Certs ./
+                    mkdir -p Certs
+                    cp ../Certs/ApiNet6Certificate.pfx ./Certs/
                    '''
             }
         }
@@ -29,7 +30,6 @@ pipeline {
                 //Pousser l'image sur une registry
 
                 sh '''
-                   cp ../Certs/ApiNet6Certificate.pfx .
                    docker build -t api-tasks .
                    '''
             }
