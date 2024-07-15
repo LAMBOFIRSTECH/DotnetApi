@@ -24,12 +24,21 @@ pipeline {
         }
 
       
-        stage('Build ') {
+        stage("Build de l'image docker") {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
+                //Pousser l'image sur une registry
                 
                 sh '''
                    docker build -t api-tasks .
+                   '''
+            }
+        }
+        stage('Démarrage du conteneur docker') {
+            steps {
+                // Étape pour exécuter les tests (remplacez cette section par votre propre logique de test)
+                sh '''
+                   docker run -d -p 5163:5163 -p 7082:7082 --name ${APP_NAME} api-tasks
                    '''
             }
         }
