@@ -1,3 +1,4 @@
+/* groovylint-disable NglParseError */
 /* groovylint-disable-next-line CompileStatic */
 pipeline {
     agent { label 'Linux' }
@@ -23,6 +24,29 @@ pipeline {
                    '''
             }
         }
+        stage('Vérification via SonarQube ') {
+            environment {
+                scannerHome = tool 'SonarQube Scanner' // Assurez-vous que cet outil est configuré dans Jenkins
+            }
+            steps {
+                script {
+                    /* groovylint-disable-next-line NestedBlockDepth */
+                    withSonarQubeEnv('My SonarQube Server') {
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=sonar ${APP_NAME}-project-1 \
+                            -Dsonar.projectName="${APP_NAME}" \
+                            -Dsonar.projectVersion=1.0 \
+                            -Dsonar.sources=${API_DIR} \
+                            -Dsonar.language=cs \
+                            -Dsonar.sourceEncoding=UTF-8 \
+                            -Dsonar.cs.opencover.reportsPaths=${API_DIR}/**/coverage.opencover.xml \
+                            -Dsonar.cs.vstest.reportsPaths=${API_DIR}/**/*.trx
+                        """
+                    }
+                }
+            }
+        }
 
         stage("Build de l'image docker") {
             steps {
@@ -36,7 +60,7 @@ pipeline {
         }
         stage('Démarrage du conteneur docker') {
             steps {
-                // Étape pour exécuter les tests (remplacez cette section par votre propre logique de test)
+                /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
                    docker run -d -p 5163:5163 -p 7082:7082 --name ${APP_NAME} api-tasks
                    '''
