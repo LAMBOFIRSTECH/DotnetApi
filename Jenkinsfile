@@ -6,6 +6,9 @@ pipeline {
         WORKSPACE_DIR = "${env.WORKSPACE}/Dotnet-Api-TasksManagement" // Définir la variable d'environnement
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
         APP_NAME = 'TasksManagement_API'
+        scannerHome = tool 'SonarQube Scan SourceCode' 
+            
+        
     }
 
     stages {
@@ -25,9 +28,6 @@ pipeline {
             }
         }
         stage('Vérification via SonarQube ') {
-            environment {
-                scannerHome = tool 'SonarQube Scanner' // Assurez-vous que cet outil est configuré dans Jenkins
-            }
             steps {
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
