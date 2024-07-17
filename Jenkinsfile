@@ -6,9 +6,8 @@ pipeline {
         WORKSPACE_DIR = "${env.WORKSPACE}/Dotnet-Api-TasksManagement" // Définir la variable d'environnement
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
         APP_NAME = 'TasksManagement_API'
-        scannerHome = tool 'SonarQube Scan SourceCode' 
-            
-        
+        scannerHome = tool 'SonarQube-Scan-SourceCode'
+
     }
 
     stages {
@@ -31,7 +30,7 @@ pipeline {
             steps {
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
-                    withSonarQubeEnv('My SonarQube Server') {
+                    withSonarQubeEnv('Severs-SonarQube') {
                         sh """
                             ${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=sonar ${APP_NAME}-project-1 \
