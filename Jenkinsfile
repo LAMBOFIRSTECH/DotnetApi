@@ -6,15 +6,15 @@ pipeline {
         WORKSPACE_DIR = "${env.WORKSPACE}"
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
         scannerHome = tool 'sonarscanner'
-        PROJECT_KEY="Sonar-web-api"
-        PROJECT_NAME="WEB_API"
-        PROJECT_VERSION="1.0"
-        SONAR_SCANNER_PATH=" ${scannerHome}/sonar-scanner-5.0.1.3006/bin/sonar-scanner"
-        //PROJECT_SOURCES="/home/jenkins_linux_slave/workspace/Dotnet-Api-TasksManagement/Dotnet-Api-TasksManagement/TasksManagement_API"
-        SONAR_LANGUAGE="cs"
-        SONAR_ENCODING="UTF-8"
-        OPENCOVER_REPORT_PATH="${API_DIR}/**/*.trx"
-        VSTEST_REPORT_PATH="${API_DIR}/**/*.trx"
+        PROJECT_KEY = 'Sonar-web-api'
+        PROJECT_NAME = 'WEB_API'
+        PROJECT_VERSION = '1.0'
+        SONAR_SCANNER_PATH = " ${scannerHome}/sonar-scanner-5.0.1.3006/bin/sonar-scanner"
+        SONAR_LANGUAGE = 'cs'
+        SONAR_ENCODING = 'UTF-8'
+        COVERAGE_PATH = "${WORKSPACE_DIR}/TestResults"
+        OPENCOVER_REPORT_PATH = "${COVERAGE_PATH}/**/coverage.cobertura.xml"
+        VSTEST_REPORT_PATH = "${COVERAGE_PATH}/**/*.trx"
 
     }
 
@@ -71,12 +71,12 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        if [ ! -f ${API_DIR}/../TestResults/coverage.opencover.xml ]; then
+                        if ! find ${COVERAGE_PATH} -type f -name 'coverage.cobertura.xml'; then
                             echo "Le rapport analytique introuvable*****************"
                             exit 1
                         fi
                     '''
-                    withSonarQubeEnv('SonarQube-Server') { // Remplacez par le nom de votre serveur SonarQube
+                    withSonarQubeEnv('SonarQube-Server') { 
                         sh """
                             ${SONAR_SCANNER_PATH} \
                             -Dsonar.projectKey=${PROJECT_KEY} \
@@ -86,7 +86,7 @@ pipeline {
                             -Dsonar.language=${SONAR_LANGUAGE} \
                             -Dsonar.sourceEncoding=${SONAR_ENCODING} \
                             -Dsonar.cs.opencover.reportsPaths=${OPENCOVER_REPORT_PATH} \
-                            -Dsonar.cs.vstest.reportsPaths=${OPENCOVER_REPORT_PATH}
+                            -Dsonar.cs.vstest.reportsPaths=${VSTEST_REPORT_PATH}
                         """
                     }
                 }
