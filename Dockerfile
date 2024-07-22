@@ -10,7 +10,7 @@ RUN dotnet restore "./TasksManagement_API/TasksManagement_API.csproj" --disable-
 
 # Copie du reste du code et publication de l'application
 COPY ./TasksManagement_API/ ./TasksManagement_API/
-RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj" -c Release -o /app --no-restore
+RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj" -c Release -o /app --no-restore || { echo 'dotnet publish failed'; exit 1; }
 
 # Phase finale
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime

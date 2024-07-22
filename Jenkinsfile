@@ -60,12 +60,13 @@ pipeline {
                 script {
                     dir(API_DIR) {
                         sh '''
-                            dotnet add package coverlet.collector
+                           
                             dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory ../TestResults
                         '''
                     }
                 }
             }
+            // dotnet add package coverlet.collector
         }
         stage('Vérification via SonarQube ') {
             steps {
