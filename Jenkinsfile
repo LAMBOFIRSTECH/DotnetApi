@@ -35,21 +35,12 @@ pipeline {
                 }
             }
         }
-        stage('Restauration des dépendances') {
+        stage('Restauration des dépendances et build de la solution') {
             steps {
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
                     dir(API_DIR) {
                         sh 'dotnet restore'
-                    }
-                }
-            }
-        }
-        stage('Build de la solution') {
-            steps {
-                script {
-                    /* groovylint-disable-next-line NestedBlockDepth */
-                    dir(API_DIR) {
                         sh 'dotnet build --no-restore'
                     }
                 }
@@ -100,7 +91,7 @@ pipeline {
                 //Pousser l'image sur une registry
 
                 sh '''
-                   docker build -t api-tasks .
+                   docker build --no-cache -t api-tasks -f Dockerfile .
                    '''
             }
         }
