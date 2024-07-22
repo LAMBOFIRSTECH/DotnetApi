@@ -3,10 +3,19 @@
 pipeline {
     agent { label 'Linux' }
     environment {
-        WORKSPACE_DIR = "${env.WORKSPACE}/Dotnet-Api-TasksManagement" // Définir la variable d'environnement
+        WORKSPACE_DIR = "${env.WORKSPACE}"
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
-        APP_NAME = 'TasksManagement_API'
         scannerHome = tool 'sonarscanner'
+        PROJECT_KEY="Sonar-web-api"
+        PROJECT_NAME="WEB_API"
+        PROJECT_VERSION="1.0"
+        SONAR_SCANNER_PATH=" ${scannerHome}/sonar-scanner-5.0.1.3006/bin/sonar-scanner"
+        //PROJECT_SOURCES="/home/jenkins_linux_slave/workspace/Dotnet-Api-TasksManagement/Dotnet-Api-TasksManagement/TasksManagement_API"
+        SONAR_LANGUAGE="cs"
+        SONAR_ENCODING="UTF-8"
+        OPENCOVER_REPORT_PATH="${API_DIR}/**/*.trx"
+        VSTEST_REPORT_PATH="${API_DIR}/**/*.trx"
+
     }
 
     stages {
@@ -16,30 +25,68 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Pré-traitement ') {
+        stage('Pré-traitement') {
             steps {
-                /* groovylint-disable-next-line GStringExpressionWithinString */
-                sh '''
-                    mkdir -p Certs
-                    cp ../Certs/ApiNet6Certificate.pfx ./Certs/
-                   '''
+                script {
+                    sh '''
+                        mkdir -p Certs
+                        cp ../Certs/ApiNet6Certificate.pfx ./Certs/
+                    '''
+                }
+            }
+        }
+        stage('Restauration des dépendances') {
+            steps {
+                script {
+                    /* groovylint-disable-next-line NestedBlockDepth */
+                    dir(API_DIR) {
+                        sh 'dotnet restore'
+                    }
+                }
+            }
+        }
+        stage('Build de la solution') {
+            steps {
+                script {
+                    /* groovylint-disable-next-line NestedBlockDepth */
+                    dir(API_DIR) {
+                        sh 'dotnet build --no-restore'
+                    }
+                }
+            }
+        }
+        stage('Lancement des Test et analyse de la couverture de code') {
+            steps {
+                script {
+                    dir(API_DIR) {
+                        sh '''
+                            dotnet add package coverlet.collector
+                            dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory ../TestResults
+                        '''
+                    }
+                }
             }
         }
         stage('Vérification via SonarQube ') {
             steps {
                 script {
-                    /* groovylint-disable-next-line NestedBlockDepth */
-                    withSonarQubeEnv('SonarQube-Server') {
+                    sh '''
+                        if [ ! -f ${API_DIR}/../TestResults/coverage.opencover.xml ]; then
+                            echo "Le rapport analytique introuvable*****************"
+                            exit 1
+                        fi
+                    '''
+                    withSonarQubeEnv('SonarQube-Server') { // Remplacez par le nom de votre serveur SonarQube
                         sh """
-                            ${scannerHome}/sonar-scanner-5.0.1.3006/bin/sonar-scanner \
-                            -Dsonar.projectKey=sonar ${APP_NAME}-project-1 \
-                            -Dsonar.projectName="${APP_NAME}" \
-                            -Dsonar.projectVersion=1.0 \
+                            ${SONAR_SCANNER_PATH} \
+                            -Dsonar.projectKey=${PROJECT_KEY} \
+                            -Dsonar.projectName="${PROJECT_NAME}" \
+                            -Dsonar.projectVersion=${PROJECT_VERSION} \
                             -Dsonar.sources=${API_DIR} \
-                            -Dsonar.language=cs \
-                            -Dsonar.sourceEncoding=UTF-8 \
-                            -Dsonar.cs.opencover.reportsPaths=${API_DIR}/**/coverage.opencover.xml \
-                            -Dsonar.cs.vstest.reportsPaths=${API_DIR}/**/*.trx
+                            -Dsonar.language=${SONAR_LANGUAGE} \
+                            -Dsonar.sourceEncoding=${SONAR_ENCODING} \
+                            -Dsonar.cs.opencover.reportsPaths=${OPENCOVER_REPORT_PATH} \
+                            -Dsonar.cs.vstest.reportsPaths=${OPENCOVER_REPORT_PATH}
                         """
                     }
                 }
@@ -60,27 +107,7 @@ pipeline {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                   docker run -d -p 5163:5163 -p 7082:7082 --name ${APP_NAME} api-tasks
-                   '''
-            }
-        }
-
-        stage('Lancement de Test Unitaires') {
-            steps {
-                // Étape pour exécuter les tests (remplacez cette section par votre propre logique de test)
-                sh '''
-                   whoami
-                   '''
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                // Étape pour déployer l'application (remplacez cette section par votre propre logique de déploiement)
-                echo "C'est l'étape de déploiement ici"
-                /* groovylint-disable-next-line DuplicateStringLiteral, GStringExpressionWithinString */
-                sh '''
-                   ls -ld *
+                   docker run -d -p 5163:5163 -p 7082:7082 --name ${PROJECT_NAME} api-tasks
                    '''
             }
         }
