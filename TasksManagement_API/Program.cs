@@ -52,8 +52,9 @@ builder.Services.AddCors(options =>
 });
 
 // Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
+/**  C'est Developpement.sjon de base**/
 
-builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json",
+builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json",
 optional: true, reloadOnChange: true
 );
 builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
