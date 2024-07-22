@@ -36,20 +36,12 @@ pipeline {
                    '''
             }
         }
-        stage('Démarrage du conteneur docker') {
+        stage('Exécution des tests') {
             steps {
+                // Exécuter les tests dans une nouvelle image construite à partir de l'image de construction
                 sh '''
-                   docker run -d -p 5163:5163 -p 7082:7082 --name ${PROJECT_NAME} api-tasks
+                   docker run --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults
                    '''
-            }
-        }
-        stage('Tests et analyse de la couverture de code') {
-            steps {
-                script {
-                    sh '''
-                        docker exec ${PROJECT_NAME} dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults
-                    '''
-                }
             }
         }
         stage('Vérification via SonarQube ') {
@@ -61,7 +53,7 @@ pipeline {
                             exit 1
                         fi
                     '''
-                    withSonarQubeEnv('SonarQube-Server') {
+                    withSonarQubeEnv('SonarQube-Server') { 
                         sh """
                             ${SONAR_SCANNER_PATH} \
                             -Dsonar.projectKey=${PROJECT_KEY} \
@@ -75,6 +67,13 @@ pipeline {
                         """
                     }
                 }
+            }
+        }
+        stage('Démarrage du conteneur docker') {
+            steps {
+                sh '''
+                   docker run -d -p 5163:5163 -p 7082:7082 --name ${PROJECT_NAME} api-tasks
+                   '''
             }
         }
     }
