@@ -1,7 +1,5 @@
-/* groovylint-disable NglParseError */
-/* groovylint-disable-next-line CompileStatic */
 pipeline {
-    agent { label 'Linux' }
+    agent { label 'Linux' } // Assurez-vous que Docker est installé sur cet agent
     environment {
         WORKSPACE_DIR = "${env.WORKSPACE}"
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
@@ -9,56 +7,50 @@ pipeline {
         PROJECT_KEY = 'Sonar-web-api'
         PROJECT_NAME = 'WEB_API'
         PROJECT_VERSION = '1.0'
-        SONAR_SCANNER_PATH = " ${scannerHome}/sonar-scanner-5.0.1.3006/bin/sonar-scanner"
+        SONAR_SCANNER_PATH = "${scannerHome}/sonar-scanner-5.0.1.3006/bin/sonar-scanner"
         SONAR_LANGUAGE = 'cs'
         SONAR_ENCODING = 'UTF-8'
         COVERAGE_PATH = "${WORKSPACE_DIR}/TestResults"
         OPENCOVER_REPORT_PATH = "${COVERAGE_PATH}/**/coverage.cobertura.xml"
         VSTEST_REPORT_PATH = "${COVERAGE_PATH}/**/*.trx"
-
     }
 
     stages {
         stage('Clonage du référentiel GitHub') {
             steps {
-                // Étape pour récupérer le code depuis le référentiel Git
                 checkout scm
             }
         }
         stage('Pré-traitement') {
             steps {
+                sh '''
+                    mkdir -p Certs
+                    cp ../Certs/ApiNet6Certificate.pfx ./Certs/
+                '''
+            }
+        }
+        stage('Build de l\'image docker') {
+            steps {
+                sh '''
+                   docker build -t api-tasks -f Dockerfile .
+                   '''
+            }
+        }
+        stage('Démarrage du conteneur docker') {
+            steps {
+                sh '''
+                   docker run -d -p 5163:5163 -p 7082:7082 --name ${PROJECT_NAME} api-tasks
+                   '''
+            }
+        }
+        stage('Tests et analyse de la couverture de code') {
+            steps {
                 script {
                     sh '''
-                        mkdir -p Certs
-                        cp ../Certs/ApiNet6Certificate.pfx ./Certs/
+                        docker exec ${PROJECT_NAME} dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults
                     '''
-                    // Suppression des env.json du projet dotnet qui ne sont pas mis pour la production
                 }
             }
-        }
-        stage('Restauration des dépendances et build de la solution') {
-            steps {
-                script {
-                    /* groovylint-disable-next-line NestedBlockDepth */
-                    dir(API_DIR) {
-                        sh 'dotnet restore'
-                        sh 'dotnet build --no-restore'
-                    }
-                }
-            }
-        }
-        stage('Lancement des Test et analyse de la couverture de code') {
-            steps {
-                script {
-                    dir(API_DIR) {
-                        sh '''
-                           
-                            dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory ../TestResults
-                        '''
-                    }
-                }
-            }
-            // dotnet add package coverlet.collector
         }
         stage('Vérification via SonarQube ') {
             steps {
@@ -69,7 +61,7 @@ pipeline {
                             exit 1
                         fi
                     '''
-                    withSonarQubeEnv('SonarQube-Server') { 
+                    withSonarQubeEnv('SonarQube-Server') {
                         sh """
                             ${SONAR_SCANNER_PATH} \
                             -Dsonar.projectKey=${PROJECT_KEY} \
@@ -85,36 +77,15 @@ pipeline {
                 }
             }
         }
-
-        stage("Build de l'image docker") {
-            steps {
-                /* groovylint-disable-next-line GStringExpressionWithinString */
-                //Pousser l'image sur une registry
-
-                sh '''
-                   docker build -t api-tasks -f Dockerfile .
-                   '''
-            }
-        }
-        stage('Démarrage du conteneur docker') {
-            steps {
-                /* groovylint-disable-next-line GStringExpressionWithinString */
-                sh '''
-                   docker run -d -p 5163:5163 -p 7250:7250 --name ${PROJECT_NAME} api-tasks
-                   '''
-            }
-        }
     }
 
     post {
-        // Actions à effectuer après l'exécution du pipeline
         success {
             echo 'Le pipeline s\'est exécuté avec succès!'
             sh 'rm -f Jenkinsfile' // Enlevez le Jenkinsfile si nécessaire
             sh 'rm -f Dockerfile' // Enlevez le Dockerfile si nécessaire
-            sh 'rm  *.sh *.txt *.png *.md' // Enlevez le Dockerfile si nécessaire
+            sh 'rm  *.sh *.txt *.png *.md' // Enlevez les fichiers temporaires si nécessaire
         }
-
         failure {
             echo 'Le pipeline a échoué!'
         }
