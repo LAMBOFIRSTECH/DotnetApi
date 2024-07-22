@@ -29,9 +29,9 @@ pipeline {
             steps {
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
-                    withSonarQubeEnv('Severs-SonarQube') {
+                    withSonarQubeEnv('SonarQube-Server') {
                         sh """
-                            ${scannerHome}/bin/sonar-scanner \
+                            ${scannerHome}/sonar-scanner-5.0.1.3006/bin/sonar-scanner \
                             -Dsonar.projectKey=sonar ${APP_NAME}-project-1 \
                             -Dsonar.projectName="${APP_NAME}" \
                             -Dsonar.projectVersion=1.0 \
