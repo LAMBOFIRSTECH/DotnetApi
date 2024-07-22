@@ -24,4 +24,3 @@ EXPOSE 5163
 EXPOSE 7082
 EXPOSE 7083
 ENTRYPOINT ["dotnet", "TasksManagement_API.dll"]
-

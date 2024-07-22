@@ -6,8 +6,7 @@ pipeline {
         WORKSPACE_DIR = "${env.WORKSPACE}/Dotnet-Api-TasksManagement" // Définir la variable d'environnement
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
         APP_NAME = 'TasksManagement_API'
-        scannerHome = tool 'SonarQube-Scan-SourceCode'
-
+        scannerHome = tool 'sonarscanner'
     }
 
     stages {

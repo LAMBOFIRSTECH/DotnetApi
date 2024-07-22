@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace TasksManagement_API.ServicesRepositories
 {
-    public class emailService
+    public class EmailService
     {
-        
+        // L'objectif est de créer une classe pour la gestion des emails 
     }
 }
