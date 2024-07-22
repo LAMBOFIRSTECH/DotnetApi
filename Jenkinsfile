@@ -91,7 +91,7 @@ pipeline {
                 //Pousser l'image sur une registry
 
                 sh '''
-                   docker build --no-cache -t api-tasks -f Dockerfile .
+                   docker build -t api-tasks -f Dockerfile .
                    '''
             }
         }
