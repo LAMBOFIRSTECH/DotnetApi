@@ -13,13 +13,16 @@ COPY ./TasksManagement_API/ ./TasksManagement_API/
 RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj" -c Release -o /app --no-restore || { echo 'dotnet publish failed'; exit 1; }
 
 # Phase finale
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:6.0.421 AS runtime
 
 # Définir le répertoire de travail
 WORKDIR /apiRepo
 
 # Copier les fichiers publiés de l'image build
 COPY --from=build /app/ ./
+
+# Copier uniquement le fichier de configuration pour la production
+COPY ./TasksManagement_API/appsettings.Production.json /apiRepo/appsettings.Production.json
 
 # Copier le certificat
 COPY ./Certs/ApiNet6Certificate.pfx /apiRepo/certificate.pfx
@@ -29,8 +32,7 @@ ENV Certificate__Password="lambo"
 
 # Exposer les ports nécessaires
 EXPOSE 5163
-EXPOSE 7082
-EXPOSE 7083
+EXPOSE 7250
 
 # Définir le point d'entrée de l'application
 ENTRYPOINT ["dotnet", "TasksManagement_API.dll"]

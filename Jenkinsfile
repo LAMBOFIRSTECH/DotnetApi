@@ -32,6 +32,7 @@ pipeline {
                         mkdir -p Certs
                         cp ../Certs/ApiNet6Certificate.pfx ./Certs/
                     '''
+                    // Suppression des env.json du projet dotnet qui ne sont pas mis pour la production
                 }
             }
         }
@@ -99,7 +100,7 @@ pipeline {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                   docker run -d -p 5163:5163 -p 7082:7082 --name ${PROJECT_NAME} api-tasks
+                   docker run -d -p 5163:5163 -p 7250:7250 --name ${PROJECT_NAME} api-tasks
                    '''
             }
         }
