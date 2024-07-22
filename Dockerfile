@@ -1,5 +1,5 @@
 # Phase de construction
-FROM mcr.microsoft.com/dotnet/sdk:6.0.421 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
 # Définition du répertoire de travail
 WORKDIR /source
@@ -13,7 +13,7 @@ COPY ./TasksManagement_API/ ./TasksManagement_API/
 RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj" -c Release -o /app --no-restore || { echo 'dotnet publish failed'; exit 1; }
 
 # Phase finale
-FROM mcr.microsoft.com/dotnet/aspnet:6.0.421 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 
 # Définir le répertoire de travail
 WORKDIR /apiRepo
