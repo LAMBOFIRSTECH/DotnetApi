@@ -33,6 +33,7 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Définir les variables d'environnement pour le mot de passe du certificat
 ENV Certificate__Password="lambo"
+RUN ls -l /apiRepo/certificate.pfx
 
 # Exposer les ports nécessaires
 EXPOSE 5163
