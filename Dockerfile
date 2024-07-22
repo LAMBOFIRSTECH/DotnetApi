@@ -22,10 +22,14 @@ WORKDIR /apiRepo
 COPY --from=build /app/ ./
 
 # Copier uniquement le fichier de configuration pour la production
-COPY ./TasksManagement_API/appsettings.Production.json /apiRepo/appsettings.Production.json
+#COPY ./TasksManagement_API/appsettings.Production.json /apiRepo/appsettings.Production.json
+
 
 # Copier le certificat
 COPY ./Certs/ApiNet6Certificate.pfx /apiRepo/certificate.pfx
+
+# Définissez la variable d'environnement
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Définir les variables d'environnement pour le mot de passe du certificat
 ENV Certificate__Password="lambo"
