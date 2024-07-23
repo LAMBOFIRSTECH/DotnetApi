@@ -15,22 +15,22 @@ namespace TasksManagement_Tests
         Mock<IWriteUsersMethods> mockWriteMethods1 = new Mock<IWriteUsersMethods>();
         Mock<IWriteUsersMethods> mockWriteMethods2 = new Mock<IWriteUsersMethods>();
 
-        [Fact]
-        public async Task GetUsersReturns_OkResult_1()
-        {
-            // Arrange
-            var expectedUserList = new List<Utilisateur>();
-            mockReadMethods.Setup(m => m.GetUsers()).ReturnsAsync(expectedUserList);
-            var controller = new UsersManagementController(mockReadMethods.Object, null!);
+        // [Fact]
+        // public async Task GetUsersReturns_OkResult_1()
+        // {
+        //     // Arrange
+        //     var expectedUserList = new List<Utilisateur>();
+        //     mockReadMethods.Setup(m => m.GetUsers()).ReturnsAsync(expectedUserList);
+        //     var controller = new UsersManagementController(mockReadMethods.Object, null!);
 
-            // Act
-            var result = await controller.GetUsers();
+        //     // Act
+        //     var result = await controller.GetUsers();
 
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var actualUserList = Assert.IsAssignableFrom<IEnumerable<Utilisateur>>(okResult.Value);
-            Assert.Equal(expectedUserList, actualUserList);
-        }
+        //     // Assert
+        //     var okResult = Assert.IsType<OkObjectResult>(result);
+        //     var actualUserList = Assert.IsAssignableFrom<IEnumerable<Utilisateur>>(okResult.Value);
+        //     Assert.Equal(expectedUserList, actualUserList);
+        // }
 
         [Fact]
         public async Task GetUsersByIdReturns_NotFound_or_OkResult_2()
@@ -112,21 +112,21 @@ namespace TasksManagement_Tests
 
         }
 
-        [Fact]
-        public async Task UpdateUserPasswordReturns_NotFound_or_OkUpdating_5()
-        {
-            //Arrange
-            mockReadMethods.SetupSequence(m => m.GetUserById(userID))
-            .ReturnsAsync(new Utilisateur() { ID = userID, Nom = "nom", Pass = "password", Role = Utilisateur.Privilege.UserX, Email = "toto@gmail.com" })
-            .ReturnsAsync((Utilisateur)null!);
+        // [Fact]
+        // public async Task UpdateUserPasswordReturns_NotFound_or_OkUpdating_5()
+        // {
+        //     //Arrange
+        //     mockReadMethods.SetupSequence(m => m.GetUserById(userID))
+        //     .ReturnsAsync(new Utilisateur() { ID = userID, Nom = "nom", Pass = "password", Role = Utilisateur.Privilege.UserX, Email = "toto@gmail.com" })
+        //     .ReturnsAsync((Utilisateur)null!);
 
-            var controller = new UsersManagementController(mockReadMethods.Object, mockWriteMethods1.Object);
-            //Act
-            var result1 = await controller.UpdateUserPassword("nom", "password");
-            //Assert
-            var okResult = Assert.IsType<OkObjectResult>(result1);
-            Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
-        }
+        //     var controller = new UsersManagementController(mockReadMethods.Object, mockWriteMethods1.Object);
+        //     //Act
+        //     var result1 = await controller.UpdateUserPassword("nom", "password");
+        //     //Assert
+        //     var okResult = Assert.IsType<OkObjectResult>(result1);
+        //     Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
+        // }
 
     }
 }

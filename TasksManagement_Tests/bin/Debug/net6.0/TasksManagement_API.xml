@@ -4,11 +4,12 @@
         <name>TasksManagement_API</name>
     </assembly>
     <members>
-        <member name="M:TasksManagement_API.Controllers.AccessTokenController.Login(System.String)">
+        <member name="M:TasksManagement_API.Controllers.AccessTokenController.Login(System.String,System.String)">
             <summary>
             Permet de générer un token JWt pour l'utilisateur Admin en fonction de son adresse mail
             </summary>
             <param name="email"></param>
+            <param name="secretUser"></param>
             <returns></returns>
         </member>
         <member name="M:TasksManagement_API.Controllers.TasksManagementController.GetAllTasks">
@@ -87,12 +88,13 @@
             <param name="ID"></param>
             <returns></returns>
         </member>
-        <member name="M:TasksManagement_API.Controllers.UsersManagementController.UpdateUserPassword(System.String,System.String)">
+        <member name="M:TasksManagement_API.Controllers.UsersManagementController.UpdateUserPassword(System.String,System.String,System.String)">
             <summary>
             Met à jour le mot de passe d'un utilisateur en fonction de son nom
             </summary>
             <param name="nom"></param>
-            <param name="mdp"></param>
+            <param name="password"></param>
+            <param name="newpassword"></param>
             <returns></returns>
         </member>
         <member name="T:TasksManagement_API.Models.Tache">
@@ -103,6 +105,11 @@
         <member name="P:TasksManagement_API.Models.Tache.Matricule">
             <summary>
             Représente l'identifiant unique d'une tache.
+            </summary>
+        </member>
+        <member name="T:TasksManagement_API.Models.TokenResult">
+            <summary>
+            Gestion du token JWT.
             </summary>
         </member>
         <member name="T:TasksManagement_API.Models.Utilisateur">
