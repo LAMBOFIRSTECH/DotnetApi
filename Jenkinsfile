@@ -26,7 +26,8 @@ pipeline {
             steps {
                 sh '''
                     rm *.txt *.png *.md
-                    chmod -R 777 ${WORKSPACE_DIR}/TestResults
+                    mkdir -p ${COVERAGE_PATH}
+                    chmod -R 777 ${COVERAGE_PATH}
     
                 '''
             }
