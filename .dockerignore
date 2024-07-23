@@ -20,3 +20,4 @@ TasksManagement_Robust_Tests/
 
 # Ignore les images du projet
 *.png
+*.old

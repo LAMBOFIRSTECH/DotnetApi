@@ -4,11 +4,14 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 # Définition du répertoire de travail pour l'image finale
 WORKDIR /source
 
-# Exposer les ports nécessaires pour la production
+# Exposer les ports nécessaires
+#ENV PROD
 
 EXPOSE 5195
 EXPOSE 7250 
-
+# ENV DEV
+# EXPOSE 5163
+# EXPOSE 7083
 
 # Phase de construction
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
