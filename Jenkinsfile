@@ -47,7 +47,7 @@ pipeline {
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
                         /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
-                        sh 'docker run -it --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks /bin/bash'
+                        //sh 'docker run -it --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks /bin/bash'
                     try {
                         sh '''
                             docker run --rm \
