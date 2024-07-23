@@ -47,7 +47,10 @@ pipeline {
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
                         /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
-                        sh 'docker run --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults -v m'
+                        sh ' docker run --rm \
+                            -v ${WORKSPACE_DIR}/TestResults:/TestResults \
+                            api-tasks \
+                            /bin/bash -c "mkdir -p /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory /TestResults -v d'
                     // try {
                     // /* groovylint-disable-next-line CatchException, NestedBlockDepth */
                     // } catch (Exception e) {
