@@ -52,9 +52,9 @@ builder.Services.AddCors(options =>
 });
 
 // Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
-/**  C'est Developpement.sjon de base**/
+//  C'est Developpement.sjon de base
 
-builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json",
+builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json",
 optional: true, reloadOnChange: true
 );
 builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
@@ -78,7 +78,7 @@ var certificatePassword = kestrelSection["Certificate:Password"];
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
 	//var host = Dns.GetHostEntry("192.168.153.132"); //Listen(host.AddressList[0]
-	 options.ListenAnyIP(7250, listenOptions =>
+	 options.ListenAnyIP(7083, listenOptions =>
 	{
 		listenOptions.UseHttps(certificateFile, certificatePassword);
 	});

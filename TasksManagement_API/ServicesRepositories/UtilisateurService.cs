@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Mvc;
 namespace TasksManagement_API.ServicesRepositories
 {
 	public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
@@ -22,16 +23,26 @@ namespace TasksManagement_API.ServicesRepositories
 			this.logger = logger;
 		}
 
-		public async Task<string> GetToken(string email)
+		public async Task<TokenResult> GetToken(string email)
 		{
 			var utilisateur = dataBaseMemoryContext.Utilisateurs
 				.SingleOrDefault(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
+
 			if (utilisateur is null)
 			{
-				return "Droits insuffisants ou adresse mail inexistante !";
+				return new TokenResult
+				{
+					Success = false,
+					Message = "Droits insuffisants ou adresse mail inexistante !"
+				};
 			}
 			await Task.Delay(500);
-			return jwtTokenService.GenerateJwtToken(utilisateur.Email);
+			return new TokenResult
+			{
+				Success = true,
+				Token = jwtTokenService.GenerateJwtToken(utilisateur.Email)
+			};
+
 		}
 
 		public bool CheckUserSecret(string secretPass)
@@ -102,8 +113,8 @@ namespace TasksManagement_API.ServicesRepositories
 		{
 			var adminUser = await dataBaseMemoryContext.Utilisateurs!
 			.Where(u => u.Role!.Equals(Utilisateur.Privilege.Admin))
-			.Select(u=>u.Nom).ToListAsync();
-			
+			.Select(u => u.Nom).ToListAsync();
+
 			var user = await dataBaseMemoryContext.Utilisateurs!.Where(u => u.Nom!.Equals(nom)).SingleOrDefaultAsync();
 			if (user == null)
 			{
@@ -112,7 +123,7 @@ namespace TasksManagement_API.ServicesRepositories
 			if (!user.CheckHashPassword(mdp))
 			{
 				user.Pass = user.SetHashPassword(mdp);
-				
+
 				logger.LogInformation($"################################### Le mot de passe de l'utilisateur [{nom}] a été changé par l'admin {adminUser.OrderBy(u => Guid.NewGuid()).FirstOrDefault()}");
 				logger.LogInformation($"################################### Voici le nombre des utilisateurs admin {adminUser.Count()}");
 				await dataBaseMemoryContext.SaveChangesAsync();

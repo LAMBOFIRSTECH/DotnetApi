@@ -1,3 +1,4 @@
+/* groovylint-disable-next-line CompileStatic */
 pipeline {
     agent { label 'Linux' } // Assurez-vous que Docker est installé sur cet agent
     environment {
@@ -39,7 +40,9 @@ pipeline {
         stage('Exécution des tests') {
             steps {
                 // Exécuter les tests dans une nouvelle image construite à partir de l'image de construction
+                /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
+                   /* groovylint-disable-next-line LineLength */
                    docker run --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults
                    '''
             }
@@ -47,13 +50,15 @@ pipeline {
         stage('Vérification via SonarQube ') {
             steps {
                 script {
+                    /* groovylint-disable-next-line GStringExpressionWithinString */
                     sh '''
                         if ! find ${COVERAGE_PATH} -type f -name 'coverage.cobertura.xml'; then
                             echo "Le rapport analytique introuvable*****************"
                             exit 1
                         fi
                     '''
-                    withSonarQubeEnv('SonarQube-Server') { 
+                    /* groovylint-disable-next-line NestedBlockDepth */
+                    withSonarQubeEnv('SonarQube-Server') {
                         sh """
                             ${SONAR_SCANNER_PATH} \
                             -Dsonar.projectKey=${PROJECT_KEY} \
@@ -71,8 +76,9 @@ pipeline {
         }
         stage('Démarrage du conteneur docker') {
             steps {
+                /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                   docker run -d -p 5163:5163 -p 7082:7082 --name ${PROJECT_NAME} api-tasks
+                   docker run -d -p 5163:5163 -p 7250:7250 --name ${PROJECT_NAME} api-tasks
                    '''
             }
         }

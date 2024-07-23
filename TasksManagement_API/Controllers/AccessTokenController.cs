@@ -52,45 +52,13 @@ namespace TasksManagement_API.Controllers
 			{
 				return Unauthorized("Votre clé secrète incorrect");
 			}
-			var token = await readMethods.GetToken(email);
-			return Ok(token);
-			// var uriParams = $"{email},{writeUsersMethods.EncryptUserSecret(secretUser)}";
-
-			// var newUrl = await removeParametersInUrl.AccessToken();
-			// if (newUrl.IsNullOrEmpty())
-			// {
-			// 	return BadRequest(newUrl);
-			// }
-
-			// try
-			// {
-			// 	using (var httpClient = new HttpClient())
-			// 	{
-			// 		var request = new HttpRequestMessage(HttpMethod.Post, newUrl);
-
-			// 		// Ajout du corps de la requête avec les paramètres requis
-			// 		request.Content = new StringContent(uriParams);
-
-			// 		var response = await httpClient.SendAsync(request);
-
-			// 		if (response.IsSuccessStatusCode)
-			// 		{
-			// 			var token = await readMethods.GetToken(email);
-			// 			return Ok(token);
-			// 		}
-			// 		else
-			// 		{
-			// 			Log.Error("Échec de la connexion SSL : {StatusCode} - {ReasonPhrase}", response.StatusCode, response.ReasonPhrase);
-			// 			return StatusCode((int)response.StatusCode, "La requête a échoué");
-			// 		}
-			// 	}
-			// }
-
-			// catch (Exception ex)
-			// {
-			// 	Log.Error(ex, "Une erreur s'est produite lors de la connexion");
-			// 	return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
-			// }
+			var result = await readMethods.GetToken(email);
+			if (!result.Success)
+			{
+				return Unauthorized(new { result.Message });
+			}
+			return Ok(new { result.Token });
+			
 		}
 	}
 }
