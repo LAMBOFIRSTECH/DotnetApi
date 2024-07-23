@@ -25,7 +25,7 @@ pipeline {
         stage('Pré-traitement') {
             steps {
                 sh '''
-                    rm  *.sh *.txt *.png *.md
+                    rm  *.txt *.png *.md
                     rm -rf TasksManagement_Tests/
                     rm -rf TasksManagement_Robust_Tests/
                 '''
