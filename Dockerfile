@@ -7,7 +7,7 @@ WORKDIR /source
 # Exposer les ports nécessaires pour la production
 
 EXPOSE 5195
-EXPOSE 7250 
+EXPOSE 7251
 
 
 # Phase de construction
