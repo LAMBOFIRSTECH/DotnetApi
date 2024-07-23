@@ -26,7 +26,6 @@ pipeline {
             steps {
                 sh '''
                     rm  *.txt *.png *.md
-                    rm -rf TasksManagement_Robust_Tests/
                 '''
             }
         }
