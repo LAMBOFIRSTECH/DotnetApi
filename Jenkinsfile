@@ -36,7 +36,6 @@ pipeline {
             steps {
                 sh '''
                    docker build -t api-tasks .
-                   docker run --rm -it -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks /bin/bash -c "chmod -R 777 /TestResults && exit" 
                    
                    '''
             }
@@ -52,9 +51,10 @@ pipeline {
                         //sh 'docker run -it --rm -v ${WORKSPACE_DIR} ..... Aller sur la Vm et faire un docker stop du conteneur pour qu'il puisse continuer
                     try {
                         sh '''
-                            docker run --rm \
-                            -v ${WORKSPACE_DIR}/TestResults:/TestResults \
-                            api-tasks dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory /TestResults -v d
+                          docker run --rm \
+                          -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks \
+                          /bin/bash -c "chmod -R 777 /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory /TestResults -v d"
+
                         '''
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
