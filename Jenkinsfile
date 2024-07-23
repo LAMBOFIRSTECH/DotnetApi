@@ -46,14 +46,14 @@ pipeline {
                 /* groovylint-disable-next-line LineLength */
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
-                    try {
                         /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
-                        sh 'docker run --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults -v d'
-                    /* groovylint-disable-next-line CatchException, NestedBlockDepth */
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        throw e
-                    }
+                        sh 'docker run --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults -v m'
+                    // try {
+                    // /* groovylint-disable-next-line CatchException, NestedBlockDepth */
+                    // } catch (Exception e) {
+                    //     currentBuild.result = 'FAILURE'
+                    //     throw e
+                    // }
                 }
             }
         }
