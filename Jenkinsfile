@@ -89,7 +89,9 @@ pipeline {
             echo 'Le pipeline s\'est exécuté avec succès!'
             sh 'rm -f Jenkinsfile' // Enlevez le Jenkinsfile si nécessaire
             sh 'rm -f Dockerfile' // Enlevez le Dockerfile si nécessaire
-            sh 'rm  *.sh *.txt *.png *.md' // Enlevez les fichiers temporaires si nécessaire
+            sh 'rm  *.sh *.txt *.png *.md'
+            sh 'rm -rf TasksManagement_Tests/'
+            sh 'rm -rf TasksManagement_Robust_Tests/'
         }
         failure {
             echo 'Le pipeline a échoué!'
