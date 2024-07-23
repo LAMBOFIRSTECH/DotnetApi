@@ -1,6 +1,6 @@
 /* groovylint-disable-next-line CompileStatic */
 pipeline {
-    agent { label 'Linux' } 
+    agent { label 'Linux' }
     environment {
         WORKSPACE_DIR = "${env.WORKSPACE}"
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
@@ -28,7 +28,7 @@ pipeline {
                     rm *.txt *.png *.md
                     mkdir -p ${COVERAGE_PATH}
                     chmod -R 777 ${COVERAGE_PATH}
-    
+
                 '''
             }
         }
@@ -48,12 +48,15 @@ pipeline {
                     /* groovylint-disable-next-line NestedBlockDepth */
                         /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
                     try {
-                        sh 'dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory /TestResults -v n'
-                    /* groovylint-disable-next-line CatchException, NestedBlockDepth */
+                        sh '''
+                            docker run --rm \
+                            -v ${WORKSPACE_DIR}/TestResults:/TestResults \
+                            api-tasks \
+                            /bin/bash -c "mkdir -p /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory /TestResults -v d"
+                        '''
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
                         throw e
-                    }
                 }
             }
         }
@@ -88,7 +91,7 @@ pipeline {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                   docker run -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} api-tasks
+                   docker run --rm -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} api-tasks
                    '''
             }
         }
