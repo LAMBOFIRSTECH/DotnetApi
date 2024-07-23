@@ -22,6 +22,16 @@ RUN dotnet restore "TasksManagement_API/TasksManagement_API.csproj" --disable-pa
 COPY  TasksManagement_API/ TasksManagement_API/
 RUN dotnet build TasksManagement_API/TasksManagement_API.csproj -c Release -o /app/build
 
+# Copie des fichiers de test et restauration des dépendances de test
+COPY TasksManagement_Tests/*.csproj TasksManagement_Tests/
+RUN dotnet restore "TasksManagement_Tests/TasksManagement_Tests.csproj"
+
+
+
+# Construire les projets de test
+COPY TasksManagement_Tests/ TasksManagement_Tests/
+RUN dotnet build TasksManagement_Tests/TasksManagement_Tests.csproj -c Release -o /app/test-build
+
 # Phase de publication
 FROM build AS publish
 WORKDIR /src

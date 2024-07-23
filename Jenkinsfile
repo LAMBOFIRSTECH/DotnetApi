@@ -26,7 +26,6 @@ pipeline {
             steps {
                 sh '''
                     rm  *.txt *.png *.md
-                    rm -rf TasksManagement_Tests/
                     rm -rf TasksManagement_Robust_Tests/
                 '''
             }
@@ -43,11 +42,17 @@ pipeline {
                 // Exécuter les tests dans une nouvelle image construite à partir de l'image de construction
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 /* groovylint-disable-next-line LineLength */
-                sh '''
-                    docker run --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults
-                   '''
+                script {
+
+                    try {
+                        sh 'docker run --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults -v d'
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    }
+                    }
+                }
             }
-        }
         stage('Vérification via SonarQube ') {
             steps {
                 script {
@@ -83,7 +88,7 @@ pipeline {
                    '''
             }
         }
-    }
+        }
 
     post {
         success {
@@ -95,4 +100,4 @@ pipeline {
             echo 'Le pipeline a échoué!'
         }
     }
-}
+    }
