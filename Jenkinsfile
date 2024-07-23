@@ -33,7 +33,7 @@ pipeline {
         stage('Build de l\'image docker') {
             steps {
                 sh '''
-                   docker build -t api-tasks -f Dockerfile .
+                   docker build -t api-tasks .
                    '''
             }
         }
@@ -78,7 +78,7 @@ pipeline {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                   docker run -d -p 5163:5163 -p 7250:7250 --name ${PROJECT_NAME} api-tasks
+                   docker run -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} api-tasks
                    '''
             }
         }

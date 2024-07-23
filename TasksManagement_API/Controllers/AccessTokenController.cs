@@ -1,31 +1,18 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
-using Castle.Core.Internal;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Serilog;
 using TasksManagement_API.Interfaces;
 namespace TasksManagement_API.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("api/v1.0/[controller]/")]
 	public class AccessTokenController : ControllerBase
 	{
 		private readonly IReadUsersMethods readMethods;
-		private readonly IWriteUsersMethods writeUsersMethods;
-		private readonly IRemoveParametersIn removeParametersInUrl;
-		public AccessTokenController(IReadUsersMethods readMethods, IRemoveParametersIn removeParametersInUrl, IWriteUsersMethods writeUsersMethods)
+		
+		public AccessTokenController(IReadUsersMethods readMethods)
 		{
-
 			this.readMethods = readMethods;
-			this.writeUsersMethods = writeUsersMethods;
-			this.removeParametersInUrl = removeParametersInUrl;
-			Log.Logger = new LoggerConfiguration()
-			.WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
-			.CreateLogger();
-
-
 		}
 		/// <summary>
 		/// Permet de générer un token JWt pour l'utilisateur Admin en fonction de son adresse mail

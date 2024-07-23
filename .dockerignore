@@ -14,5 +14,9 @@ TestResults/
 # Ignore le magasin 
 TasksManagement_API/MgsUserSecrets/
 
+# Ignore les projets de Tests
 TasksManagement_Tests/
 TasksManagement_Robust_Tests/
+
+# Ignore les images du projet
+*.png
