@@ -57,6 +57,7 @@ pipeline {
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
                         throw e
+                    }
                 }
             }
         }
