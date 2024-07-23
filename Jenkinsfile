@@ -42,9 +42,9 @@ pipeline {
             steps {
                 // Exécuter les tests dans une nouvelle image construite à partir de l'image de construction
                 /* groovylint-disable-next-line GStringExpressionWithinString */
+                /* groovylint-disable-next-line LineLength */
                 sh '''
-                   /* groovylint-disable-next-line LineLength */
-                   docker run --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults
+                    docker run --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults
                    '''
             }
         }
@@ -89,7 +89,7 @@ pipeline {
         success {
             echo 'Le pipeline s\'est exécuté avec succès!'
             sh 'rm -f Jenkinsfile' // Enlevez le Jenkinsfile si nécessaire
-            sh 'rm -f Dockerfile' // Enlevez le Dockerfile si nécessaire
+            sh 'rm -f Docker*' // Enlevez le Dockerfile si nécessaire
         }
         failure {
             echo 'Le pipeline a échoué!'
