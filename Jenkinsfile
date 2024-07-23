@@ -36,6 +36,7 @@ pipeline {
             steps {
                 sh '''
                    docker build -t api-tasks .
+                   
                    '''
             }
         }
@@ -47,7 +48,8 @@ pipeline {
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
                         /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
-                        //sh 'docker run -it --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks /bin/bash'
+                        //sh 'docker run -it --rm -v ${WORKSPACE_DIR} ..... Aller sur la Vm et faire un docker stop du conteneur pour qu'il puisse continuer
+                    sh 'docker run --rm -it -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks /bin/bash -c "chmod -R 777 /TestResults && exit" '
                     try {
                         sh '''
                             docker run --rm \
