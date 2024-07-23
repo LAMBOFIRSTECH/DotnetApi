@@ -47,12 +47,12 @@ pipeline {
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
                         /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
+                        sh 'docker run -it --rm -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks /bin/bash'
                     try {
                         sh '''
                             docker run --rm \
                             -v ${WORKSPACE_DIR}/TestResults:/TestResults \
-                            api-tasks \
-                            /bin/bash -c "mkdir -p /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory /TestResults -v d"
+                            api-tasks dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory /TestResults -v d
                         '''
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
