@@ -24,6 +24,7 @@ pipeline {
         }
         stage('Pré-traitement') {
             steps {
+                /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
                     rm *.txt *.png *.md
                     mkdir -p ${COVERAGE_PATH}
@@ -36,7 +37,6 @@ pipeline {
             steps {
                 sh '''
                    docker build -t api-tasks .
-                   
                    '''
             }
         }
@@ -48,15 +48,18 @@ pipeline {
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
                         /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
-                        //sh 'docker run -it --rm -v ${WORKSPACE_DIR} ..... Aller sur la Vm et faire un docker stop du conteneur pour qu'il puisse continuer
+                    //sh 'docker run -it --rm -v ${WORKSPACE_DIR} ..... Aller sur la Vm et faire un docker stop du conteneur pour qu'il puisse continuer
+                    /* groovylint-disable-next-line NestedBlockDepth */
                     try {
+                        /* groovylint-disable-next-line GStringExpressionWithinString */
                         sh '''
                           docker run --rm \
                           -v ${COVERAGE_PATH}:/TestResults api-tasks \
+                          /* groovylint-disable-next-line LineLength */
                           /bin/bash -c "chmod -R 777 /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory ${COVERAGE_PATH} -v d"
 
                         '''
-                        
+                    /* groovylint-disable-next-line CatchException, NestedBlockDepth */
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
                         throw e
@@ -91,7 +94,7 @@ pipeline {
                 }
             }
         }
-       
+
         stage('Démarrage du conteneur docker') {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
@@ -100,7 +103,6 @@ pipeline {
                    '''
             }
         }
-        
     }
 
     post {
@@ -114,3 +116,5 @@ pipeline {
         }
     }
 }
+
+
