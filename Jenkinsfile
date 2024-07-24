@@ -12,7 +12,7 @@ pipeline {
         SONAR_LANGUAGE = 'cs'
         SONAR_ENCODING = 'UTF-8'
         COVERAGE_PATH = "${WORKSPACE_DIR}/TestResults"
-        OPENCOVER_REPORT_PATH = "${COVERAGE_PATH}/coverage.cobertura.xml"
+        OPENCOVER_REPORT_PATH = "${COVERAGE_PATH}/**/coverage.cobertura.xml"
         VSTEST_REPORT_PATH = "${COVERAGE_PATH}/**/*.trx"
     }
 
@@ -53,7 +53,7 @@ pipeline {
                         sh '''
                           docker run --rm \
                           -v ${COVERAGE_PATH}:/TestResults api-tasks \
-                          /bin/bash -c "chmod -R 777 /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory /TestResults -v d"
+                          /bin/bash -c "chmod -R 777 /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory ${COVERAGE_PATH} -v d"
 
                         '''
                         
