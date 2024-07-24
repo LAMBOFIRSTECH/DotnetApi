@@ -52,10 +52,11 @@ pipeline {
                     try {
                         sh '''
                           docker run --rm \
-                          -v ${WORKSPACE_DIR}/TestResults:/TestResults api-tasks \
+                          -v ${COVERAGE_PATH}/TestResults:/TestResults api-tasks \
                           /bin/bash -c "chmod -R 777 /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory /TestResults -v d"
 
                         '''
+                        
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
                         throw e
