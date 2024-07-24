@@ -12,7 +12,7 @@ pipeline {
         SONAR_LANGUAGE = 'cs'
         SONAR_ENCODING = 'UTF-8'
         COVERAGE_PATH = "${WORKSPACE_DIR}/TestResults"
-        OPENCOVER_REPORT_PATH = "${COVERAGE_PATH}/**/coverage.cobertura.xml"
+        OPENCOVER_REPORT_PATH = "${COVERAGE_PATH}/coverage.cobertura.xml"
         VSTEST_REPORT_PATH = "${COVERAGE_PATH}/**/*.trx"
     }
 
@@ -52,7 +52,7 @@ pipeline {
                     try {
                         sh '''
                           docker run --rm \
-                          -v ${COVERAGE_PATH}/TestResults:/TestResults api-tasks \
+                          -v ${COVERAGE_PATH}:/TestResults api-tasks \
                           /bin/bash -c "chmod -R 777 /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory /TestResults -v d"
 
                         '''
@@ -95,10 +95,9 @@ pipeline {
         stage('Démarrage du conteneur docker') {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
-                // sh '''
-                //    docker run --rm -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} api-tasks
-                //    '''
-                sh 'echo "toto"'
+                sh '''
+                   docker run --rm -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} api-tasks
+                   '''
             }
         }
         
