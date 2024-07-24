@@ -55,7 +55,6 @@ pipeline {
                         sh '''
                           docker run --rm \
                           -v ${COVERAGE_PATH}:/TestResults api-tasks \
-                          /* groovylint-disable-next-line LineLength */
                           /bin/bash -c "chmod -R 777 /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory ${COVERAGE_PATH} -v d"
 
                         '''
