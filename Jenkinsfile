@@ -91,14 +91,17 @@ pipeline {
                 }
             }
         }
+       
         stage('Démarrage du conteneur docker') {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
-                sh '''
-                   docker run --rm -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} api-tasks
-                   '''
+                // sh '''
+                //    docker run --rm -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} api-tasks
+                //    '''
+                sh 'echo "toto"'
             }
         }
+        
     }
 
     post {
