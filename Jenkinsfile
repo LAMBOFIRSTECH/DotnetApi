@@ -12,8 +12,8 @@ pipeline {
         SONAR_LANGUAGE = 'cs'
         SONAR_ENCODING = 'UTF-8'
         COVERAGE_PATH = "${WORKSPACE_DIR}/TestResults"
-        OPENCOVER_REPORT_PATH = "${COVERAGE_PATH}/**/coverage.cobertura.xml"
-        VSTEST_REPORT_PATH = "${COVERAGE_PATH}/**/*.trx"
+        OPENCOVER_REPORT_PATH = "${COVERAGE_PATH}/coverage.cobertura.xml"
+        VSTEST_REPORT_PATH = "${COVERAGE_PATH}/*.trx"
     }
 
     stages {
