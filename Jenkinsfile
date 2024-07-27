@@ -6,7 +6,7 @@ pipeline {
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
         scannerHome = tool 'sonarscanner'
         PROJECT_KEY = 'Sonar-web-api'
-        PROJECT_NAME = 'WEB_API'
+        PROJECT_NAME = 'WEB-API'
         PROJECT_VERSION = '1.0'
         SONAR_SCANNER_PATH = "${scannerHome}/sonar-scanner-5.0.1.3006/bin/sonar-scanner"
         SONAR_LANGUAGE = 'cs'
@@ -113,7 +113,11 @@ pipeline {
         failure {
             echo 'Le pipeline a échoué!'
         }
+        always {
+            junit '**/TestResults/*.trx'
+        }
     }
+/* groovylint-disable-next-line NglParseError */
+/* groovylint-disable-next-line NglParseError */
 }
-
 
