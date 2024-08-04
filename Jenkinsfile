@@ -31,11 +31,13 @@ pipeline {
                     rm *.txt *.png *.md
                     mkdir -p ${COVERAGE_PATH}
                     chmod -R 777 ${COVERAGE_PATH}
+                    rm ${API_DIR}/appsettings.Development.json
+                    rm ${API_DIR}/appsettings.Preproduction.json
 
                 '''
             }
         }
-        
+
         stage('Build de l\'image docker') {
             steps {
                 sh '''
