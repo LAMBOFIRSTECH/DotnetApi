@@ -55,14 +55,9 @@ pipeline {
                         /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
                     //sh 'docker run -it --rm -v ${WORKSPACE_DIR} ..... Aller sur la Vm et faire un docker stop du conteneur pour qu'il puisse continuer
                     /* groovylint-disable-next-line NestedBlockDepth */
-                    sh 'docker run -d --name api-tasks -v ${COVERAGE_PATH}:/TestResults api-tasks'
                     try {
                         /* groovylint-disable-next-line GStringExpressionWithinString */
-
-                        sh '''
-                          docker exec api-tasks \
-                          /bin/bash -c "chmod -R 777 /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory ${COVERAGE_PATH} -v d"
-                        '''
+                        sh 'docker run -d --name api-tasks -v ${COVERAGE_PATH}:/TestResults api-tasks'
                     /* groovylint-disable-next-line CatchException, NestedBlockDepth */
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
@@ -118,9 +113,9 @@ pipeline {
         failure {
             echo 'Le pipeline a échoué!'
         }
-        // always {
-        //     junit '**/TestResults/*.trx'
-        // }
+    // always {
+    //     junit '**/TestResults/*.trx'
+    // }
     }
 /* groovylint-disable-next-line NglParseError */
 /* groovylint-disable-next-line NglParseError */
