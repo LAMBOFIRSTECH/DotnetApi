@@ -41,9 +41,9 @@ RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj" -c $BUILD_
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS migration
 WORKDIR /src
 COPY --from=publish /app/publish .
-COPY ./TasksManagement_API/appsettings.Production.json .
+COPY TasksManagement_API/appsettings.Production.json ./appsettings.json
 ENV ASPNETCORE_ENVIRONMENT=Production
-RUN dotnet ef database update || { echo 'EF migration failed'; exit 1; }
+RUN dotnet ef database update --no-build || { echo 'EF migration failed'; exit 1; }
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Phase finale d'exécution (RUNTIME)
