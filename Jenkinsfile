@@ -60,7 +60,7 @@ pipeline {
                         /* groovylint-disable-next-line GStringExpressionWithinString */
 
                         sh '''
-                          docker exec -it api-tasks \
+                          docker exec api-tasks \
                           /bin/bash -c "chmod -R 777 /TestResults && dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:\"XPlat Code Coverage\" --results-directory ${COVERAGE_PATH} -v d"
                         '''
                     /* groovylint-disable-next-line CatchException, NestedBlockDepth */
