@@ -7,9 +7,9 @@ bin/
 obj/
 
 # Ignorer les fichiers de test
-TestResults/
-*.testsettings
-*.log
+# TestResults/
+# *.testsettings
+# *.log
 
 # Ignore le magasin 
 TasksManagement_API/MgsUserSecrets/
