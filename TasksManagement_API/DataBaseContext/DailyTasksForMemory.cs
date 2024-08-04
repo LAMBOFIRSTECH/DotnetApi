@@ -16,12 +16,12 @@ namespace TasksManagement_API.DataBaseContext
 		public DbSet<Utilisateur> Utilisateurs { get; set; } = null!;
 		public DbSet<Tache> Taches { get; set; } = null!;
 
-		protected override void OnModelCreating(ModelBuilder modelBuilder)
-		{
-			modelBuilder.Entity<Tache>()
-			.Property(t => t.TasksDate)
-			.HasColumnName("DateH");
-			base.OnModelCreating(modelBuilder);
-		}
+		// protected override void OnModelCreating(ModelBuilder modelBuilder)
+		// {
+		// 	modelBuilder.Entity<Tache>()
+		// 	.Property(t => t.TasksDate)
+		// 	.HasColumnName("DateH");
+		// 	base.OnModelCreating(modelBuilder);
+		// }
 	}
 }

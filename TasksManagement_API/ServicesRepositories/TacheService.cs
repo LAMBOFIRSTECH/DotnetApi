@@ -61,11 +61,8 @@ namespace TasksManagement_API.ServicesRepositories
 				Matricule = tache.Matricule,
 				Titre = tache.Titre,
 				Summary = tache.Summary,
-				TasksDate = new()
-				{
-					StartDateH = tache.TasksDate.StartDateH,
-					EndDateH = tache.TasksDate.EndDateH
-				}
+				StartDateH = tache.StartDateH,
+				EndDateH= tache.EndDateH
 			};
 			await dataBaseMemoryContext.Taches.AddAsync(newtache);
 			await dataBaseMemoryContext.SaveChangesAsync();

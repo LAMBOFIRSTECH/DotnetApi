@@ -67,11 +67,8 @@ public class TasksManagementController : ControllerBase
 				Matricule = tache.Matricule,
 				Titre = tache.Titre,
 				Summary = tache.Summary,
-				TasksDate = new()
-				{
-					EndDateH = tache.TasksDate.EndDateH,
-					StartDateH = tache.TasksDate.StartDateH
-				}
+				StartDateH = tache.StartDateH,
+				EndDateH= tache.EndDateH
 			};
 			var listTaches = await readMethods.GetTaches();
 			var tacheExistante = listTaches.FirstOrDefault(item => item.Matricule == tache.Matricule);

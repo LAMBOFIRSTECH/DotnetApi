@@ -70,11 +70,11 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
 builder.Services.AddHealthChecks();
 
-/** Kestrel -> serveur web par defaut dans aspnet :Cest le gestionnaires des connexions entrantes y compris les connexions en https : On va spécifier le certificat à utiliser pour les connection en HTTPS.
+/* Kestrel -> serveur web par defaut dans aspnet :Cest le gestionnaires des connexions entrantes y compris les connexions en https : On va spécifier le certificat à utiliser pour les connection en HTTPS.
 var kestrelSection = builder.Configuration.GetSection("Kestrel:EndPoints:Https");
 var certificateFile = kestrelSection["Certificate:File"];
 var certificatePassword = kestrelSection["Certificate:Password"];
-**/
+*/
 var certificateFile=Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
 var  certificatePassword=Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password");
 builder.Services.Configure<KestrelServerOptions>(options =>

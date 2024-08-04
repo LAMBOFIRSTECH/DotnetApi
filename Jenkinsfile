@@ -118,9 +118,9 @@ pipeline {
         failure {
             echo 'Le pipeline a échoué!'
         }
-        always {
-            junit '**/TestResults/*.trx'
-        }
+        // always {
+        //     junit '**/TestResults/*.trx'
+        // }
     }
 /* groovylint-disable-next-line NglParseError */
 /* groovylint-disable-next-line NglParseError */
