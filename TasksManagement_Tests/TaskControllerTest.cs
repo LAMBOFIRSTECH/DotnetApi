@@ -38,7 +38,7 @@ namespace TasksManagement_Tests
 		{
 			// Arrange
 			mockReadMethods.SetupSequence(m => m.GetTaskById(matricule))
-			.ReturnsAsync(new Tache() { Matricule = matricule, Titre = "titre", Summary = "summary", TasksDate = new Tache.DateH() { StartDateH = DateTime.MinValue, EndDateH = DateTime.MaxValue } })
+			.ReturnsAsync(new Tache() { Matricule = matricule, Titre = "titre", Summary = "summary", StartDateH = DateTime.MinValue, EndDateH = DateTime.MaxValue  })
 			.ReturnsAsync((Tache)null!);
 
 			var controller = new TasksManagementController(mockReadMethods.Object, null!);
@@ -59,11 +59,11 @@ namespace TasksManagement_Tests
 		public async Task CreateTaskReturns_BadRequest_or_Conflict_or_CorrectsData_3()
 		{
 			// Arrange
-			var tache1 = new Tache(){Matricule = 1,Titre = "titre1",Summary = "summary1",TasksDate = new Tache.DateH(){StartDateH = DateTime.MinValue,EndDateH = DateTime.MaxValue}
+			var tache1 = new Tache(){Matricule = 1,Titre = "titre1",Summary = "summary1",StartDateH = DateTime.MinValue,EndDateH = DateTime.MaxValue
 			};
-			var tache2 = new Tache(){Matricule = 1,Titre = "titre2",Summary = "summary2",TasksDate = new Tache.DateH(){StartDateH = DateTime.MinValue,EndDateH = DateTime.MaxValue}
+			var tache2 = new Tache(){Matricule = 1,Titre = "titre2",Summary = "summary2",StartDateH = DateTime.MinValue,EndDateH = DateTime.MaxValue
 			};
-			var tache3 = new Tache(){Matricule = 2,Titre = "titre3",Summary = "summary3",TasksDate = new Tache.DateH(){StartDateH = DateTime.MinValue,EndDateH = DateTime.MaxValue}
+			var tache3 = new Tache(){Matricule = 2,Titre = "titre3",Summary = "summary3",StartDateH = DateTime.MinValue,EndDateH = DateTime.MaxValue
 			};
 
 			var tasks = new List<Tache> { tache1 };
@@ -110,8 +110,8 @@ namespace TasksManagement_Tests
 		public async Task UpdateTaskReturns_NotFound_or_OkUpdating_5()
 		{
 			//Arrange
-			var task1 = new Tache() { Matricule = 1,Titre = "titre1",Summary = "summary1",TasksDate = new Tache.DateH(){StartDateH = DateTime.MinValue,EndDateH = DateTime.MaxValue} };
-			var task2 = new Tache() { Matricule = 2,Titre = "titre2",Summary = "summary2",TasksDate = new Tache.DateH(){StartDateH = DateTime.MinValue,EndDateH = DateTime.MaxValue}};
+			var task1 = new Tache() { Matricule = 1,Titre = "titre1",Summary = "summary1",StartDateH = DateTime.MinValue,EndDateH = DateTime.MaxValue };
+			var task2 = new Tache() { Matricule = 2,Titre = "titre2",Summary = "summary2",StartDateH = DateTime.MinValue,EndDateH = DateTime.MaxValue};
 
 			mockReadMethods.SetupSequence(m => m.GetTaskById(matricule))
 			.ReturnsAsync(new Tache() {  Matricule= matricule })
