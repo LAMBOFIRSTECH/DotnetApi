@@ -55,7 +55,7 @@ pipeline {
                         /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
                     //sh 'docker run -it --rm -v ${WORKSPACE_DIR} ..... Aller sur la Vm et faire un docker stop du conteneur pour qu'il puisse continuer
                     /* groovylint-disable-next-line NestedBlockDepth */
-                    sh 'docker run -d --name api-tasks -v ${COVERAGE_PATH}:/TestResults mcr.microsoft.com/dotnet/aspnet:6.0'
+                    sh 'docker run -d --name api-tasks -v ${COVERAGE_PATH}:/TestResults api-tasks'
                     try {
                         /* groovylint-disable-next-line GStringExpressionWithinString */
 
