@@ -28,7 +28,8 @@ RUN dotnet build TasksManagement_API/TasksManagement_API.csproj -c $BUILD_CONFIG
 # Copie du reste du code et construction du projet de test
 COPY TasksManagement_Tests/ TasksManagement_Tests/
 RUN dotnet build TasksManagement_Tests/TasksManagement_Tests.csproj -c $BUILD_CONFIGURATION -o /app/test-build
-RUN dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults
+RUN dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults -v d
+
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------
 # Phase de publication

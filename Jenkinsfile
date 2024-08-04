@@ -45,19 +45,12 @@ pipeline {
                    '''
             }
         }
-        stage('Exécution des tests') {
+        stage('Démarrage du container') {
             steps {
-                // Exécuter les tests dans une nouvelle image construite à partir de l'image de construction
-                /* groovylint-disable-next-line GStringExpressionWithinString */
-                /* groovylint-disable-next-line LineLength */
                 script {
-                    /* groovylint-disable-next-line NestedBlockDepth */
-                        /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
-                    //sh 'docker run -it --rm -v ${WORKSPACE_DIR} ..... Aller sur la Vm et faire un docker stop du conteneur pour qu'il puisse continuer
-                    /* groovylint-disable-next-line NestedBlockDepth */
                     try {
                         /* groovylint-disable-next-line GStringExpressionWithinString */
-                        sh 'docker run -d --name api-tasks -v ${COVERAGE_PATH}:/TestResults api-tasks'
+                        sh 'docker run --rm -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} -v ${COVERAGE_PATH}:/TestResults api-tasks'
                     /* groovylint-disable-next-line CatchException, NestedBlockDepth */
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
@@ -93,15 +86,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Démarrage du conteneur docker') {
-            steps {
-                /* groovylint-disable-next-line GStringExpressionWithinString */
-                sh '''
-                   docker run --rm -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} api-tasks
-                   '''
-            }
-        }
     }
 
     post {
@@ -117,7 +101,5 @@ pipeline {
     //     junit '**/TestResults/*.trx'
     // }
     }
-/* groovylint-disable-next-line NglParseError */
-/* groovylint-disable-next-line NglParseError */
 // Rajouter la stack trivy comme étape pour vérifier l'image docker
 }
