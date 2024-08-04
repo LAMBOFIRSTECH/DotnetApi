@@ -29,29 +29,35 @@ RUN dotnet build TasksManagement_API/TasksManagement_API.csproj -c $BUILD_CONFIG
 COPY TasksManagement_Tests/ TasksManagement_Tests/
 RUN dotnet build TasksManagement_Tests/TasksManagement_Tests.csproj -c $BUILD_CONFIGURATION -o /app/test-build
 
+#----------------------------------------------------------------------------------------------------------------------------------------------------------
 # Phase de publication
 FROM build AS publish
 WORKDIR /src
 COPY --from=build /app/* /app/build
 RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj" -c $BUILD_CONFIGURATION -o /app/publish || { echo 'dotnet publish failed'; exit 1; }
 
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+# Phase de migration du contexte de base de données
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS migration
+WORKDIR /app
+COPY --from=publish /app/publish .
+COPY ApiNet6Certificate.pfx /https/certificate.pfx
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/certificate.pfx
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password=lambo
+ENV ASPNETCORE_ENVIRONMENT=Production
+RUN dotnet ef database update
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
 # Phase finale d'exécution (RUNTIME)
 FROM base AS final
-
-# Définir le répertoire de travail
 WORKDIR /source
 
 # Copier les fichiers publiés de l'image build
 COPY --from=publish /app/publish .
-
-# Copier le certificat
 COPY ApiNet6Certificate.pfx /https/certificate.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/certificate.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Password=lambo
-
-# Définissez la variable d'environnement
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Définir le point d'entrée de l'application
 ENTRYPOINT ["dotnet", "TasksManagement_API.dll"]
-

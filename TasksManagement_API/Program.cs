@@ -60,7 +60,8 @@ builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 	var item = builder.Configuration.GetSection("TasksManagement_API");
 	var conStrings = item["DefaultConnection"];
 
-	opt.UseInMemoryDatabase(conStrings);
+	//opt.UseInMemoryDatabase(conStrings);
+	opt.UseSqlServer(conStrings);
 });
 
 builder.Services.AddControllersWithViews();
@@ -91,7 +92,7 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 	options.ConfigureHttpsDefaults(opt =>
 	{
 		opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate; 
-        
+		
 	});
 });
 

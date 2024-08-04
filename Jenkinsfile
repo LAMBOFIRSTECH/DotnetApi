@@ -14,6 +14,7 @@ pipeline {
         COVERAGE_PATH = "${WORKSPACE_DIR}/TestResults"
         OPENCOVER_REPORT_PATH = "${COVERAGE_PATH}/coverage.cobertura.xml"
         VSTEST_REPORT_PATH = "${COVERAGE_PATH}/*.trx"
+        DOCKER_HUB_CREDENTIALS = ''
     }
 
     stages {
@@ -22,6 +23,7 @@ pipeline {
                 checkout scm
             }
         }
+
         stage('Pré-traitement') {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
@@ -33,6 +35,7 @@ pipeline {
                 '''
             }
         }
+        
         stage('Build de l\'image docker') {
             steps {
                 sh '''
@@ -107,7 +110,7 @@ pipeline {
     post {
         success {
             echo 'Le pipeline s\'est exécuté avec succès!'
-            sh 'rm -f Jenkinsfile' // Enlevez le Jenkinsfile si nécessaire
+            sh 'rm -f Jenkinsfile *.pfx' // Enlevez le Jenkinsfile si nécessaire
             sh 'rm -f Docker*' // Enlevez le Dockerfile si nécessaire
         }
         failure {
@@ -119,5 +122,5 @@ pipeline {
     }
 /* groovylint-disable-next-line NglParseError */
 /* groovylint-disable-next-line NglParseError */
+// Rajouter la stack trivy comme étape pour vérifier l'image docker
 }
-

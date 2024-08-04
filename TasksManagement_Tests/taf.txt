@@ -1,1 +1,3 @@
 Revoir la classe LoginTest.cs
+  <PackageReference Include="EntityFrameworkCore.CommonTools" Version="2.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0">
