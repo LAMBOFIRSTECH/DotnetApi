@@ -50,7 +50,10 @@ pipeline {
                 script {
                     try {
                         /* groovylint-disable-next-line GStringExpressionWithinString */
-                        sh 'docker run --rm -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} -v ${COVERAGE_PATH}:/TestResults api-tasks'
+                        sh '''
+                        docker run --rm -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} -v ${COVERAGE_PATH}:/TestResults api-tasks \
+                        /bin/bash -c "chmod -R 777 /TestResults"
+                        '''
                     /* groovylint-disable-next-line CatchException, NestedBlockDepth */
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
