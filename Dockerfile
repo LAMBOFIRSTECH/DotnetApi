@@ -10,7 +10,7 @@ EXPOSE 7251
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-RUN ls -l /src
+
 
 # Copie des fichiers du projet et projet de test
 COPY TasksManagement_API/*.csproj TasksManagement_API/
@@ -30,6 +30,7 @@ RUN ls -l /src/TasksManagement_API/appsettings.Production.json
 # Migration du context de base de données
 RUN echo "Starting migration phase..." && \
     dotnet tool install --global dotnet-ef --version 6.0.20 && \
+     export PATH="$PATH:/root/.dotnet/tools" &&\
     /root/.dotnet/tools/dotnet-ef database update  --project TasksManagement_API/TasksManagement_API.csproj || { echo 'EF migration failed'; exit 1; }
 
 # Exécution des tests
@@ -48,7 +49,7 @@ FROM base AS runtime
 WORKDIR /source
 # Copier les fichiers publiés de l'image build
 COPY --from=publish /app/publish .
-COPY TasksManagement_API/appsettings.Production.json ./appsettings.json
+COPY TasksManagement_API/appsettings.Production.json ./appsettings.Production.json
 COPY ApiNet6Certificate.pfx /https/certificate.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/certificate.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Password=lambo
