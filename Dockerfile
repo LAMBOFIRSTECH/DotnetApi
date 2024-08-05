@@ -28,16 +28,10 @@ RUN dotnet build TasksManagement_Tests/TasksManagement_Tests.csproj -c $BUILD_CO
 
 RUN dotnet tool install --global dotnet-ef --version 6.0.20
 ENV PATH="$PATH:/root/.dotnet/tools"
-RUN echo "Checking environment variables and tools..." && \
-    echo $PATH && \
-    echo "noyauuuuuuuuuuuuuuuuuuuuuuuuuuuuuux" && \
-    echo $ConnectionStrings__DefaultConnection && \
-    echo "bannnnnnnnnnnnnnnnn" && \
-    ls /root/.dotnet/tools
 
 # Migration du context de base de données
 RUN echo "Starting migration phase..." && \
-    ~/.dotnet/tools/dotnet-ef database update  --project TasksManagement_API/TasksManagement_API.csproj  --environment Production || { echo 'EF migration failed'; exit 1; }
+    /root/.dotnet/tools/dotnet-ef database update  --project TasksManagement_API/TasksManagement_API.csproj  || { echo 'EF migration failed'; exit 1; }
 
 # Exécution des tests
 RUN dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults -v d
