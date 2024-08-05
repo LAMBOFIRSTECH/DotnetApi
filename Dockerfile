@@ -31,7 +31,7 @@ ENV PATH="$PATH:/root/.dotnet/tools"
 
 # Migration du context de base de données
 RUN echo "Starting migration phase..." && \
-    /root/.dotnet/tools/dotnet-ef database update  --project TasksManagement_API/TasksManagement_API.csproj  || { echo 'EF migration failed'; exit 1; }
+    /root/.dotnet/tools/dotnet-ef database update  --project TasksManagement_API/TasksManagement_API.csproj  --verbose || { echo 'EF migration failed'; exit 1; }
 
 # Exécution des tests
 RUN dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults -v d
