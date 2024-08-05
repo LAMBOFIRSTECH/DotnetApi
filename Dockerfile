@@ -3,8 +3,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 
 # Définition du répertoire de travail pour l'image finale
 WORKDIR /source
-RUN dotnet tool install --global dotnet-ef || { echo 'dotnet-ef installation failed'; exit 1; }
-RUN dotnet tool list -g
+
 
 # Exposer les ports nécessaires pour la production
 EXPOSE 5195
@@ -38,6 +37,8 @@ FROM build AS publish
 WORKDIR /src
 COPY --from=build /app/* /app/build
 RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj" -c $BUILD_CONFIGURATION -o /app/publish || { echo 'dotnet publish failed'; exit 1; }
+RUN dotnet tool install --global dotnet-ef || { echo 'dotnet-ef installation failed'; exit 1; }
+RUN dotnet tool list -g
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Phase finale d'exécution (RUNTIME)
