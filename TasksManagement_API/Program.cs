@@ -13,6 +13,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Castle.Core.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -54,6 +55,7 @@ builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVaria
 optional: true, reloadOnChange: true
 );
 var item = builder.Configuration.GetSection("ConnectionStrings");
+
 Console.WriteLine(item.Value);
 var conStrings = item["DefaultConnection"];
 Console.WriteLine(conStrings);
