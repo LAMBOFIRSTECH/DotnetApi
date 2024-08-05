@@ -28,6 +28,11 @@ RUN dotnet build TasksManagement_Tests/TasksManagement_Tests.csproj -c $BUILD_CO
 
 RUN dotnet tool install --global dotnet-ef --version 6.0.20
 ENV PATH="$PATH:~/.dotnet/tools"
+RUN echo "Checking environment variables and tools..." && \
+    echo $PATH && \
+    echo $ConnectionStrings__DefaultConnection && \
+    ls ~/.dotnet/tools
+
 # Migration du context de base de données
 RUN echo "Starting migration phase..." && \
     ~/.dotnet/tools/dotnet-ef database update  --project TasksManagement_API/TasksManagement_API.csproj || { echo 'EF migration failed'; exit 1; }
