@@ -55,10 +55,10 @@ builder.Services.AddCors(options =>
 builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json",
 optional: true, reloadOnChange: true
 );
+var item = builder.Configuration.GetSection("TasksManagement_API");
+var conStrings = item["DefaultConnection"];
 builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 {
-	var item = builder.Configuration.GetSection("TasksManagement_API");
-	var conStrings = item["DefaultConnection"];
 
 	//opt.UseInMemoryDatabase(conStrings);
 	opt.UseSqlServer(conStrings,
