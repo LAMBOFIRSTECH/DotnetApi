@@ -3,6 +3,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 
 # Définition du répertoire de travail pour l'image finale
 WORKDIR /source
+RUN dotnet tool install --global dotnet-ef || { echo 'dotnet-ef installation failed'; exit 1; }
+RUN dotnet tool list -g
 
 # Exposer les ports nécessaires pour la production
 EXPOSE 5195
@@ -55,8 +57,6 @@ WORKDIR /source
 COPY --from=publish /app/publish .
 COPY TasksManagement_API/appsettings.Production.json ./appsettings.json
 ENV ASPNETCORE_ENVIRONMENT=Production
-RUN dotnet tool install --global dotnet-ef || { echo 'dotnet-ef installation failed'; exit 1; }
-RUN dotnet tool list -g
 RUN dotnet ef database update --no-build || { echo 'EF migration failed'; exit 1; }
 ENTRYPOINT ["dotnet", "TasksManagement_API.dll"]
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------
