@@ -45,6 +45,7 @@ WORKDIR /source
 COPY --from=publish /app/publish .
 COPY TasksManagement_API/appsettings.Production.json ./appsettings.json
 ENV ASPNETCORE_ENVIRONMENT=Production
+RUN echo "Starting migration phase..."
 RUN dotnet tool install --global dotnet-ef || { echo 'dotnet-ef installation failed'; exit 1; }
 RUN dotnet tool list -g
 RUN dotnet ef database update --no-build || { echo 'EF migration failed'; exit 1; }

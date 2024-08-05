@@ -61,7 +61,11 @@ builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 	var conStrings = item["DefaultConnection"];
 
 	//opt.UseInMemoryDatabase(conStrings);
-	opt.UseSqlServer(conStrings);
+	opt.UseSqlServer(conStrings,
+	sqlOptions => sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,  // Nombre maximal de tentatives de réessai
+                    maxRetryDelay: TimeSpan.FromSeconds(10),  // Délai entre les tentatives de réessai
+                    errorNumbersToAdd: null));
 });
 
 builder.Services.AddControllersWithViews();
