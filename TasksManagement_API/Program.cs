@@ -51,7 +51,8 @@ builder.Services.AddCors(options =>
 builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json",
 optional: true, reloadOnChange: true
 );
-var conStrings = ((IConfigurationSection?)builder.Configuration.GetSection("ConnectionStrings"))["DefaultConnection"];
+var item = builder.Configuration.GetSection("ConnectionStrings");
+var conStrings = item["DefaultConnection"];
 if (conStrings == null)
 {
 	throw new Exception("La chaine de connection à la base de données est nulle");
