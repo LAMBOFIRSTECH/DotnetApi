@@ -13,7 +13,6 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
-using Castle.Core.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -48,17 +47,11 @@ builder.Services.AddCors(options =>
 					  });
 });
 
-// Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
-//  C'est Developpement.sjon de base
 
 builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json",
 optional: true, reloadOnChange: true
 );
-var item = builder.Configuration.GetSection("ConnectionStrings");
-
-Console.WriteLine(item.Value);
-var conStrings = item["DefaultConnection"];
-Console.WriteLine(conStrings);
+var conStrings = ((IConfigurationSection?)builder.Configuration.GetSection("ConnectionStrings"))["DefaultConnection"];
 if (conStrings == null)
 {
 	throw new Exception("La chaine de connection à la base de données est nulle");
