@@ -55,7 +55,7 @@ builder.Services.AddCors(options =>
 builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json",
 optional: true, reloadOnChange: true
 );
-var item = builder.Configuration.GetSection("TasksManagement_API");
+var item = builder.Configuration.GetSection("ConnectionStrings");
 var conStrings = item["DefaultConnection"];
 builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseSqlServer(conStrings,sqlOptions => sqlOptions.EnableRetryOnFailure(
 maxRetryCount: 10,  // Nombre maximal de tentatives de réessai
