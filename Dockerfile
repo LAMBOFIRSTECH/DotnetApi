@@ -1,9 +1,6 @@
 # Phase de base : téléchargement de l'image de base
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
-
-# Définition du répertoire de travail pour l'image finale
 WORKDIR /source
-
 
 # Exposer les ports nécessaires pour la production
 EXPOSE 5195
@@ -14,21 +11,26 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-# Copie des fichiers du projet et restauration des dépendances
+# Copie des fichiers du projet et projet de test
 COPY TasksManagement_API/*.csproj TasksManagement_API/
-RUN dotnet restore "TasksManagement_API/TasksManagement_API.csproj" --disable-parallel
-
-# Copie des fichiers de test et restauration des dépendances de test
 COPY TasksManagement_Tests/*.csproj TasksManagement_Tests/
+
+# Restauration des dépendances
+RUN dotnet restore "TasksManagement_API/TasksManagement_API.csproj" --disable-parallel
 RUN dotnet restore "TasksManagement_Tests/TasksManagement_Tests.csproj"
 
-# Copie du reste du code et construction du projet de build
+# Copie du reste du code et construction du projet de build et de test
 COPY  TasksManagement_API/ TasksManagement_API/
-RUN dotnet build TasksManagement_API/TasksManagement_API.csproj -c $BUILD_CONFIGURATION -o /app/build
-
-# Copie du reste du code et construction du projet de test
 COPY TasksManagement_Tests/ TasksManagement_Tests/
+RUN dotnet build TasksManagement_API/TasksManagement_API.csproj -c $BUILD_CONFIGURATION -o /app/build
 RUN dotnet build TasksManagement_Tests/TasksManagement_Tests.csproj -c $BUILD_CONFIGURATION -o /app/test-build
+
+# Migration du context de base de données
+RUN echo "Starting migration phase..." && \
+    dotnet tool install --global dotnet-ef --version 6.0.20 && \
+    /root/.dotnet/tools/dotnet-ef database update  --project TasksManagement_API/TasksManagement_API.csproj || { echo 'EF migration failed'; exit 1; }
+
+# Exécution des tests
 RUN dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults -v d
 #----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -38,20 +40,7 @@ WORKDIR /src
 COPY --from=build /app/* /app/build
 RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj" -c $BUILD_CONFIGURATION -o /app/publish || { echo 'dotnet publish failed'; exit 1; }
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------
-    
-# Phase de migration du contexte de base de données
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS migration
-WORKDIR /src
-COPY --from=publish /app/publish .
-ENV ASPNETCORE_ENVIRONMENT=Production
-RUN echo "Starting migration phase..." && \
-    dotnet tool install --global dotnet-ef && \
-    dotnet tool list -g && \
-    echo "Checking dotnet-ef version..." && dotnet ef --version && \
-    dotnet ef migrations add InitialCreate && \
-    dotnet ef database update --no-build || { echo 'EF migration failed'; exit 1; }
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------
-    
+  
 # Phase finale d'exécution (RUNTIME)
 FROM base AS runtime
 WORKDIR /source
