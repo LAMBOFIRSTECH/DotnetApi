@@ -37,7 +37,7 @@ RUN echo "Checking environment variables and tools..." && \
 
 # Migration du context de base de données
 RUN echo "Starting migration phase..." && \
-    ~/.dotnet/tools/dotnet-ef database update  -- --environment Production --project TasksManagement_API/TasksManagement_API.csproj || { echo 'EF migration failed'; exit 1; }
+    ~/.dotnet/tools/dotnet-ef database update  --project TasksManagement_API/TasksManagement_API.csproj  --environment Production || { echo 'EF migration failed'; exit 1; }
 
 # Exécution des tests
 RUN dotnet test TasksManagement_Tests/TasksManagement_Tests.csproj --no-build --collect:"XPlat Code Coverage" --results-directory /TestResults -v d
