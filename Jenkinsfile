@@ -53,8 +53,8 @@ pipeline {
                         sh 'docker run --user root -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} -v ${COVERAGE_PATH}:/TestResults api-tasks'
 
                         sleep(time: 10, unit: 'SECONDS')
-                        
-                        sh 'docker exec ${PROJECT_NAME} /bin/bash -c "chmod -R 777 /TestResults'
+
+                        sh 'docker exec ${PROJECT_NAME} /bin/bash -c "chmod -R 777 /TestResults"'
                     /* groovylint-disable-next-line CatchException, NestedBlockDepth */
                     } catch (Exception e) {
                         currentBuild.result = 'FAILURE'
