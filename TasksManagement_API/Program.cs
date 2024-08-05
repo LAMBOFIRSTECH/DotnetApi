@@ -12,8 +12,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Authentication.Certificate;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,7 +54,9 @@ builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVaria
 optional: true, reloadOnChange: true
 );
 var item = builder.Configuration.GetSection("ConnectionStrings");
+Console.WriteLine(item.Value);
 var conStrings = item["DefaultConnection"];
+Console.WriteLine(conStrings);
 if (conStrings == null)
 {
 	throw new Exception("La chaine de connection à la base de données est nulle");
