@@ -10,7 +10,7 @@ EXPOSE 7251
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-RUN ls -l
+RUN ls -l /src
 
 # Copie des fichiers du projet et projet de test
 COPY TasksManagement_API/*.csproj TasksManagement_API/
