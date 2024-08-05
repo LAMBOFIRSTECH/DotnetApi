@@ -25,6 +25,7 @@ COPY TasksManagement_Tests/ TasksManagement_Tests/
 RUN dotnet build TasksManagement_API/TasksManagement_API.csproj -c $BUILD_CONFIGURATION -o /app/build
 RUN dotnet build TasksManagement_Tests/TasksManagement_Tests.csproj -c $BUILD_CONFIGURATION -o /app/test-build
 
+RUN ls -l /src/TasksManagement_API/appsettings.Production.json
 # Migration du context de base de données
 RUN echo "Starting migration phase..." && \
     dotnet tool install --global dotnet-ef --version 6.0.20 && \
