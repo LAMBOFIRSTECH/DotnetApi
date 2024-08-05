@@ -51,7 +51,7 @@ pipeline {
                     /* groovylint-disable-next-line NestedBlockDepth */
                     try {
                         /* groovylint-disable-next-line GStringExpressionWithinString, LineLength */
-                        sh 'docker run --user root -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} -v ${COVERAGE_PATH}:/TestResults api-tasks'
+                        sh 'docker run -d -p 5195:5195 -p 7251:7251 --name ${PROJECT_NAME} -v ${COVERAGE_PATH}:/TestResults --env-file .env api-tasks'
 
                         sleep(time: 10, unit: 'SECONDS')
 

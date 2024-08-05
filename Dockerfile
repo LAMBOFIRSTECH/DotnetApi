@@ -28,7 +28,6 @@ RUN dotnet build TasksManagement_Tests/TasksManagement_Tests.csproj -c $BUILD_CO
 
 RUN dotnet tool install --global dotnet-ef --version 6.0.20
 ENV PATH="$PATH:/root/.dotnet/tools"
-ENV CONNECTIONSTRING ="Server=SRV-PROD;Database=TasksManagementDb;User Id=sa;Password=password$1;"
 # Migration du context de base de données
 RUN echo "Starting migration phase..." && \
     dotnet-ef database update  --project TasksManagement_API/TasksManagement_API.csproj || { echo 'EF migration failed'; exit 1; }
@@ -54,6 +53,5 @@ COPY ApiNet6Certificate.pfx /https/certificate.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/certificate.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Password=lambo
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV CONNECTIONSTRING ="Server=SRV-PROD;Database=TasksManagementDb;User Id=sa;Password=password$1;"
 ENTRYPOINT ["dotnet", "TasksManagement_API.dll"]
 #------------------------------------------------------------------------------------------------------------------------------------------------------------
