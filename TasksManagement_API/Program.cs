@@ -63,8 +63,8 @@ builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
 	//opt.UseInMemoryDatabase(conStrings);
 	opt.UseSqlServer(conStrings,
 	sqlOptions => sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5,  // Nombre maximal de tentatives de réessai
-                    maxRetryDelay: TimeSpan.FromSeconds(10),  // Délai entre les tentatives de réessai
+                    maxRetryCount: 10,  // Nombre maximal de tentatives de réessai
+                    maxRetryDelay: TimeSpan.FromSeconds(40),  // Délai entre les tentatives de réessai
                     errorNumbersToAdd: null));
 });
 

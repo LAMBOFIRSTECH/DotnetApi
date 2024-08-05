@@ -47,6 +47,8 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 RUN echo "Starting migration phase..." && \
     dotnet tool install --global dotnet-ef && \
     dotnet tool list -g && \
+    echo "Checking dotnet-ef version..." && dotnet ef --version && \
+    dotnet ef migrations add InitialCreate && \
     dotnet ef database update --no-build || { echo 'EF migration failed'; exit 1; }
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------
     
