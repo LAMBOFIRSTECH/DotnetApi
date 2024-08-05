@@ -57,16 +57,12 @@ optional: true, reloadOnChange: true
 );
 var item = builder.Configuration.GetSection("TasksManagement_API");
 var conStrings = item["DefaultConnection"];
-builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
-{
+builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseSqlServer(conStrings,sqlOptions => sqlOptions.EnableRetryOnFailure(
+maxRetryCount: 10,  // Nombre maximal de tentatives de réessai
+maxRetryDelay: TimeSpan.FromSeconds(40),  // Délai entre les tentatives de réessai
+errorNumbersToAdd: null)));
+//opt.UseInMemoryDatabase(conStrings);
 
-	//opt.UseInMemoryDatabase(conStrings);
-	opt.UseSqlServer(conStrings,
-	sqlOptions => sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 10,  // Nombre maximal de tentatives de réessai
-                    maxRetryDelay: TimeSpan.FromSeconds(40),  // Délai entre les tentatives de réessai
-                    errorNumbersToAdd: null));
-});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRouting();
@@ -74,13 +70,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
 builder.Services.AddHealthChecks();
 
-/* Kestrel -> serveur web par defaut dans aspnet :Cest le gestionnaires des connexions entrantes y compris les connexions en https : On va spécifier le certificat à utiliser pour les connection en HTTPS.
-var kestrelSection = builder.Configuration.GetSection("Kestrel:EndPoints:Https");
-var certificateFile = kestrelSection["Certificate:File"];
-var certificatePassword = kestrelSection["Certificate:Password"];
-*/
-var certificateFile=Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
-var  certificatePassword=Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password");
+
+var certificateFile = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
+var certificatePassword = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password");
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
 	if (string.IsNullOrEmpty(certificateFile) || string.IsNullOrEmpty(certificatePassword))
@@ -95,8 +87,8 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 	options.Limits.MaxConcurrentConnections = 5;
 	options.ConfigureHttpsDefaults(opt =>
 	{
-		opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate; 
-		
+		opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+
 	});
 });
 
