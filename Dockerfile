@@ -37,8 +37,17 @@ FROM build AS publish
 WORKDIR /src
 COPY --from=build /app/* /app/build
 RUN dotnet publish "./TasksManagement_API/TasksManagement_API.csproj" -c $BUILD_CONFIGURATION -o /app/publish || { echo 'dotnet publish failed'; exit 1; }
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+    
+# Phase de migration du contexte de base de données
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS migration
+WORKDIR /source
+COPY --from=publish /app/publish .
+COPY TasksManagement_API/appsettings.Production.json ./appsettings.json
+ENV ASPNETCORE_ENVIRONMENT=Production
 RUN dotnet tool install --global dotnet-ef || { echo 'dotnet-ef installation failed'; exit 1; }
 RUN dotnet tool list -g
+RUN dotnet ef database update --no-build || { echo 'EF migration failed'; exit 1; }
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Phase finale d'exécution (RUNTIME)
@@ -50,14 +59,5 @@ COPY ApiNet6Certificate.pfx /https/certificate.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/certificate.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Password=lambo
 ENV ASPNETCORE_ENVIRONMENT=Production
-#------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-# Phase de migration du contexte de base de données
-FROM runtime AS migration
-WORKDIR /source
-COPY --from=publish /app/publish .
-COPY TasksManagement_API/appsettings.Production.json ./appsettings.json
-ENV ASPNETCORE_ENVIRONMENT=Production
-RUN dotnet ef database update --no-build || { echo 'EF migration failed'; exit 1; }
 ENTRYPOINT ["dotnet", "TasksManagement_API.dll"]
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------------------------------------
