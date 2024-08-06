@@ -6,7 +6,7 @@ pipeline {
         API_DIR = "${WORKSPACE_DIR}/TasksManagement_API"
         scannerHome = tool 'sonarscanner'
         PROJECT_KEY = 'Sonar-web-api'
-        PROJECT_NAME = 'WEB-API'
+        PROJECT_NAME = 'TasksManagement-API'
         PROJECT_VERSION = '1.0'
         SONAR_SCANNER_PATH = "${scannerHome}/sonar-scanner-5.0.1.3006/bin/sonar-scanner"
         SONAR_LANGUAGE = 'cs'
@@ -65,6 +65,7 @@ pipeline {
                 }
             }
         }
+
         stage('Vérification via SonarQube ') {
             steps {
                 script {
@@ -97,15 +98,12 @@ pipeline {
     post {
         success {
             echo 'Le pipeline s\'est exécuté avec succès!'
-            sh 'rm -f Jenkinsfile *.pfx' // Enlevez le Jenkinsfile si nécessaire
-            sh 'rm -f Docker*' // Enlevez le Dockerfile si nécessaire
+            sh 'rm -f Jenkinsfile *.pfx'
+            sh 'rm -f Docker*'
         }
         failure {
             echo 'Le pipeline a échoué!'
         }
-    // always {
-    //     junit '**/TestResults/*.trx'
-    // }
     }
 // Rajouter la stack trivy comme étape pour vérifier l'image docker
 }

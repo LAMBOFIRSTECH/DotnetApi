@@ -54,3 +54,4 @@ ENV ASPNETCORE_Kestrel__Certificates__Default__Password=lambo
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENTRYPOINT ["dotnet", "TasksManagement_API.dll"]
 #------------------------------------------------------------------------------------------------------------------------------------------------------------
+  
