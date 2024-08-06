@@ -25,6 +25,7 @@ public class DailyTasksMigrationsContext : DbContext
 		modelBuilder.Entity<Tache>(entity =>
 		{
 			entity.HasKey(t => t.Matricule);
+			entity.Property(t => t.Matricule).ValueGeneratedOnAdd();
 			entity.Property(t => t.Titre).IsRequired();
 			entity.Property(t => t.Summary);
 			entity.Property(t => t.StartDateH).IsRequired()
