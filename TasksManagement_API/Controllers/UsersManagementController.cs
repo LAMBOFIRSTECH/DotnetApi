@@ -128,7 +128,7 @@ public class UsersManagementController : ControllerBase
 	/// </summary>
 	/// <param name="ID"></param>
 	/// <returns></returns>
-	[Authorize(Policy = "AdminPolicy")]
+	//[Authorize(Policy = "AdminPolicy")]
 	[HttpDelete("DeleteUser/{ID:int}")]
 	public async Task<ActionResult> DeleteUserById(int ID)
 	{

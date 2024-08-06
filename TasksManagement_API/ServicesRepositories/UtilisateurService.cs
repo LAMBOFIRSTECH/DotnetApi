@@ -47,7 +47,7 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public bool CheckUserSecret(string secretPass)
 		{
-			string secretUserPass = configuration["TasksManagement_API:SecretApiKey"];
+			string secretUserPass = configuration["ConnectionStrings:SecretApiKey"];
 			if (string.IsNullOrEmpty(secretPass))
 			{
 				throw new NotImplementedException("La clé secrete est inexistante");
