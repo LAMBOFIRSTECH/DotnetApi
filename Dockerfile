@@ -11,7 +11,6 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-
 # Copie des fichiers du projet et projet de test
 COPY TasksManagement_API/*.csproj TasksManagement_API/
 COPY TasksManagement_Tests/*.csproj TasksManagement_Tests/
@@ -25,7 +24,6 @@ COPY  TasksManagement_API/ TasksManagement_API/
 COPY TasksManagement_Tests/ TasksManagement_Tests/
 RUN dotnet build TasksManagement_API/TasksManagement_API.csproj -c $BUILD_CONFIGURATION -o /app/build
 RUN dotnet build TasksManagement_Tests/TasksManagement_Tests.csproj -c $BUILD_CONFIGURATION -o /app/test-build
-
 RUN dotnet tool install --global dotnet-ef --version 6.0.20
 ENV PATH="$PATH:/root/.dotnet/tools"
 

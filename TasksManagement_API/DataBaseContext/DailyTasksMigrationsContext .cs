@@ -13,16 +13,29 @@ public class DailyTasksMigrationsContext : DbContext
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		modelBuilder.Entity<Tache>()
-		.Property(t => t.StartDateH)
-		.HasColumnName("StartDateH")
-		.HasColumnType("Datetime");
-		
-		modelBuilder.Entity<Tache>()
-		.Property(t => t.EndDateH)
-		.HasColumnName("EndDateH")
-		.HasColumnType("Datetime");
-		
+		modelBuilder.Entity<Utilisateur>(entity =>
+		  {
+			  entity.HasKey(u => u.ID);
+			  entity.Property(u => u.Nom).IsRequired();
+			  entity.Property(u => u.Email).IsRequired();
+			  entity.Property(u => u.Pass).IsRequired();
+			  entity.Property(u => u.Role).IsRequired();
+		  });
+
+		modelBuilder.Entity<Tache>(entity =>
+		{
+			entity.HasKey(t => t.Matricule);
+			entity.Property(t => t.Titre).IsRequired();
+			entity.Property(t => t.Summary);
+			entity.Property(t => t.StartDateH)
+			.HasColumnName("StartDateH")
+			.HasColumnType("Datetime");
+			entity.Property(t => t.EndDateH)
+			.HasColumnName("EndDateH")
+			.HasColumnType("Datetime");
+		});
+
+
 		base.OnModelCreating(modelBuilder);
 	}
 }
