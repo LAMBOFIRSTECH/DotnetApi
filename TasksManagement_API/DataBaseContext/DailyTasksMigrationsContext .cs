@@ -27,10 +27,10 @@ public class DailyTasksMigrationsContext : DbContext
 			entity.HasKey(t => t.Matricule);
 			entity.Property(t => t.Titre).IsRequired();
 			entity.Property(t => t.Summary);
-			entity.Property(t => t.StartDateH)
+			entity.Property(t => t.StartDateH).IsRequired()
 			.HasColumnName("StartDateH")
 			.HasColumnType("Datetime");
-			entity.Property(t => t.EndDateH)
+			entity.Property(t => t.EndDateH).IsRequired()
 			.HasColumnName("EndDateH")
 			.HasColumnType("Datetime");
 		});
