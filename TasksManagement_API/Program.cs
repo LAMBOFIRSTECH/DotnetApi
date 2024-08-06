@@ -53,6 +53,10 @@ optional: true, reloadOnChange: true
 );
 var item = builder.Configuration.GetSection("ConnectionStrings");
 var conStrings = item["DefaultConnection"];
+if (conStrings == null)
+{
+	throw new Exception("La chaine de connection à la base de données est nulle");
+}
 builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseSqlServer(conStrings,sqlOptions => sqlOptions.EnableRetryOnFailure(
 maxRetryCount: 10,  // Nombre maximal de tentatives de réessai
 maxRetryDelay: TimeSpan.FromSeconds(40),  // Délai entre les tentatives de réessai
