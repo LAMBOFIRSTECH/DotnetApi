@@ -106,3 +106,6 @@ Mettre en place une API swagger en net6.0
 ## 8- Representation du swagger d'api
 ![](TasksManagement_API.png)
 ![](schemaTaskManagement.png)
+
+
+

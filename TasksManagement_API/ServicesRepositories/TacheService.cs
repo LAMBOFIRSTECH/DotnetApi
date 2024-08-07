@@ -2,6 +2,7 @@ using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 using Microsoft.EntityFrameworkCore;
 
+#nullable disable
 namespace TasksManagement_API.ServicesRepositories
 {
 	public class TacheService :IReadTasksMethods,IWriteTasksMethods

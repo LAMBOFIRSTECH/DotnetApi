@@ -11,16 +11,16 @@ namespace TasksManagement_API.ServicesRepositories
 		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
 		private readonly IDataProtectionProvider provider;
 		private readonly IJwtTokenService jwtTokenService;
-		private readonly ILogger<UtilisateurService> logger;
+	
 		private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
 		private const string Purpose = "my protection purpose"; //On donne une intention pour l'encryptage explire dans 90jours
-		public UtilisateurService(DailyTasksMigrationsContext dataBaseMemoryContext, ILogger<UtilisateurService> logger, IJwtTokenService jwtTokenService, Microsoft.Extensions.Configuration.IConfiguration configuration, IDataProtectionProvider provider)
+		public UtilisateurService(DailyTasksMigrationsContext dataBaseMemoryContext, IJwtTokenService jwtTokenService, Microsoft.Extensions.Configuration.IConfiguration configuration, IDataProtectionProvider provider)
 		{
 			this.dataBaseMemoryContext = dataBaseMemoryContext;
 			this.jwtTokenService = jwtTokenService;
 			this.configuration = configuration;
 			this.provider = provider;
-			this.logger = logger;
+		
 		}
 
 		public async Task<TokenResult> GetToken(string email)
@@ -73,9 +73,6 @@ namespace TasksManagement_API.ServicesRepositories
 			await Task.Delay(200);
 			return utilisateur!;
 		}
-
-
-
 		public string EncryptUserSecret(string plainText)
 		{
 			var protector = provider.CreateProtector(Purpose);
@@ -87,7 +84,6 @@ namespace TasksManagement_API.ServicesRepositories
 			var protector = provider.CreateProtector(Purpose);
 			return protector.Unprotect(cipherText);
 		}
-
 		public async Task<Utilisateur> CreateUser(Utilisateur utilisateur)
 		{
 			var password = utilisateur.Pass;
@@ -123,9 +119,6 @@ namespace TasksManagement_API.ServicesRepositories
 			if (!user.CheckHashPassword(mdp))
 			{
 				user.Pass = user.SetHashPassword(mdp);
-
-				logger.LogInformation($"################################### Le mot de passe de l'utilisateur [{nom}] a été changé par l'admin {adminUser.OrderBy(u => Guid.NewGuid()).FirstOrDefault()}");
-				logger.LogInformation($"################################### Voici le nombre des utilisateurs admin {adminUser.Count()}");
 				await dataBaseMemoryContext.SaveChangesAsync();
 			}
 			return user;

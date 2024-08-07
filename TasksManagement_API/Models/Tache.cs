@@ -23,5 +23,7 @@ public class Tache
 	[Required(ErrorMessage = "Le format de date doit être comme l'exemple suivant : 01/01/2024")]
 	[DataType(DataType.Date)]
 	public DateTime EndDateH { get; set; }
+	// StartDateH = DateTime.Now,
+    //EndDateH = DateTime.Now.AddDays(1)
 	
 }
