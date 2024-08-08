@@ -47,9 +47,8 @@ namespace TasksManagement_API.ServicesRepositories
 		public bool CheckUserSecret(string secretPass)
 		{
 			Env.Load();
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            string secretUserPass =  Environment.GetEnvironmentVariable("PasswordSecret"); //configuration["JwtSettings:SecretPass"];
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            string secretUserPass =  Environment.GetEnvironmentVariable("PasswordSecret")!; //configuration["JwtSettings:SecretPass"];
+
             if (string.IsNullOrEmpty(secretPass))
 			{
 				throw new NotImplementedException("La clé secrete est inexistante");
