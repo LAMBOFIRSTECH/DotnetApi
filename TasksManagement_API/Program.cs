@@ -173,7 +173,7 @@ else if (app.Environment.IsProduction())
 	app.UseSwagger();
 	app.UseSwaggerUI(con =>
 	 {
-		 con.SwaggerEndpoint("/swagger/2.0/swagger.json", "Daily Tasks Management API");
+		 con.SwaggerEndpoint("/swagger/1.0/swagger.json", "Daily Tasks Management API");
 
 		 con.RoutePrefix = string.Empty;
 

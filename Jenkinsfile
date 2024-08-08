@@ -45,7 +45,7 @@ pipeline {
                    '''
             }
         }
-        stage('Démarrage du container') {
+        stage('Déploiement dans un container Docker') {
             steps {
                 script {
                     /* groovylint-disable-next-line NestedBlockDepth */
@@ -98,7 +98,7 @@ pipeline {
     post {
         success {
             echo 'Le pipeline s\'est exécuté avec succès!'
-            sh 'rm -f Jenkinsfile *.pfx'
+            sh 'rm -f Jenkinsfile *.crt *.key'
             sh 'rm -f Docker*'
         }
         failure {
