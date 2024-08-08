@@ -48,9 +48,10 @@ WORKDIR /source
 # Copier les fichiers publiés de l'image build
 COPY --from=publish /app/publish .
 COPY TasksManagement_API/appsettings.Production.json ./appsettings.Production.json
-COPY ApiNet6Certificate.pfx /https/certificate.pfx
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/certificate.pfx
-ENV ASPNETCORE_Kestrel__Certificates__Default__Password=lambo
+COPY ../TasksApi.crt /etc/ssl/certs/TasksApi.crt
+COPY ../TasksApi_unencrypted.key /etc/ssl/certs/TasksApi_unencrypted.key
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/etc/ssl/certs/TasksApi.crt
+ENV ASPNETCORE_Kestrel__Certificates__Default__Key=/etc/ssl/certs/TasksApi_unencrypted.key
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENTRYPOINT ["dotnet", "TasksManagement_API.dll"]
 #------------------------------------------------------------------------------------------------------------------------------------------------------------

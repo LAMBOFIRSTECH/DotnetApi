@@ -5,7 +5,7 @@ using TasksManagement_API.Models;
 namespace TasksManagement_API.DataBaseContext
 {
 
-    public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<DailyTasksMigrationsContext>
+	public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<DailyTasksMigrationsContext>
 	{
 		public DailyTasksMigrationsContext CreateDbContext(string[] args)
 		{
@@ -20,6 +20,7 @@ namespace TasksManagement_API.DataBaseContext
 			maxRetryCount: 10,
 			maxRetryDelay: TimeSpan.FromSeconds(40),
 			errorNumbersToAdd: null));
+		
 
 			return new DailyTasksMigrationsContext(optionsBuilder.Options);
 		}

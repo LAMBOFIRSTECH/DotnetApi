@@ -48,7 +48,7 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json",
+builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json",
 optional: true, reloadOnChange: true
 );
 var item = builder.Configuration.GetSection("ConnectionStrings");

@@ -7,10 +7,10 @@ namespace TasksManagement_API.ServicesRepositories
 {
 	public class TacheService :IReadTasksMethods,IWriteTasksMethods
 	{
-		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
-		public TacheService(DailyTasksMigrationsContext dataBaseMemoryContext)
+		private readonly DailyTasksMigrationsContext dataBaseSqlServerContext;
+		public TacheService(DailyTasksMigrationsContext dataBaseSqlServerContext)
 		{
-			this.dataBaseMemoryContext = dataBaseMemoryContext;
+			this.dataBaseSqlServerContext = dataBaseSqlServerContext;
 		}
 		/// <summary>
 		/// Renvoie la liste des taches.
@@ -18,8 +18,8 @@ namespace TasksManagement_API.ServicesRepositories
 		/// <returns></returns>
 		public async Task<List<Tache>> GetTaches()
 		{
-			var listTache = await dataBaseMemoryContext.Taches.ToListAsync();
-			await dataBaseMemoryContext.SaveChangesAsync();
+			var listTache = await dataBaseSqlServerContext.Taches.ToListAsync();
+			await dataBaseSqlServerContext.SaveChangesAsync();
 			return listTache;
 		}
 
@@ -31,32 +31,32 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public async Task<Tache> GetTaskById(int? matricule)
 		{
-			var tache = await dataBaseMemoryContext.Taches.FirstOrDefaultAsync(t => t.Matricule == matricule);
+			var tache = await dataBaseSqlServerContext.Taches.FirstOrDefaultAsync(t => t.Matricule == matricule);
 			await Task.Delay(200);
 			return tache!;
 		}
 		public async Task<Tache> CreateTask(Tache tache)
 		{
-			await dataBaseMemoryContext.Taches.AddAsync(tache);
-			await dataBaseMemoryContext.SaveChangesAsync();
+			await dataBaseSqlServerContext.Taches.AddAsync(tache);
+			await dataBaseSqlServerContext.SaveChangesAsync();
 			return tache;
 		}
 
 		public async Task DeleteTaskById(int matricule)
 		{
-			var result = await dataBaseMemoryContext.Taches.FirstOrDefaultAsync(t => t.Matricule == matricule);
+			var result = await dataBaseSqlServerContext.Taches.FirstOrDefaultAsync(t => t.Matricule == matricule);
 			if (result != null)
 			{
-				dataBaseMemoryContext.Taches.Remove(result);
+				dataBaseSqlServerContext.Taches.Remove(result);
 
-				await dataBaseMemoryContext.SaveChangesAsync();
+				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 		}
 
 		public async Task<Tache> UpdateTask(Tache tache)
 		{
-			var tache1 = await dataBaseMemoryContext.Taches.FindAsync(tache.Matricule);
-			dataBaseMemoryContext.Taches.Remove(tache1);
+			var tache1 = await dataBaseSqlServerContext.Taches.FindAsync(tache.Matricule);
+			dataBaseSqlServerContext.Taches.Remove(tache1);
 			Tache newtache = new()
 			{
 				Matricule = tache.Matricule,
@@ -65,8 +65,8 @@ namespace TasksManagement_API.ServicesRepositories
 				StartDateH = tache.StartDateH,
 				EndDateH= tache.EndDateH
 			};
-			await dataBaseMemoryContext.Taches.AddAsync(newtache);
-			await dataBaseMemoryContext.SaveChangesAsync();
+			await dataBaseSqlServerContext.Taches.AddAsync(newtache);
+			await dataBaseSqlServerContext.SaveChangesAsync();
 			return newtache;
 		}
 	}

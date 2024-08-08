@@ -9,12 +9,12 @@ namespace TasksManagement_API.Authentifications
 {
     public class JwtBearerAuthentificationService : IJwtTokenService
 	{
-		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
+		private readonly DailyTasksMigrationsContext dataBaseSqlServerContext;
 		private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
 
-		public JwtBearerAuthentificationService(DailyTasksMigrationsContext dataBaseMemoryContext, Microsoft.Extensions.Configuration.IConfiguration configuration)
+		public JwtBearerAuthentificationService(DailyTasksMigrationsContext dataBaseSqlServerContext, Microsoft.Extensions.Configuration.IConfiguration configuration)
 		{
-			this.dataBaseMemoryContext = dataBaseMemoryContext;
+			this.dataBaseSqlServerContext = dataBaseSqlServerContext;
 			this.configuration = configuration;
 		}
 		public string GetSigningKey()
@@ -27,7 +27,7 @@ namespace TasksManagement_API.Authentifications
 		}
 		public string GenerateJwtToken(string email)
 		{
-			var utilisateur = dataBaseMemoryContext.Utilisateurs
+			var utilisateur = dataBaseSqlServerContext.Utilisateurs
 			.Single(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
 			if (utilisateur is null)
 			{
