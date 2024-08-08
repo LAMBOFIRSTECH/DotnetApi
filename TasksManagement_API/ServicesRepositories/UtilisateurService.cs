@@ -46,10 +46,10 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public bool CheckUserSecret(string secretPass)
 		{
-			Env.Load("../.env");
+			Env.Load();
             string secretUserPass =  Environment.GetEnvironmentVariable("PasswordSecret")!; //configuration["JwtSettings:SecretPass"];
 
-            if (string.IsNullOrEmpty(secretPass))
+            if (string.IsNullOrEmpty(secretUserPass))
 			{
 				throw new NotImplementedException("La clé secrete est inexistante");
 
