@@ -82,7 +82,7 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 	{
 		throw new InvalidOperationException("Le chemin du certificat ou sa clé privée n'est pas configuré");
 	}
-	 var certificate = X509Certificate2.CreateFromPemFile(certificateFile, certificateKey);
+	var certificate = X509Certificate2.CreateFromPemFile(certificateFile, certificateKey);
 	options.ListenAnyIP(5195);
 	options.ListenAnyIP(7251, listenOptions =>
 	{
