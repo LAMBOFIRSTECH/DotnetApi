@@ -48,7 +48,7 @@ namespace TasksManagement_API.ServicesRepositories
 		{
 			Env.Load();
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            string secretUserPass =  Environment.GetEnvironmentVariable("SecretPass"); //configuration["JwtSettings:SecretPass"];
+            string secretUserPass =  Environment.GetEnvironmentVariable("PasswordSecret"); //configuration["JwtSettings:SecretPass"];
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
             if (string.IsNullOrEmpty(secretPass))
 			{
