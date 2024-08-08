@@ -48,8 +48,8 @@ WORKDIR /source
 # Copier les fichiers publiés de l'image build
 COPY --from=publish /app/publish .
 COPY TasksManagement_API/appsettings.Production.json ./appsettings.Production.json
-COPY ../TasksApi.crt /etc/ssl/certs/TasksApi.crt
-COPY ../TasksApi_unencrypted.key /etc/ssl/certs/TasksApi_unencrypted.key
+COPY TasksApi.crt /etc/ssl/certs/TasksApi.crt
+COPY TasksApi_unencrypted.key /etc/ssl/certs/TasksApi_unencrypted.key
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/etc/ssl/certs/TasksApi.crt
 ENV ASPNETCORE_Kestrel__Certificates__Default__Key=/etc/ssl/certs/TasksApi_unencrypted.key
 ENV ASPNETCORE_ENVIRONMENT=Production
