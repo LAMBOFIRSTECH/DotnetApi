@@ -46,7 +46,7 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public bool CheckUserSecret(string secretPass)
 		{
-			Env.Load();
+			Env.Load("ServicesRepositories/.env");
             string secretUserPass =  Environment.GetEnvironmentVariable("PasswordSecret")!; //configuration["JwtSettings:SecretPass"];
 
             if (string.IsNullOrEmpty(secretUserPass))
