@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 using Microsoft.AspNetCore.DataProtection;
-// using DotNetEnv;
 namespace TasksManagement_API.ServicesRepositories
 {
 	public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
@@ -46,8 +45,8 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public bool CheckUserSecret(string secretPass)
 		{
-			//Env.Load("ServicesRepositories/.env");
-            string secretUserPass = configuration["JwtSettings:SecretPass"]; // Prod Environment.GetEnvironmentVariable("PasswordSecret")!; //
+			
+            string secretUserPass = configuration["JwtSettings:SecretPass"]; 
 
             if (string.IsNullOrEmpty(secretUserPass))
 			{

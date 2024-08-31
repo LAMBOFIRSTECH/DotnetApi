@@ -20,7 +20,7 @@ public class UsersManagementController : ControllerBase
 	/// <summary>
 	/// Affiche la liste de tous les utilisateurs.
 	/// </summary>
-	[Authorize(Policy = "AdminPolicy")]
+	//[Authorize(Policy = "AdminPolicy")]
 	[HttpGet("GetAllUsers")]
 	public async Task<ActionResult> GetUsers()
 	{

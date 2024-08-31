@@ -57,11 +57,7 @@ if (conStrings == null)
 {
 	throw new Exception("La chaine de connection à la base de données est nulle");
 }
-builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseSqlServer(conStrings,sqlOptions => sqlOptions.EnableRetryOnFailure(
-maxRetryCount: 10, 
-maxRetryDelay: TimeSpan.FromSeconds(40),  
-errorNumbersToAdd: null)));
-// opt.UseInMemoryDatabase(conStrings);
+builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseInMemoryDatabase(conStrings));
 
 
 builder.Services.AddControllersWithViews();
@@ -70,27 +66,27 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
 builder.Services.AddHealthChecks();
 
-
-var certificateFile = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
-var certificatePassword = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password");
+var kestrelSection=builder.Configuration.GetSection("Kestrel:EndPoints:Https");
+var certificateFile = kestrelSection["Certificate:File"];
+var certificatePassword = kestrelSection["Certificate:Password"];
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-	if (string.IsNullOrEmpty(certificateFile) || string.IsNullOrEmpty(certificatePassword))
-	{
-		throw new InvalidOperationException("Certificate path or password not configured");
-	}
-	options.ListenAnyIP(5195);
-	options.ListenAnyIP(7251, listenOptions =>
-	{
-		listenOptions.UseHttps(certificateFile, certificatePassword);
-	});
-	options.Limits.MaxConcurrentConnections = 5;
-	options.ConfigureHttpsDefaults(opt =>
-	{
-		opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+    if (string.IsNullOrEmpty(certificateFile) || string.IsNullOrEmpty(certificatePassword))
+    {
+        throw new InvalidOperationException("Certificate path or password not configured");
+    }
+    options.ListenAnyIP(7081, listenOptions =>
+    {
+        listenOptions.UseHttps(certificateFile, certificatePassword);
+    });
+    options.Limits.MaxConcurrentConnections = 5;
+    options.ConfigureHttpsDefaults(opt =>
+    {
+        opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
 
-	});
+    });
 });
+
 
 builder.Services.AddScoped<IReadUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IWriteUsersMethods, UtilisateurService>();

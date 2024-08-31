@@ -13,6 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using DotNetEnv;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -48,22 +50,19 @@ builder.Services.AddCors(options =>
 });
 
 
+Env.Load();
 
 var environment = $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json";
 builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
 	  .AddJsonFile(environment, optional: false, reloadOnChange: true);
 
 var connectionStrings = builder.Configuration.GetSection("ConnectionStrings").Get<Dictionary<string, string>>();
-Console.WriteLine("valeur1", connectionStrings);
 if (connectionStrings == null || !connectionStrings.ContainsKey("DefaultConnection"))
 {
 	throw new Exception("La chaine de connexion à la base de données est nulle");
 }
 
-var conStrings = connectionStrings["DefaultConnection"];
-Console.WriteLine("valeur2", conStrings);
-
-builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseSqlServer(conStrings,sqlOptions => sqlOptions.EnableRetryOnFailure(
+builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseSqlServer(connectionStrings["DefaultConnection"],sqlOptions => sqlOptions.EnableRetryOnFailure(
 maxRetryCount: 10, 
 maxRetryDelay: TimeSpan.FromSeconds(40),  
 errorNumbersToAdd: null)));
@@ -75,17 +74,19 @@ builder.Services.AddDataProtection();
 builder.Services.AddHealthChecks();
 
 var certificateFile = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
-var certificatePassword = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Password");
+var certificateKey = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Key");
+
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
-	if (string.IsNullOrEmpty(certificateFile) || string.IsNullOrEmpty(certificatePassword))
+	if (string.IsNullOrEmpty(certificateFile) || string.IsNullOrEmpty(certificateKey))
 	{
-		throw new InvalidOperationException("Certificate path or password not configured");
+		throw new InvalidOperationException("Le chemin du certificat ou sa clé privée n'est pas configuré");
 	}
+	var certificate = X509Certificate2.CreateFromPemFile(certificateFile, certificateKey);
 	options.ListenAnyIP(5195);
 	options.ListenAnyIP(7251, listenOptions =>
 	{
-		listenOptions.UseHttps(certificateFile, certificatePassword);
+		listenOptions.UseHttps(certificate);
 	});
 	options.Limits.MaxConcurrentConnections = 5;
 	options.ConfigureHttpsDefaults(opt =>
@@ -172,7 +173,7 @@ else if (app.Environment.IsProduction())
 	app.UseSwagger();
 	app.UseSwaggerUI(con =>
 	 {
-		 con.SwaggerEndpoint("/swagger/2.0/swagger.json", "Daily Tasks Management API");
+		 con.SwaggerEndpoint("/swagger/1.0/swagger.json", "Daily Tasks Management API");
 
 		 con.RoutePrefix = string.Empty;
 
