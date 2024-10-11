@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 using Microsoft.AspNetCore.DataProtection;
-// using DotNetEnv;
 namespace TasksManagement_API.ServicesRepositories
 {
 	public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
@@ -10,7 +9,7 @@ namespace TasksManagement_API.ServicesRepositories
 		private readonly DailyTasksMigrationsContext dataBaseSqlServerContext;
 		private readonly IDataProtectionProvider provider;
 		private readonly IJwtTokenService jwtTokenService;
-	
+
 		private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
 		private const string Purpose = "my protection purpose"; //On donne une intention pour l'encryptage explire dans 90jours
 		public UtilisateurService(DailyTasksMigrationsContext dataBaseSqlServerContext, IJwtTokenService jwtTokenService, Microsoft.Extensions.Configuration.IConfiguration configuration, IDataProtectionProvider provider)
@@ -19,13 +18,13 @@ namespace TasksManagement_API.ServicesRepositories
 			this.jwtTokenService = jwtTokenService;
 			this.configuration = configuration;
 			this.provider = provider;
-		
+
 		}
 
 		public async Task<TokenResult> GetToken(string email)
 		{
 			var utilisateur = dataBaseSqlServerContext.Utilisateurs
-				.SingleOrDefault(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
+				.SingleOrDefault(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Administrateur));
 
 			if (utilisateur is null)
 			{
@@ -47,9 +46,9 @@ namespace TasksManagement_API.ServicesRepositories
 		public bool CheckUserSecret(string secretPass)
 		{
 			//Env.Load("ServicesRepositories/.env");
-            string secretUserPass = configuration["JwtSettings:SecretPass"]; // Prod Environment.GetEnvironmentVariable("PasswordSecret")!; //
+			string secretUserPass = configuration["JwtSettings:JwtSecretKey"]; // Prod Environment.GetEnvironmentVariable("PasswordSecret")!; //
 
-            if (string.IsNullOrEmpty(secretUserPass))
+			if (string.IsNullOrEmpty(secretUserPass))
 			{
 				throw new NotImplementedException("La clé secrete est inexistante");
 
@@ -62,18 +61,18 @@ namespace TasksManagement_API.ServicesRepositories
 		}
 		public async Task<List<Utilisateur>> GetUsers()
 		{
-			var listUtilisateur = await dataBaseSqlServerContext.Utilisateurs.ToListAsync();
+			var listUtilisateurs = await dataBaseSqlServerContext.Utilisateurs.ToListAsync();
 			await dataBaseSqlServerContext.SaveChangesAsync();
-
-			return listUtilisateur;
+			return listUtilisateurs;
 		}
 
-		public async Task<Utilisateur> GetUserById(int id)
+		public async Task<Utilisateur> GetSingleUser(string nom, Utilisateur.Privilege role)
 		{
-			var utilisateur = dataBaseSqlServerContext.Utilisateurs.FirstOrDefault(u => u.ID == id);
-			await Task.Delay(200);
+			var utilisateur = await dataBaseSqlServerContext.Utilisateurs
+				.FirstOrDefaultAsync(util => util.Nom == nom && util.Role == role);
 			return utilisateur!;
 		}
+
 		public string EncryptUserSecret(string plainText)
 		{
 			var protector = provider.CreateProtector(Purpose);
@@ -109,7 +108,7 @@ namespace TasksManagement_API.ServicesRepositories
 		public async Task<Utilisateur> SetUserPassword(string nom, string mdp)
 		{
 			var adminUser = await dataBaseSqlServerContext.Utilisateurs!
-			.Where(u => u.Role!.Equals(Utilisateur.Privilege.Admin))
+			.Where(u => u.Role!.Equals(Utilisateur.Privilege.Administrateur))
 			.Select(u => u.Nom).ToListAsync();
 
 			var user = await dataBaseSqlServerContext.Utilisateurs!.Where(u => u.Nom!.Equals(nom)).SingleOrDefaultAsync();
@@ -125,14 +124,15 @@ namespace TasksManagement_API.ServicesRepositories
 			return user;
 		}
 
-		public async Task DeleteUserById(int id)
+		public async Task DeleteUserByDetails(string nom, Utilisateur.Privilege role)
 		{
-			var result = await dataBaseSqlServerContext.Utilisateurs.FirstOrDefaultAsync(u => u.ID == id);
+			var result = await dataBaseSqlServerContext.Utilisateurs
+				.FirstOrDefaultAsync(util => util.Nom == nom && util.Role == role);
 			if (result != null)
 			{
 				dataBaseSqlServerContext.Utilisateurs.Remove(result);
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
-		}
-	}
+		}   
+    }
 }

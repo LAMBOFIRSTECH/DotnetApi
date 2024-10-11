@@ -6,6 +6,6 @@ namespace TasksManagement_API.Interfaces
 		Task<TokenResult> GetToken(string email);                                         
 		bool CheckUserSecret(string secretPass);
 		Task<List<Utilisateur>> GetUsers();
-		Task<Utilisateur> GetUserById(int id);
+		Task<Utilisateur> GetSingleUser(string nom, Utilisateur.Privilege role);
 	}
 }

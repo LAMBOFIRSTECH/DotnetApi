@@ -32,36 +32,37 @@ public class UsersManagementController : ControllerBase
 	/// <summary>
 	/// Affiche les informations sur un utilisateur en fonction de son ID.
 	/// </summary>
-	/// <param name="ID"></param>
+	/// <param name="Nom"></param>
+	/// <param name="Role"></param>
 	/// <returns></returns>
-	[Authorize(Policy = "UserPolicy")]
-	[HttpGet("GetUserByID/{ID:int}")]
-	public async Task<ActionResult> GetUserById(int ID)
+	//[Authorize(Policy = "UserPolicy")]
+	[HttpGet("GetSingleUser/{Nom}/{Role}")]
+	public async Task<ActionResult> GetSingleUser(string Nom, string Role)
 	{
-		try
+		if (Enum.TryParse(char.ToUpper(Role[0]) + Role.Substring(1).ToLower(), out Utilisateur.Privilege result))
 		{
-			var utilisateur = await readMethods.GetUserById(ID);
-			if (utilisateur != null)
+			try
 			{
-				return Ok(utilisateur);
+				var utilisateur = await readMethods.GetSingleUser(Nom, result);
+				if (utilisateur != null)
+				{
+					return Ok(utilisateur);
+				}
+				return NotFound("Utilisateur non trouvé.");
 			}
-			return NotFound("Utilisateur non trouvé.");
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
+			}
 		}
-		catch (Exception ex)
+		else
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
+			return BadRequest("Le rôle spécifié n'est pas valide.");
 		}
 	}
-
 	/// <summary>
 	/// Créée un utilisateur.
 	/// </summary>
-	/// <param name="identifiant"></param>
-	/// <param name="nom"></param>
-	/// <param name="mdp"></param>
-	/// <param name="role"></param>
-	/// <param name="email"></param>
-	/// <returns></returns>
 	/// <remarks>
 	/// Sample request:
 	///
@@ -70,41 +71,46 @@ public class UsersManagementController : ControllerBase
 	///        "id": This value is autoincremented,
 	///        "Nom": "username",
 	///        "mdp": "password",
-	///        "role": "UserX",
+	///        "role": "Utilisateur",
 	///        "email": "adress_name@mailing_server.domain"  
 	///     }
 	/// </remarks>
 
-	[HttpPost("CreateUser/")]
-	public async Task<ActionResult> CreateUser(int identifiant, string nom, [DataType(DataType.Password)] string mdp, string role, string email)
+	[HttpPost("CreateUser")]
+	public async Task<ActionResult> CreateUser([FromBody] Utilisateur utilisateur)
 	{
+		if (!ModelState.IsValid)
+		{
+			// Retourne les erreurs de validation pour diagnostic
+			return BadRequest(ModelState);
+		}
 
 		try
 		{
-			Utilisateur.Privilege privilege;
-			if (!Enum.TryParse(role, true, out privilege))
+			//Utilisateur.Privilege privilege;
+
+			Utilisateur newUtilisateur = new()
+			{
+				Nom = utilisateur.Nom,
+				Pass = utilisateur.Pass,
+				Role = utilisateur.Role,
+				Email = utilisateur.Email
+			};
+			if (!Enum.IsDefined(typeof(Utilisateur.Privilege), utilisateur.Role))
 			{
 				return BadRequest("Le rôle spécifié n'est pas valide.");
 			}
-			Utilisateur newUtilisateur = new()
-			{
-				ID = identifiant,
-				Nom = nom,
-				Pass = mdp,
-				Role = privilege,
-				Email = email
-			};
 			var listUtilisateurs = await readMethods.GetUsers();
-			var utilisateurExistant = listUtilisateurs.FirstOrDefault(item => item.Nom == nom && item.Role == privilege);
+			var utilisateurExistant = listUtilisateurs.FirstOrDefault(item => item.Nom == utilisateur.Nom && item.Role == utilisateur.Role);
 			if (utilisateurExistant != null)
 			{
 				return Conflict("Cet utilisateur est déjà présent");
 			}
 
-			var utilisateurAvecMemeNom = listUtilisateurs.FirstOrDefault(item => item.Nom == nom);
+			var utilisateurAvecMemeNom = listUtilisateurs.FirstOrDefault(item => item.Nom == utilisateur.Nom);
 			if (utilisateurAvecMemeNom != null)
 			{
-				var nouveauNomUtilisateur = $"{nom}_1";
+				var nouveauNomUtilisateur = $"{utilisateur.Nom}_1";
 				if (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
 				{
 					return Conflict("Cet utilisateur possède déjà ce rôle");
@@ -126,28 +132,35 @@ public class UsersManagementController : ControllerBase
 	/// <summary>
 	/// Supprime un utilisateur en fonction de son ID.
 	/// </summary>
-	/// <param name="ID"></param>
+	/// <param name="Nom"></param>
+	/// <param name="Role"></param>
 	/// <returns></returns>
-	[Authorize(Policy = "AdminPolicy")]
-	[HttpDelete("DeleteUser/{ID:int}")]
-	public async Task<ActionResult> DeleteUserById(int ID)
+	//[Authorize(Policy = "AdminPolicy")]
+	[HttpDelete("Delete/{Nom}/{Role}")]
+	public async Task<ActionResult> DeleteUserByDetails(string Nom, string Role)
 	{
-		var utilisateur = await readMethods.GetUserById(ID);
-		try
+		if (Enum.TryParse(char.ToUpper(Role[0]) + Role.Substring(1).ToLower(), out Utilisateur.Privilege result))
 		{
-			if (utilisateur == null)
+			try
 			{
-				return NotFound($"L'utilisateur id=[{ID}] n'a pas été trouvé dans le contexte de base de données");
+				var utilisateur = await readMethods.GetSingleUser(Nom, result);
+				if (utilisateur == null)
+				{
+					return NotFound($"L'utilisateur [{Nom}] n'a pas été trouvé dans le contexte de base de données");
+				}
+				await writeMethods.DeleteUserByDetails(Nom, result);
+				return Ok("La donnée a bien été supprimée");
 			}
-			await writeMethods.DeleteUserById(ID);
-			return Ok("La donnée a bien été supprimée");
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
+			}
 		}
-		catch (Exception ex)
+		else
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
+			return BadRequest("Le rôle spécifié n'est pas valide.");
 		}
 	}
-
 	/// <summary>
 	/// Met à jour le mot de passe d'un utilisateur en fonction de son nom
 	/// </summary>
@@ -164,14 +177,12 @@ public class UsersManagementController : ControllerBase
 			{
 				return Conflict("Le mot de passe saisi existe déjà.");
 			}
-
 			await writeMethods.SetUserPassword(nom, newpassword);
 			return Ok($"Le mot de passe de l'utilisateur [{nom}] a bien été modifié.");
 		}
 		catch (Exception ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError,
-					  ex.Message.Trim());
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 }

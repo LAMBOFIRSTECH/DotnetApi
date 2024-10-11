@@ -28,7 +28,7 @@ namespace TasksManagement_API.Authentifications
 		public string GenerateJwtToken(string email)
 		{
 			var utilisateur = dataBaseSqlServerContext.Utilisateurs
-			.Single(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
+			.Single(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Administrateur));
 			if (utilisateur is null)
 			{
 				throw new ArgumentException("Cet utilisateur n'existe pas");
