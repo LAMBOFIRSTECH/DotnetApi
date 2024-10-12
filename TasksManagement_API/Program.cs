@@ -188,7 +188,7 @@ app.UseEndpoints(endpoints =>
 	 endpoints.MapHealthChecks("/health");
 	 endpoints.MapGet("/version", async context =>
 		{
-			await context.Response.WriteAsync("Version de l'API : 1.0");
+			await context.Response.WriteAsync("Version de l'API : 1.1");
 		});
  });
 app.Run();
