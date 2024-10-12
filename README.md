@@ -86,10 +86,10 @@ Mettre en place une API swagger en net6.0
 ### 7.1- UsersManagementController 
 
 > - `/api/v1.0/UsersManagement/GetAllUsers`
-> - `/api/v1.0/UsersManagement/GetUserByID/?{id}`
+> - `/api/v1.0/UsersManagement/GetSingleUser/{Nom}/{Role}`
 > - `/api/v1.0/UsersManagement/CreateUser`
 > - `/api/v1.0/UsersManagement/SetUserPassword/?{nom}&{mdp}`
-> - `/api/v1.0/UsersManagement/DeleteUser/?{id}`
+> - `/api/v1.0/UsersManagement/Delete/{Nom}/{Role}`
 
 ### 7.2- TasksManagementController
 

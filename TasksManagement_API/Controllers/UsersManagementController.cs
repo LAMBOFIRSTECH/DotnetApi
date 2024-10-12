@@ -6,7 +6,7 @@ using TasksManagement_API.Interfaces;
 namespace TasksManagement_API.Controllers;
 
 [ApiController]
-[Route("api/v1.0/[controller]/")]
+[Route("api/v1.1/[controller]/")]
 [Produces("application/json")]
 public class UsersManagementController : ControllerBase
 {
@@ -43,7 +43,7 @@ public class UsersManagementController : ControllerBase
 		{
 			try
 			{
-				var utilisateur = await readMethods.GetSingleUser(Nom, result);
+				var utilisateur = await readMethods.GetSingleUserByNameRole(Nom, result);
 				if (utilisateur != null)
 				{
 					return Ok(utilisateur);
@@ -143,7 +143,7 @@ public class UsersManagementController : ControllerBase
 		{
 			try
 			{
-				var utilisateur = await readMethods.GetSingleUser(Nom, result);
+				var utilisateur = await readMethods.GetSingleUserByNameRole(Nom, result);
 				if (utilisateur == null)
 				{
 					return NotFound($"L'utilisateur [{Nom}] n'a pas été trouvé dans le contexte de base de données");

@@ -21,7 +21,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
-	opt.SwaggerDoc("1.0", new OpenApiInfo
+	opt.SwaggerDoc("1.1", new OpenApiInfo
 	{
 		Title = "DailyTasks | Api",
 		Description = "An ASP.NET Core Web API for managing Tasks App",

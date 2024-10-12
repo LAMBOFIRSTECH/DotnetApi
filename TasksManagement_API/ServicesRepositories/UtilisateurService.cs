@@ -18,7 +18,6 @@ namespace TasksManagement_API.ServicesRepositories
 			this.jwtTokenService = jwtTokenService;
 			this.configuration = configuration;
 			this.provider = provider;
-
 		}
 
 		public async Task<TokenResult> GetToken(string email)
@@ -59,18 +58,24 @@ namespace TasksManagement_API.ServicesRepositories
 			if (!BCryptResult.Equals(true)) { return false; }
 			return true;
 		}
-		public async Task<List<Utilisateur>> GetUsers()
+	
+		public async Task<List<Utilisateur>> GetUsers(Func<Utilisateur, bool>? filter = null)
 		{
 			var listUtilisateurs = await dataBaseSqlServerContext.Utilisateurs.ToListAsync();
-			await dataBaseSqlServerContext.SaveChangesAsync();
+
+			// Si un filtre est fourni, appliquer ce filtre
+			if (filter != null)
+			{
+				return listUtilisateurs.Where(filter).ToList();
+			}
+			// Retourner tous les utilisateurs si aucun filtre n'est donné
 			return listUtilisateurs;
 		}
-
-		public async Task<Utilisateur> GetSingleUser(string nom, Utilisateur.Privilege role)
+		
+		public async Task<Utilisateur?> GetSingleUserByNameRole(string nom, Utilisateur.Privilege role)
 		{
-			var utilisateur = await dataBaseSqlServerContext.Utilisateurs
-				.FirstOrDefaultAsync(util => util.Nom == nom && util.Role == role);
-			return utilisateur!;
+			var utilisateur= await GetUsers(user => user.Nom == nom && user.Role == role);
+			return utilisateur.FirstOrDefault();
 		}
 
 		public string EncryptUserSecret(string plainText)
@@ -126,13 +131,13 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public async Task DeleteUserByDetails(string nom, Utilisateur.Privilege role)
 		{
-			var result = await dataBaseSqlServerContext.Utilisateurs
-				.FirstOrDefaultAsync(util => util.Nom == nom && util.Role == role);
+			var result = await GetSingleUserByNameRole(nom,role);
 			if (result != null)
 			{
 				dataBaseSqlServerContext.Utilisateurs.Remove(result);
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
-		}   
-    }
+		}
+
+	}
 }
