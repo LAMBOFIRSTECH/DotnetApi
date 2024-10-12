@@ -39,7 +39,7 @@ namespace TasksManagement_API.Authentifications
 						var claims = new[]
 						{
 							new Claim(ClaimTypes.Name, username),
-							new Claim(ClaimTypes.Role, Utilisateur.Privilege.UserX.ToString())
+							new Claim(ClaimTypes.Role, Utilisateur.Privilege.Utilisateur.ToString())
 							};
 
 						var identity = new ClaimsIdentity(claims, Scheme.Name);

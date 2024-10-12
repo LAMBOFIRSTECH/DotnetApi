@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 using Microsoft.AspNetCore.DataProtection;
@@ -7,37 +6,48 @@ namespace TasksManagement_API.ServicesRepositories
 {
 	public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
 	{
-		private readonly DailyTasksMigrationsContext dataBaseMemoryContext;
+		private readonly DailyTasksMigrationsContext dataBaseSqlServerContext;
 		private readonly IDataProtectionProvider provider;
 		private readonly IJwtTokenService jwtTokenService;
-		private readonly ILogger<UtilisateurService> logger;
+
 		private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
 		private const string Purpose = "my protection purpose"; //On donne une intention pour l'encryptage explire dans 90jours
-		public UtilisateurService(DailyTasksMigrationsContext dataBaseMemoryContext, ILogger<UtilisateurService> logger, IJwtTokenService jwtTokenService, Microsoft.Extensions.Configuration.IConfiguration configuration, IDataProtectionProvider provider)
+		public UtilisateurService(DailyTasksMigrationsContext dataBaseSqlServerContext, IJwtTokenService jwtTokenService, Microsoft.Extensions.Configuration.IConfiguration configuration, IDataProtectionProvider provider)
 		{
-			this.dataBaseMemoryContext = dataBaseMemoryContext;
+			this.dataBaseSqlServerContext = dataBaseSqlServerContext;
 			this.jwtTokenService = jwtTokenService;
 			this.configuration = configuration;
 			this.provider = provider;
-			this.logger = logger;
 		}
 
-		public async Task<string> GetToken(string email)
+		public async Task<TokenResult> GetToken(string email)
 		{
-			var utilisateur = dataBaseMemoryContext.Utilisateurs
-				.SingleOrDefault(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Admin));
+			var utilisateur = dataBaseSqlServerContext.Utilisateurs
+				.SingleOrDefault(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Administrateur));
+
 			if (utilisateur is null)
 			{
-				return "Droits insuffisants ou adresse mail inexistante !";
+				return new TokenResult
+				{
+					Success = false,
+					Message = "Droits insuffisants ou adresse mail inexistante !"
+				};
 			}
 			await Task.Delay(500);
-			return jwtTokenService.GenerateJwtToken(utilisateur.Email);
+			return new TokenResult
+			{
+				Success = true,
+				Token = jwtTokenService.GenerateJwtToken(utilisateur.Email)
+			};
+
 		}
 
 		public bool CheckUserSecret(string secretPass)
 		{
-			string secretUserPass = configuration["TasksManagement_API:SecretApiKey"];
-			if (string.IsNullOrEmpty(secretPass))
+			//Env.Load("ServicesRepositories/.env");
+			string secretUserPass = configuration["JwtSettings:JwtSecretKey"]; // Prod Environment.GetEnvironmentVariable("PasswordSecret")!; //
+
+			if (string.IsNullOrEmpty(secretUserPass))
 			{
 				throw new NotImplementedException("La clé secrete est inexistante");
 
@@ -48,22 +58,25 @@ namespace TasksManagement_API.ServicesRepositories
 			if (!BCryptResult.Equals(true)) { return false; }
 			return true;
 		}
-		public async Task<List<Utilisateur>> GetUsers()
+	
+		public async Task<List<Utilisateur>> GetUsers(Func<Utilisateur, bool>? filter = null)
 		{
-			var listUtilisateur = await dataBaseMemoryContext.Utilisateurs.ToListAsync();
-			await dataBaseMemoryContext.SaveChangesAsync();
+			var listUtilisateurs = await dataBaseSqlServerContext.Utilisateurs.ToListAsync();
 
-			return listUtilisateur;
+			// Si un filtre est fourni, appliquer ce filtre
+			if (filter != null)
+			{
+				return listUtilisateurs.Where(filter).ToList();
+			}
+			// Retourner tous les utilisateurs si aucun filtre n'est donné
+			return listUtilisateurs;
 		}
-
-		public async Task<Utilisateur> GetUserById(int id)
+		
+		public async Task<Utilisateur?> GetSingleUserByNameRole(string nom, Utilisateur.Privilege role)
 		{
-			var utilisateur = dataBaseMemoryContext.Utilisateurs.FirstOrDefault(u => u.ID == id);
-			await Task.Delay(200);
-			return utilisateur!;
+			var utilisateur= await GetUsers(user => user.Nom == nom && user.Role == role);
+			return utilisateur.FirstOrDefault();
 		}
-
-
 
 		public string EncryptUserSecret(string plainText)
 		{
@@ -76,7 +89,6 @@ namespace TasksManagement_API.ServicesRepositories
 			var protector = provider.CreateProtector(Purpose);
 			return protector.Unprotect(cipherText);
 		}
-
 		public async Task<Utilisateur> CreateUser(Utilisateur utilisateur)
 		{
 			var password = utilisateur.Pass;
@@ -92,19 +104,19 @@ namespace TasksManagement_API.ServicesRepositories
 			}
 			if (utilisateur.CheckHashPassword(password) && utilisateur.CheckEmailAdress(email))
 			{
-				await dataBaseMemoryContext.Utilisateurs.AddAsync(utilisateur);
-				await dataBaseMemoryContext.SaveChangesAsync();
+				await dataBaseSqlServerContext.Utilisateurs.AddAsync(utilisateur);
+				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 			return utilisateur;
 		}
 
 		public async Task<Utilisateur> SetUserPassword(string nom, string mdp)
 		{
-			var adminUser = await dataBaseMemoryContext.Utilisateurs!
-			.Where(u => u.Role!.Equals(Utilisateur.Privilege.Admin))
-			.Select(u=>u.Nom).ToListAsync();
-			
-			var user = await dataBaseMemoryContext.Utilisateurs!.Where(u => u.Nom!.Equals(nom)).SingleOrDefaultAsync();
+			var adminUser = await dataBaseSqlServerContext.Utilisateurs!
+			.Where(u => u.Role!.Equals(Utilisateur.Privilege.Administrateur))
+			.Select(u => u.Nom).ToListAsync();
+
+			var user = await dataBaseSqlServerContext.Utilisateurs!.Where(u => u.Nom!.Equals(nom)).SingleOrDefaultAsync();
 			if (user == null)
 			{
 				throw new InvalidOperationException("Utilisateur non trouvé");
@@ -112,22 +124,20 @@ namespace TasksManagement_API.ServicesRepositories
 			if (!user.CheckHashPassword(mdp))
 			{
 				user.Pass = user.SetHashPassword(mdp);
-				
-				logger.LogInformation($"################################### Le mot de passe de l'utilisateur [{nom}] a été changé par l'admin {adminUser.OrderBy(u => Guid.NewGuid()).FirstOrDefault()}");
-				logger.LogInformation($"################################### Voici le nombre des utilisateurs admin {adminUser.Count()}");
-				await dataBaseMemoryContext.SaveChangesAsync();
+				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 			return user;
 		}
 
-		public async Task DeleteUserById(int id)
+		public async Task DeleteUserByDetails(string nom, Utilisateur.Privilege role)
 		{
-			var result = await dataBaseMemoryContext.Utilisateurs.FirstOrDefaultAsync(u => u.ID == id);
+			var result = await GetSingleUserByNameRole(nom,role);
 			if (result != null)
 			{
-				dataBaseMemoryContext.Utilisateurs.Remove(result);
-				await dataBaseMemoryContext.SaveChangesAsync();
+				dataBaseSqlServerContext.Utilisateurs.Remove(result);
+				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 		}
+
 	}
 }

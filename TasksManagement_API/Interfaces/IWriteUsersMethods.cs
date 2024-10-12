@@ -7,6 +7,6 @@ namespace TasksManagement_API.Interfaces
 		string DecryptUserSecret(string cipherText);
 		Task<Utilisateur> CreateUser(Utilisateur utilisateur);
 		Task<Utilisateur> SetUserPassword(string nom, string mdp);
-		Task DeleteUserById(int id);
+		Task DeleteUserByDetails(string nom, Utilisateur.Privilege role);
 	}
 }

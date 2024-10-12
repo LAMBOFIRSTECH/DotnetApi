@@ -13,9 +13,8 @@ public class DailyTasksMigrationsContext : DbContext
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
-		modelBuilder.Entity<Tache>()
-		.Property(t => t.TasksDate)
-		.HasColumnName("DateH");
+		modelBuilder.Entity<Tache>();
 		base.OnModelCreating(modelBuilder);
 	}
 }
+

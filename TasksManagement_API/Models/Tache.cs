@@ -16,13 +16,14 @@ public class Tache
 	[Required]
 	public string? Titre { get; set; }
 	public string? Summary { get; set; }
-
-	[Required(ErrorMessage="Le format de date doit etre comme l'exemple suivant : 01/01/2024")]
+	[Required(ErrorMessage = "Le format de date doit être comme l'exemple suivant : 01/01/2024")]
 	[DataType(DataType.Date)]
-	public DateH TasksDate { get; set; }
-	public struct DateH
-	{
-		public DateTime StartDateH { get; set; }
-		public DateTime EndDateH { get; set; }
-	}
+	public DateTime StartDateH { get; set; }
+
+	[Required(ErrorMessage = "Le format de date doit être comme l'exemple suivant : 01/01/2024")]
+	[DataType(DataType.Date)]
+	public DateTime EndDateH { get; set; }
+	// StartDateH = DateTime.Now,
+    //EndDateH = DateTime.Now.AddDays(1)
+	
 }

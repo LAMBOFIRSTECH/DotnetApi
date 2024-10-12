@@ -49,3 +49,26 @@ dans appsettings on doit dire qu'il utilise notre certificat : kestrel
 dans Programs on injecte une dependance kestrel
 
 cacher ServiceApiKey dans la configuration
+
+
+public class Tache
+{
+    /// <summary>
+    /// Représente l'identifiant unique d'une tâche.
+    /// </summary>
+    [Key]
+    public int? Matricule { get; set; }
+
+    [Required]
+    public string? Titre { get; set; }
+
+    public string? Summary { get; set; }
+
+    [Required(ErrorMessage = "Le format de date doit être comme l'exemple suivant : 01/01/2024")]
+    [DataType(DataType.Date)]
+    public DateTime StartDateH { get; set; }
+
+    [Required(ErrorMessage = "Le format de date doit être comme l'exemple suivant : 01/01/2024")]
+    [DataType(DataType.Date)]
+    public DateTime EndDateH { get; set; }
+}

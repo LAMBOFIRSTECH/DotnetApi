@@ -3,9 +3,9 @@ namespace TasksManagement_API.Interfaces
 {
 	public interface IReadUsersMethods
 	{
-		Task<string> GetToken(string email);                                         
+		Task<TokenResult> GetToken(string email);
 		bool CheckUserSecret(string secretPass);
-		Task<List<Utilisateur>> GetUsers();
-		Task<Utilisateur> GetUserById(int id);
+		Task<List<Utilisateur>> GetUsers(Func<Utilisateur, bool>? filter = null);
+		Task<Utilisateur?> GetSingleUserByNameRole(string nom, Utilisateur.Privilege role);
 	}
 }

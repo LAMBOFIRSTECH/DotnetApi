@@ -1,0 +1,19 @@
+# Ignorer les fichiers de configuration non nécessaires
+TasksManagement_API/appsettings.Development.json
+TasksManagement_API/appsettings.Preproduction.json
+
+# Ignorer les fichiers temporaires et de build
+bin/
+obj/
+
+# Ignorer les fichiers de test
+# TestResults/
+# *.testsettings
+# *.log
+
+# Ignore le magasin 
+TasksManagement_API/MgsUserSecrets/
+
+# Ignore les images du projet
+*.png
+*.old

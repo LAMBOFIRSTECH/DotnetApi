@@ -11,11 +11,7 @@ using TasksManagement_API.SwaggerFilters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Tasks_WEB_API.SwaggerFilters;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using System.Net;
-using Microsoft.AspNetCore.Authentication.Certificate;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +21,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
-	opt.SwaggerDoc("1.0", new OpenApiInfo
+	opt.SwaggerDoc("1.1", new OpenApiInfo
 	{
 		Title = "DailyTasks | Api",
 		Description = "An ASP.NET Core Web API for managing Tasks App",
@@ -47,22 +43,24 @@ builder.Services.AddCors(options =>
 	options.AddPolicy(name: MyAllowSpecificOrigins,
 					  policy =>
 					  {
-						  policy.WithOrigins("https://lambo.net:7082", "http://lambo.net:5163/");
+						  policy.AllowAnyOrigin()
+						   .AllowAnyMethod()  
+						   .AllowAnyHeader();
 					  });
 });
 
-// Charge les configurations à partir de l'environnement spécifier à ASPNETCORE_ENVIRONMENT 
 
 builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json",
 optional: true, reloadOnChange: true
 );
-builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt =>
+var item = builder.Configuration.GetSection("ConnectionStrings");
+var conStrings = item["DefaultConnection"];
+if (conStrings == null)
 {
-	var item = builder.Configuration.GetSection("TasksManagement_API");
-	var conStrings = item["DefaultConnection"];
+	throw new Exception("La chaine de connection à la base de données est nulle");
+}
+builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseInMemoryDatabase(conStrings));
 
-	opt.UseInMemoryDatabase(conStrings);
-});
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRouting();
@@ -70,40 +68,28 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
 builder.Services.AddHealthChecks();
 
-// Kestrel -> serveur web par defaut dans aspnet :Cest le gestionnaires des connexions entrantes y compris les connexions en https : On va spécifier le certificat à utiliser pour les connection en HTTPS.
-var kestrelSection = builder.Configuration.GetSection("Kestrel:EndPoints:Https");
-var certificateFile = kestrelSection["Certificate:File"];
-var certificatePassword = kestrelSection["Certificate:Password"];
-builder.Services.Configure<KestrelServerOptions>(options =>
-{
-	var host = Dns.GetHostEntry("lambo.net");
-	options.Listen(host.AddressList[0], 7083, listenOptions =>
-	{
-		listenOptions.UseHttps(certificateFile, certificatePassword);
-	});
-		// 	listenOptions.Use(next =>
-		//    {
-		// 	   return async context =>
-		// 	   {
-		// 		   var tlsFeature = context.Features.Get<ITlsHandshakeFeature>();
-		// 		   if (tlsFeature != null && tlsFeature.CipherAlgorithm == CipherAlgorithmType.Null)
-		// 		   {
-		// 			   throw new NotSupportedException("Prohibited cipher: Null cipher algorithm");
-		// 		   }
+// var kestrelSection=builder.Configuration.GetSection("Kestrel:EndPoints:Https");
+// var certificateFile = kestrelSection["Certificate:File"];
+// var certificatePassword = kestrelSection["Certificate:Password"];
+// builder.Services.Configure<KestrelServerOptions>(options =>
+// {
+//     if (string.IsNullOrEmpty(certificateFile) || string.IsNullOrEmpty(certificatePassword))
+//     {
+//         throw new InvalidOperationException("Certificate path or password not configured");
+//     }
+//     options.ListenAnyIP(7081, listenOptions =>
+//     {
+//         listenOptions.UseHttps(certificateFile, certificatePassword);
+//     });
+//     options.Limits.MaxConcurrentConnections = 5;
+//     options.ConfigureHttpsDefaults(opt =>
+//     {
+//         opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
 
-		// 		   await next(context);
-		// 	   };
-		//    });
-	options.Limits.MaxConcurrentConnections = 5;
-	options.ConfigureHttpsDefaults(opt =>
-	{
-		opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate; // le client doit fournir un certificaat valid pour que l'authentification réussit
+//     });
+// });
 
-	});
-});
 
-builder.Services.AddScoped<RemoveParametersInUrl>();
-builder.Services.AddScoped<IRemoveParametersIn, RemoveParametersInUrl>();
 builder.Services.AddScoped<IReadUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IWriteUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IReadTasksMethods, TacheService>();
@@ -111,45 +97,6 @@ builder.Services.AddScoped<IWriteTasksMethods, TacheService>();
 builder.Services.AddTransient<IJwtTokenService, JwtBearerAuthentificationService>();
 builder.Services.AddLogging();
 builder.Services.AddAuthorization();
-
-// On va ajouter l'authentification via un certificat SSL/TLS 
-builder.Services.AddAuthentication("CertificateAuthentication")
-.AddCertificate()
-   .AddCertificateCache(opt =>
-		{
-			opt.CacheSize = 1024;
-			opt.CacheEntryExpiration = TimeSpan.FromMinutes(2); // Activer la mise en cache pour des besoins de performances
-		})
-
-	.AddScheme<CertificateAuthenticationOptions, AuthenticationCertification>("CertificateAuthentication", options =>
-	{
-		options.AllowedCertificateTypes = CertificateTypes.All; //On précise le type de certificate
-		options.ChainTrustValidationMode = X509ChainTrustMode.CustomRootTrust; // Mode de confiance personnalisée pour la racine
-		options.CustomTrustStore = new X509Certificate2Collection(); // Collection personnalisée de certificats de confiance
-
-		options.CustomTrustStore.Import(certificateFile, certificatePassword, X509KeyStorageFlags.MachineKeySet);
-
-
-		options.Events = new CertificateAuthenticationEvents()
-		{
-			OnCertificateValidated = context =>
-			{
-				var validationService =
-					context.HttpContext.RequestServices
-					.GetRequiredService<AuthenticationCertification>();
-
-				if (validationService.ValidateCertificate(
-					context.ClientCertificate))
-				{
-					context.Success();
-				}
-
-				return Task.CompletedTask;
-			}
-		};
-	});
-
-
 
 // On va ajouter l'authentification basic avec le nom "BasicAuthentication" sans options
 builder.Services.AddAuthentication("BasicAuthentication")
@@ -185,14 +132,14 @@ builder.Services.AddAuthorization(options =>
  {
 	 // Politique d'autorisation pour les administrateurs
 	 options.AddPolicy("AdminPolicy", policy =>
-		 policy.RequireRole(nameof(Utilisateur.Privilege.Admin))
+		 policy.RequireRole(nameof(Utilisateur.Privilege.Administrateur))
 			   .RequireAuthenticatedUser()
 			   .AddAuthenticationSchemes("JwtAuthorization"));
 
 
 	 // Politique d'autorisation pour les utilisateurs non-administrateurs
 	 options.AddPolicy("UserPolicy", policy =>
-		policy.RequireRole(nameof(Utilisateur.Privilege.UserX))
+		policy.RequireRole(nameof(Utilisateur.Privilege.Utilisateur))
 			   .RequireAuthenticatedUser()  // L'utilisateur doit être authentifié
 			   .AddAuthenticationSchemes("BasicAuthentication"));
 
@@ -230,31 +177,9 @@ else if (app.Environment.IsProduction())
 	 });
 }
 
-//app.UseCors(MyAllowSpecificOrigins);
-var rewriteOptions = new RewriteOptions()
-	.AddRewrite(@"^index\.html$", "https://lambo.net/index.html", true)
-	.AddRedirectToHttpsPermanent();
-app.UseRewriter(rewriteOptions);
-
-
+app.UseCors(MyAllowSpecificOrigins);
 app.UseHttpsRedirection();
 app.UseRouting();
-// app.Use(async (context, next) =>
-// 		{
-// 			if (context.Request.IsHttps)
-// 			{
-// 				var clientCert = context.Connection.ClientCertificate;
-// 				if (clientCert == null)
-// 				{
-// 					// Le certificat client n'est pas fourni, retournez une réponse indiquant que le certificat client est requis
-// 					context.Response.StatusCode = StatusCodes.Status403Forbidden;
-// 					await context.Response.WriteAsync("Certificat client requis pour accéder à cette ressource.");
-// 					return;
-// 				}
-// 			}
-
-// 			await next();
-// 		});
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseEndpoints(endpoints =>

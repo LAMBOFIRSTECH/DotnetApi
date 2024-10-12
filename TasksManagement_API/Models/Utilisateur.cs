@@ -24,14 +24,14 @@ public class Utilisateur
 	public string Email { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-	public enum Privilege { Admin, UserX }
+	public enum Privilege { Administrateur, Utilisateur }
 	[EnumDataType(typeof(Privilege))]
 	[Required]
 	public Privilege Role { get; set; }
 
 	[Required]
 	[Category("Security")]
-	[System.Text.Json.Serialization.JsonIgnore] // set à disable le mot de passe dans la serialisation json
+	//[System.Text.Json.Serialization.JsonIgnore] // set à disable le mot de passe dans la serialisation json
 	public string? Pass { get; set; }
 	public bool CheckHashPassword(string? password)
 	{
@@ -53,6 +53,6 @@ public class Utilisateur
 			return false;
 		}
 		Match check = Regex.Match(email, regexMatch);
-		return check.Success;	
+		return check.Success;
 	}
 }
