@@ -5,6 +5,6 @@ namespace TasksManagement_API.Interfaces
 	{
 		Task<Tache> CreateTask(Tache Tache);
 		Task<Tache> UpdateTask(Tache Tache);
-		Task DeleteTaskById(int id);
+		Task DeleteTaskByTitle(string titre);
 	}
 }

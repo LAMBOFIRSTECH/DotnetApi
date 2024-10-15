@@ -46,7 +46,7 @@ public class UsersManagementController : ControllerBase
 				var utilisateur = await readMethods.GetSingleUserByNameRole(Nom, result);
 				if (utilisateur != null)
 				{
-					return Ok(utilisateur);
+					return Ok(utilisateur); 
 				}
 				return NotFound("Utilisateur non trouvé.");
 			}

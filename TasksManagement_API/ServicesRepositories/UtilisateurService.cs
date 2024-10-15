@@ -22,10 +22,8 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public async Task<TokenResult> GetToken(string email)
 		{
-			var utilisateur = dataBaseSqlServerContext.Utilisateurs
-				.SingleOrDefault(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Administrateur));
-
-			if (utilisateur is null)
+			var utilisateurs = await GetUsers(query => query.Where(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Administrateur)));
+			if (utilisateurs is null || utilisateurs.Count == 0)
 			{
 				return new TokenResult
 				{
@@ -34,12 +32,12 @@ namespace TasksManagement_API.ServicesRepositories
 				};
 			}
 			await Task.Delay(500);
+			var utilisateur = utilisateurs.First();
 			return new TokenResult
 			{
 				Success = true,
 				Token = jwtTokenService.GenerateJwtToken(utilisateur.Email)
 			};
-
 		}
 
 		public bool CheckUserSecret(string secretPass)
@@ -58,24 +56,19 @@ namespace TasksManagement_API.ServicesRepositories
 			if (!BCryptResult.Equals(true)) { return false; }
 			return true;
 		}
-	
-		public async Task<List<Utilisateur>> GetUsers(Func<Utilisateur, bool>? filter = null)
-		{
-			var listUtilisateurs = await dataBaseSqlServerContext.Utilisateurs.ToListAsync();
 
-			// Si un filtre est fourni, appliquer ce filtre
+		public async Task<List<Utilisateur>> GetUsers(Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = null)
+		{
+			IQueryable<Utilisateur> query = dataBaseSqlServerContext.Utilisateurs;
 			if (filter != null)
 			{
-				return listUtilisateurs.Where(filter).ToList();
+				query = filter(query);
 			}
-			// Retourner tous les utilisateurs si aucun filtre n'est donné
-			return listUtilisateurs;
+			return await query.ToListAsync();
 		}
-		
 		public async Task<Utilisateur?> GetSingleUserByNameRole(string nom, Utilisateur.Privilege role)
 		{
-			var utilisateur= await GetUsers(user => user.Nom == nom && user.Role == role);
-			return utilisateur.FirstOrDefault();
+			return ( await GetUsers(query => query.Where(user => user.Nom == nom && user.Role == role))).FirstOrDefault();
 		}
 
 		public string EncryptUserSecret(string plainText)
@@ -112,32 +105,26 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public async Task<Utilisateur> SetUserPassword(string nom, string mdp)
 		{
-			var adminUser = await dataBaseSqlServerContext.Utilisateurs!
-			.Where(u => u.Role!.Equals(Utilisateur.Privilege.Administrateur))
-			.Select(u => u.Nom).ToListAsync();
-
-			var user = await dataBaseSqlServerContext.Utilisateurs!.Where(u => u.Nom!.Equals(nom)).SingleOrDefaultAsync();
-			if (user == null)
+			var utilisateur = (await GetUsers(query => query.Where(u => u.Nom!.Equals(nom)))).FirstOrDefault();
+			if (utilisateur == null)
 			{
 				throw new InvalidOperationException("Utilisateur non trouvé");
 			}
-			if (!user.CheckHashPassword(mdp))
+			if (!utilisateur.CheckHashPassword(mdp))
 			{
-				user.Pass = user.SetHashPassword(mdp);
+				utilisateur.Pass = utilisateur.SetHashPassword(mdp);
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
-			return user;
+			return utilisateur;
 		}
-
 		public async Task DeleteUserByDetails(string nom, Utilisateur.Privilege role)
 		{
-			var result = await GetSingleUserByNameRole(nom,role);
+			var result = await GetSingleUserByNameRole(nom, role);
 			if (result != null)
 			{
 				dataBaseSqlServerContext.Utilisateurs.Remove(result);
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 		}
-
 	}
 }

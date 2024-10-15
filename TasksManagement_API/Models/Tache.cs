@@ -14,8 +14,8 @@ public class Tache
 	[Key]
 	public int? Matricule { get; set; }
 	[Required]
-	public string? Titre { get; set; }
-	public string? Summary { get; set; }
+	public string Titre { get; set; }=string.Empty;
+	public string Summary { get; set; } =string.Empty;
 	[Required(ErrorMessage = "Le format de date doit être comme l'exemple suivant : 01/01/2024")]
 	[DataType(DataType.Date)]
 	public DateTime StartDateH { get; set; }
@@ -23,7 +23,7 @@ public class Tache
 	[Required(ErrorMessage = "Le format de date doit être comme l'exemple suivant : 01/01/2024")]
 	[DataType(DataType.Date)]
 	public DateTime EndDateH { get; set; }
-	// StartDateH = DateTime.Now,
-    //EndDateH = DateTime.Now.AddDays(1)
+	public int UserId { get; set; }
+	public Utilisateur? utilisateur{ get; set; }
 	
 }

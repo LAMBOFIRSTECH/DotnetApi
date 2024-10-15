@@ -4,7 +4,7 @@ using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 namespace TasksManagement_API.Controllers;
 [ApiController]
-[Route("api/v1.0/[controller]/")]
+[Route("api/v1.1/[controller]/")]
 
 public class TasksManagementController : ControllerBase
 {
@@ -20,7 +20,7 @@ public class TasksManagementController : ControllerBase
 	/// Affiche la liste de toutes les taches.
 	/// </summary>
 	/// <returns></returns>
-	[Authorize(Policy = "UserPolicy")]
+	//[Authorize(Policy = "UserPolicy")]
 	[HttpGet("GetAllTasks/")]
 	public async Task<IActionResult> GetAllTasks()
 	{
@@ -31,15 +31,15 @@ public class TasksManagementController : ControllerBase
 	/// <summary>
 	/// Affiche les informations sur une tache précise.
 	/// </summary>
-	/// <param name="Matricule"></param>
+	/// <param name="Titre"></param>
 	/// <returns></returns>
-	[Authorize(Policy = "UserPolicy")]
-	[HttpGet("GetTaskByID/{Matricule:int}")]
-	public async Task<IActionResult> SelectTask(int Matricule)
+	//[Authorize(Policy = "UserPolicy")]
+	[HttpGet("GetTaskByTitle/{titre}")]
+	public async Task<IActionResult> GetTaskByTitle(string Titre)
 	{
 		try
 		{
-			var tache = await readMethods.GetTaskById(Matricule);
+			var tache = await readMethods.GetTaskByTitle(Titre);
 			if (tache != null)
 			{
 				return Ok(tache);
@@ -64,14 +64,13 @@ public class TasksManagementController : ControllerBase
 		{
 			Tache newTache = new()
 			{
-				//Matricule = tache.Matricule,
 				Titre = tache.Titre,
 				Summary = tache.Summary,
 				StartDateH = tache.StartDateH,
 				EndDateH= tache.EndDateH
 			};
 			var listTaches = await readMethods.GetTaches();
-			var tacheExistante = listTaches.FirstOrDefault(item => item.Matricule == tache.Matricule);
+			var tacheExistante = listTaches.FirstOrDefault(item => item.Matricule == tache.Matricule);//GetByTitle au lieu de ceci 
 
 			if (tacheExistante != null)
 			{
@@ -90,20 +89,20 @@ public class TasksManagementController : ControllerBase
 	/// <summary>
 	/// Supprime une tache en fonction de son matricule.
 	/// </summary>
-	/// <param name="Matricule"></param>
+	/// <param name="titre"></param>
 	/// <returns></returns>
-	[Authorize(Policy = "AdminPolicy")]
-	[HttpDelete("DeleteTask/{Matricule:int}")]
-	public async Task<IActionResult> DeleteTaskById(int Matricule)
+	//[Authorize(Policy = "AdminPolicy")]
+	[HttpDelete("DeleteTask/{titre}")]
+	public async Task<IActionResult> DeleteTaskById(string titre)
 	{
-		var tache = await readMethods.GetTaskById(Matricule);
+		var tache = await readMethods.GetTaskByTitle(titre);
 		try
 		{
 			if (tache == null)
 			{
-				return NotFound($"La tache de matricule : matricule=[{Matricule}] n'existe plus dans le contexte de base de données");
+				return NotFound();
 			}
-			await writeMethods.DeleteTaskById(Matricule);
+			await writeMethods.DeleteTaskByTitle(titre);
 
 			return Ok("La donnée a bien été supprimée");
 		}
@@ -119,22 +118,22 @@ public class TasksManagementController : ControllerBase
 	/// </summary>
 	/// <param name="tache"></param>
 	/// <returns></returns>
-	[Authorize(Policy = "AdminPolicy")]
+	//[Authorize(Policy = "AdminPolicy")]
 	[HttpPut("UpdateTask/")]
 	public async Task<IActionResult> UpdateTask([FromBody] Tache tache)
 	{
 		try
 		{
-			var item = await readMethods.GetTaskById(tache.Matricule);
+			var item = await readMethods.GetTaskByTitle(tache.Titre);
 			if (item is null)
 			{
-				return NotFound($"Cette tache n'existe plus dans le contexte de base de données");
+				return NotFound();
 			}
-			if (item.Matricule == tache.Matricule)
+			if (item.Titre == tache.Titre)
 			{
 				await writeMethods.UpdateTask(tache);
 			}
-			return Ok($"Les infos de la tache [{item.Matricule}] ont bien été modifiées avec succès.");
+			return Ok($"Les infos de la tache [{item.Titre}] ont bien été modifiées avec succès.");
 		}
 		catch (Exception ex)
 		{

@@ -1,6 +1,5 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using TasksManagement_API.Models;
@@ -11,8 +10,6 @@ using TasksManagement_API.SwaggerFilters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -25,7 +22,7 @@ builder.Services.AddSwaggerGen(opt =>
 	{
 		Title = "DailyTasks | Api",
 		Description = "An ASP.NET Core Web API for managing Tasks App",
-		Version = "1.0",
+		Version = "1.1",
 		Contact = new OpenApiContact
 		{
 			Name = "Artur Lambo",
@@ -152,7 +149,7 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI(con =>
 	 {
-		 con.SwaggerEndpoint("/swagger/1.0/swagger.json", "Daily Tasks Management API");
+		 con.SwaggerEndpoint("/swagger/1.1/swagger.json", "Daily Tasks Management API");
 
 		 con.RoutePrefix = string.Empty;
 
@@ -170,7 +167,7 @@ else if (app.Environment.IsProduction())
 	app.UseSwagger();
 	app.UseSwaggerUI(con =>
 	 {
-		 con.SwaggerEndpoint("/swagger/1.0/swagger.json", "Daily Tasks Management API");
+		 con.SwaggerEndpoint("/swagger/1.1/swagger.json", "Daily Tasks Management API");
 
 		 con.RoutePrefix = string.Empty;
 

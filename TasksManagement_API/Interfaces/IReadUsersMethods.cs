@@ -5,7 +5,8 @@ namespace TasksManagement_API.Interfaces
 	{
 		Task<TokenResult> GetToken(string email);
 		bool CheckUserSecret(string secretPass);
-		Task<List<Utilisateur>> GetUsers(Func<Utilisateur, bool>? filter = null);
+		Task<List<Utilisateur>> GetUsers(Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = null);
 		Task<Utilisateur?> GetSingleUserByNameRole(string nom, Utilisateur.Privilege role);
+		
 	}
 }
