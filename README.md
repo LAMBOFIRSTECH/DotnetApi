@@ -84,16 +84,16 @@ Mettre en place une API swagger en net6.0 !!&&Artur01102021
 
 ### 7.1- UsersManagementController 
 
-> - [GET]    `/api/v1.1/GetAllUsers` : Affiche la liste de tous les utilisateurs.
-> - [GET]    `/api/v1.1/GetSingleUser/{Nom}/{Role}` : Affiche les informations sur un utilisateur en fonction de son ID.
+> - [GET]    `/api/v1.1/GetAllUsers` 
+> - [GET]    `/api/v1.1/GetSingleUser/{Nom}/{Role}` 
 > - [POST]   `/api/v1.1/CreateUser`
 > - [UPDATE] `/api/v1.1/SetUserPassword/?{nom}&{mdp}`
 > - [DELETE] `/api/v1.1/Delete/{Nom}/{Role}`
 
 ### 7.2- TasksManagementController
 
-> - [GET]    `/api/v1.1/SingleOrAllTasks` : Affiche la liste de toutes les taches.
-> - [POST]   `/api/v1.1/tache`  : Crée une tache.
+> - [GET]    `/api/v1.1/SingleOrAllTasks` 
+> - [POST]   `/api/v1.1/tache`  
 > - [DELETE] `/api/v1.1/tache/{titre}`
 > - [UPDATE] `/api/v1.1/tache`
 
