@@ -50,6 +50,7 @@ Mettre en place une API swagger en net6.0 !!&&Artur01102021
 
 - [X] Principe SOLID
     > - [X] Single-Responsabilities
+    > - [X] Open and Close
     > - [X] Interfaces-Segragation
     > - [X] Dependances-Inversion
 
@@ -58,10 +59,9 @@ Mettre en place une API swagger en net6.0 !!&&Artur01102021
 
 - [X] Tests unitaires
     > - [X] Test de retour d'actions
-    > - [X] Test d'authentification
     
 - [ ] Tests de charge
-    > - [ ] Mettre en place des Threads permettant de simuler des appels simultanés sur l'api
+    > - [ ] Mettre en place ...
 
 - [ ] Tests de Sécurité
     > - [ ] Test d'injection SQL
@@ -77,30 +77,29 @@ Mettre en place une API swagger en net6.0 !!&&Artur01102021
 ## 6- Création de contexte de base de données par environnement
  
 - [X] Environnement de Développement : Base de Données en mémoire
-- [ ] Environnement de Préproduction : Base de Données via SQLite
-- [ ] Environnement de Production : Base de Données en SQL via MySql (elle meme dans Docker)
+- [X] Environnement de Production :    Base de Données en SQL via MSSQL 
 
 
 ## 7- Endpoints d'API
 
 ### 7.1- UsersManagementController 
 
-> - `/api/v1.0/GetAllUsers`
-> - `/api/v1.0/GetSingleUser/{Nom}/{Role}`
-> - `/api/v1.0/CreateUser`
-> - `/api/v1.0/SetUserPassword/?{nom}&{mdp}`
-> - `/api/v1.0/Delete/{Nom}/{Role}`
+> - `/api/v1.1/GetAllUsers`
+> - `/api/v1.1/GetSingleUser/{Nom}/{Role}`
+> - `/api/v1.1/CreateUser`
+> - `/api/v1.1/SetUserPassword/?{nom}&{mdp}`
+> - `/api/v1.1/Delete/{Nom}/{Role}`
 
 ### 7.2- TasksManagementController
 
 > - `/api/v1.1/SingleOrAllTasks` : Affiche la liste de toutes les taches.
-> - `/api/v1.0/tache`
+> - `/api/v1.1/tache`
 > - `/api/v1.1/tache/{titre}`
-> - `/api/v1.0/tache`
+> - `/api/v1.1/tache`
 
 ### 7.3- AccessTokenController
 
-> - `/api/v1.0/Login/?{email}`
+> - `/api/v1.1/Login/{email}`
 
 ## 8- Representation du swagger d'api
 ![](TasksManagement_API.png)
