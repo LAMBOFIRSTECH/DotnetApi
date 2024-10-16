@@ -3,7 +3,6 @@ namespace TasksManagement_API.Interfaces
 {
 	public interface IReadTasksMethods
 	{
-		Task<List<Tache>> GetTaches(Func<IQueryable<Tache>, IQueryable<Tache>>? filter = null);
-		
+		Task<ICollection<Tache>> GetTaches(Func<IQueryable<Tache>, IQueryable<Tache>>? filter = null);
 	}
 }

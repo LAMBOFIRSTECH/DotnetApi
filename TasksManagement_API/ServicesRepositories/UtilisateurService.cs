@@ -57,13 +57,14 @@ namespace TasksManagement_API.ServicesRepositories
 			return true;
 		}
 
-		public async Task<List<Utilisateur>> GetUsers(Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = null)
+		public async Task<ICollection<Utilisateur>> GetUsers(Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = null)
 		{
 			IQueryable<Utilisateur> query = dataBaseSqlServerContext.Utilisateurs;
 			if (filter != null)
 			{
 				query = filter(query);
 			}
+		
 			return await query.ToListAsync();
 		}
 		public async Task<Utilisateur?> GetSingleUserByNameRole(string nom, Utilisateur.Privilege role)

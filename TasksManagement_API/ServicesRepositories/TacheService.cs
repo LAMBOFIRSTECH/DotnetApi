@@ -16,7 +16,8 @@ namespace TasksManagement_API.ServicesRepositories
 		/// Renvoie la liste des taches.
 		/// </summary>
 		/// <returns></returns>
-		public async Task<List<Tache>> GetTaches(Func<IQueryable<Tache>, IQueryable<Tache>> filter = null)
+
+		public async Task<ICollection<Tache>> GetTaches(Func<IQueryable<Tache>, IQueryable<Tache>> filter = null)
 		{
 			IQueryable<Tache> query = dataBaseSqlServerContext.Taches;
 			if (filter != null)
@@ -55,10 +56,10 @@ namespace TasksManagement_API.ServicesRepositories
 			await dataBaseSqlServerContext.SaveChangesAsync();
 			return newTache;
 		}
-	}
+    }
 	/*
 	- Changer la propriété qui permet de rechercher de façon unique une tache. Fait
-	- La fonction update ne prends pas en considération les date de debut et fin.
+	- La fonction update ne prends pas en considération les date de debut et fin. Fait
 	- Mettre la logique de vérification de la date dans le controller et pas dans le service. Fait
 	- Revoir la fonction getByTitle pour rajouter une regex qui prend en considération le fait que deux titres peuvent commencer de la meme façon sans pour autant etre identique.
 	*/

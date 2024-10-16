@@ -1,3 +1,4 @@
+using System.Data;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
@@ -59,7 +60,7 @@ public class TasksManagementController : ControllerBase
 	[HttpPost("tache/")]
 	public async Task<IActionResult> CreateTask([FromBody] Tache tache)
 	{
-		string Titre=tache.Titre;
+		string Titre = tache.Titre;
 		try
 		{
 			Tache newTache = new()
@@ -74,7 +75,7 @@ public class TasksManagementController : ControllerBase
 			if (tache.StartDateH.Date >= tache.EndDateH.Date)
 			{
 				var message = "Exemple : Date de debut ->  01/01/2024  (doit etre '>' Supérieur) Date de fin -> 02/02/2024";
-				throw new ArgumentException("Date Error",StatusCodes.Status406NotAcceptable.ToString(message));
+				return StatusCode(StatusCodes.Status406NotAcceptable, message);
 			}
 			if (tacheExistante != null)
 			{
@@ -85,7 +86,7 @@ public class TasksManagementController : ControllerBase
 		}
 		catch (Exception ex)
 		{
-			
+
 			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
@@ -140,10 +141,10 @@ public class TasksManagementController : ControllerBase
 			if (tache.StartDateH.Date >= tache.EndDateH.Date)
 			{
 				var message = "Exemple : Date de debut ->  01/01/2024  (doit etre '>' Supérieur) Date de fin -> 02/02/2024";
-				throw new ArgumentException("Date Error",StatusCodes.Status406NotAcceptable.ToString(message));
+				return StatusCode(StatusCodes.Status406NotAcceptable, message);
 			}
 			await writeMethods.UpdateTask(matricule, tache);
-			return  NoContent();
+			return NoContent();
 		}
 		catch (DbUpdateConcurrencyException ex)
 		{
@@ -151,11 +152,5 @@ public class TasksManagementController : ControllerBase
 		}
 	}
 
-	// NoContent(204) Vs OK(200) Vs NotFound(404)
-	/*
-		- 204: operation réussie mais pas de contenu à renvoyer
-		- 200 : opération réussie avec contenu à renvoyer
-		- 404 : opération échouée on arrive pas à retrouver la ressource demandée
 	
-	*/
 }

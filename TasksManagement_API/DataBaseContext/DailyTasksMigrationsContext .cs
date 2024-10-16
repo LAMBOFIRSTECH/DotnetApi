@@ -17,7 +17,7 @@ public class DailyTasksMigrationsContext : DbContext
 		   .HasMany(u => u.LesTaches)
 		   .WithOne(t => t.utilisateur)
 		   .HasForeignKey(t => t.UserId) // Fais de la clé primaire d'un utilisateur une clé étrangère dans la tache
-			.OnDelete(DeleteBehavior.Cascade); // Va supprimer une tache si l'utilisateur n'existe plus
+		   .OnDelete(DeleteBehavior.Cascade); // Va supprimer une tache si l'utilisateur n'existe plus
 		modelBuilder.Entity<Tache>();
 		base.OnModelCreating(modelBuilder);
 	}
