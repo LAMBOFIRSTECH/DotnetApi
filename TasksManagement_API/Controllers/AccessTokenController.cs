@@ -5,7 +5,7 @@ using TasksManagement_API.Interfaces;
 namespace TasksManagement_API.Controllers
 {
     [ApiController]
-	[Route("api/v1.0/[controller]/")]
+	[Route("api/v1.1/")]
 	public class AccessTokenController : ControllerBase
 	{
 		private readonly IReadUsersMethods readMethods;
@@ -20,7 +20,7 @@ namespace TasksManagement_API.Controllers
 		/// <param name="email"></param>
 		/// <param name="secretUser"></param>
 		/// <returns></returns>
-		[HttpPost("Login")]
+		[HttpPost("Token")]
 		public async Task<ActionResult> Login(string email, [DataType(DataType.Password)] string secretUser)
 		{
 			string regexMatch = "(?<alpha>\\w+)@(?<mailing>[aA-zZ]+)\\.(?<domaine>[aA-zZ]+$)";

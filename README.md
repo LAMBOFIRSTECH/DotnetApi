@@ -85,23 +85,22 @@ Mettre en place une API swagger en net6.0 !!&&Artur01102021
 
 ### 7.1- UsersManagementController 
 
-> - `/api/v1.0/UsersManagement/GetAllUsers`
-> - `/api/v1.0/UsersManagement/GetSingleUser/{Nom}/{Role}`
-> - `/api/v1.0/UsersManagement/CreateUser`
-> - `/api/v1.0/UsersManagement/SetUserPassword/?{nom}&{mdp}`
-> - `/api/v1.0/UsersManagement/Delete/{Nom}/{Role}`
+> - `/api/v1.0/GetAllUsers`
+> - `/api/v1.0/GetSingleUser/{Nom}/{Role}`
+> - `/api/v1.0/CreateUser`
+> - `/api/v1.0/SetUserPassword/?{nom}&{mdp}`
+> - `/api/v1.0/Delete/{Nom}/{Role}`
 
 ### 7.2- TasksManagementController
 
-> - `/api/v1.0/TasksManagement/GetAllTasks`
-> - `/api/v1.0/TasksManagement/GetTaskByID/{Matricule}`
-> - `/api/v1.0/TasksManagement/CreateTask`
-> - `/api/v1.0/TasksManagement/DeleteTask/{Matricule}`
-> - `/api/v1.0/TasksManagement/UpdateTask`
+> - `/api/v1.1/SingleOrAllTasks` : Affiche la liste de toutes les taches.
+> - `/api/v1.0/tache`
+> - `/api/v1.1/tache/{titre}`
+> - `/api/v1.0/tache`
 
 ### 7.3- AccessTokenController
 
-> - `/api/v1.0/AccessToken/Login/?{email}`
+> - `/api/v1.0/Login/?{email}`
 
 ## 8- Representation du swagger d'api
 ![](TasksManagement_API.png)

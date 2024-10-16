@@ -6,7 +6,7 @@ using TasksManagement_API.Interfaces;
 namespace TasksManagement_API.Controllers;
 
 [ApiController]
-[Route("api/v1.1/[controller]/")]
+[Route("api/v1.1/")]
 [Produces("application/json")]
 public class UsersManagementController : ControllerBase
 {
@@ -21,7 +21,7 @@ public class UsersManagementController : ControllerBase
 	/// Affiche la liste de tous les utilisateurs.
 	/// </summary>
 	//[Authorize(Policy = "AdminPolicy")]
-	[HttpGet("GetAllUsers")]
+	[HttpGet("users")]
 	public async Task<ActionResult> GetUsers()
 	{
 		var users = await readMethods.GetUsers();
@@ -36,7 +36,7 @@ public class UsersManagementController : ControllerBase
 	/// <param name="Role"></param>
 	/// <returns></returns>
 	//[Authorize(Policy = "UserPolicy")]
-	[HttpGet("GetSingleUser/{Nom}/{Role}")]
+	[HttpGet("SingleUser/{Nom}/{Role}")]
 	public async Task<ActionResult> GetSingleUser(string Nom, string Role)
 	{
 		if (Enum.TryParse(char.ToUpper(Role[0]) + Role.Substring(1).ToLower(), out Utilisateur.Privilege result))
@@ -76,7 +76,7 @@ public class UsersManagementController : ControllerBase
 	///     }
 	/// </remarks>
 
-	[HttpPost("CreateUser")]
+	[HttpPost("user")]
 	public async Task<ActionResult> CreateUser([FromBody] Utilisateur utilisateur)
 	{
 		if (!ModelState.IsValid)
@@ -136,7 +136,7 @@ public class UsersManagementController : ControllerBase
 	/// <param name="Role"></param>
 	/// <returns></returns>
 	//[Authorize(Policy = "AdminPolicy")]
-	[HttpDelete("Delete/{Nom}/{Role}")]
+	[HttpDelete("user/{Nom}/{Role}")]
 	public async Task<ActionResult> DeleteUserByDetails(string Nom, string Role)
 	{
 		if (Enum.TryParse(char.ToUpper(Role[0]) + Role.Substring(1).ToLower(), out Utilisateur.Privilege result))
@@ -168,7 +168,7 @@ public class UsersManagementController : ControllerBase
 	/// <param name="password"></param>
 	/// <param name="newpassword"></param>
 	/// <returns></returns>
-	[HttpPatch("SetUserPassword")]
+	[HttpPatch("user")]
 	public async Task<ActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string password, [DataType(DataType.Password)] string newpassword)
 	{
 		try

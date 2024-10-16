@@ -1,10 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
+using TasksManagement_API.ServicesRepositories;
 namespace TasksManagement_API.Controllers;
 [ApiController]
-[Route("api/v1.1/[controller]/")]
+[Route("api/v1.1/")]
 
 public class TasksManagementController : ControllerBase
 {
@@ -19,32 +24,26 @@ public class TasksManagementController : ControllerBase
 	/// <summary>
 	/// Affiche la liste de toutes les taches.
 	/// </summary>
-	/// <returns></returns>
-	//[Authorize(Policy = "UserPolicy")]
-	[HttpGet("GetAllTasks/")]
-	public async Task<IActionResult> GetAllTasks()
-	{
-		var taches = await readMethods.GetTaches();
-		return Ok(taches);
-	}
 
-	/// <summary>
-	/// Affiche les informations sur une tache précise.
-	/// </summary>
-	/// <param name="Titre"></param>
 	/// <returns></returns>
 	//[Authorize(Policy = "UserPolicy")]
-	[HttpGet("GetTaskByTitle/{titre}")]
-	public async Task<IActionResult> GetTaskByTitle(string Titre)
+	[HttpGet("SingleOrAllTasks/")]
+	public async Task<IActionResult> GetSingleOrAllTasks([FromQuery] string? Titre)
 	{
 		try
 		{
-			var tache = await readMethods.GetTaskByTitle(Titre);
-			if (tache != null)
+			var taches = await readMethods.GetTaches();
+			if (!string.IsNullOrEmpty(Titre))
 			{
-				return Ok(tache);
+				var tache = taches.Where(t => t.Titre.Equals(Titre, StringComparison.OrdinalIgnoreCase));
+				if (!tache.Any())
+				{
+					return NotFound();
+
+				}
+				return Ok(tache.FirstOrDefault());
 			}
-			return NotFound("tache non trouvée.");
+			return Ok(taches);
 		}
 		catch (Exception ex)
 		{
@@ -57,9 +56,10 @@ public class TasksManagementController : ControllerBase
 	/// </summary>
 	/// <param name="tache"></param>
 	/// <returns></returns>
-	[HttpPost("CreateTask/")]
+	[HttpPost("tache/")]
 	public async Task<IActionResult> CreateTask([FromBody] Tache tache)
 	{
+		string Titre=tache.Titre;
 		try
 		{
 			Tache newTache = new()
@@ -67,21 +67,25 @@ public class TasksManagementController : ControllerBase
 				Titre = tache.Titre,
 				Summary = tache.Summary,
 				StartDateH = tache.StartDateH,
-				EndDateH= tache.EndDateH
+				EndDateH = tache.EndDateH
 			};
-			var listTaches = await readMethods.GetTaches();
-			var tacheExistante = listTaches.FirstOrDefault(item => item.Matricule == tache.Matricule);//GetByTitle au lieu de ceci 
-
+			var Taches = await readMethods.GetTaches(query => query.Where(t => t.Titre.Equals(tache.Titre)));
+			var tacheExistante = Taches.FirstOrDefault();
+			if (tache.StartDateH.Date >= tache.EndDateH.Date)
+			{
+				var message = "Exemple : Date de debut ->  01/01/2024  (doit etre '>' Supérieur) Date de fin -> 02/02/2024";
+				throw new ArgumentException("Date Error",StatusCodes.Status406NotAcceptable.ToString(message));
+			}
 			if (tacheExistante != null)
 			{
 				return Conflict("Cette tache est déjà présente");
 			}
-
 			await writeMethods.CreateTask(newTache);
-			return Ok("La ressource a bien été créée");
+			return CreatedAtAction(nameof(GetSingleOrAllTasks), new { Titre = newTache.Titre }, newTache);
 		}
 		catch (Exception ex)
 		{
+			
 			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
@@ -92,10 +96,10 @@ public class TasksManagementController : ControllerBase
 	/// <param name="titre"></param>
 	/// <returns></returns>
 	//[Authorize(Policy = "AdminPolicy")]
-	[HttpDelete("DeleteTask/{titre}")]
+	[HttpDelete("tache/{titre}")]
 	public async Task<IActionResult> DeleteTaskById(string titre)
 	{
-		var tache = await readMethods.GetTaskByTitle(titre);
+		var tache = await GetSingleOrAllTasks(titre);
 		try
 		{
 			if (tache == null)
@@ -104,7 +108,7 @@ public class TasksManagementController : ControllerBase
 			}
 			await writeMethods.DeleteTaskByTitle(titre);
 
-			return Ok("La donnée a bien été supprimée");
+			return NoContent();
 		}
 		catch (Exception ex)
 		{
@@ -116,30 +120,42 @@ public class TasksManagementController : ControllerBase
 	/// <summary>
 	/// Met à jour les informations d'une tache.
 	/// </summary>
+	/// <param name="matricule"></param>
 	/// <param name="tache"></param>
 	/// <returns></returns>
 	//[Authorize(Policy = "AdminPolicy")]
-	[HttpPut("UpdateTask/")]
-	public async Task<IActionResult> UpdateTask([FromBody] Tache tache)
+	[HttpPut("tache/{matricule}")]
+	public async Task<IActionResult> UpdateTask(int matricule, [FromBody] Tache tache)
 	{
 		try
 		{
-			var item = await readMethods.GetTaskByTitle(tache.Titre);
-			if (item is null)
+			if (matricule <= 0)
+			{
+				return BadRequest("Le matricule doit etre strictement positif");
+			}
+			if (matricule != tache.Matricule)
 			{
 				return NotFound();
 			}
-			if (item.Titre == tache.Titre)
+			if (tache.StartDateH.Date >= tache.EndDateH.Date)
 			{
-				await writeMethods.UpdateTask(tache);
+				var message = "Exemple : Date de debut ->  01/01/2024  (doit etre '>' Supérieur) Date de fin -> 02/02/2024";
+				throw new ArgumentException("Date Error",StatusCodes.Status406NotAcceptable.ToString(message));
 			}
-			return Ok($"Les infos de la tache [{item.Titre}] ont bien été modifiées avec succès.");
+			await writeMethods.UpdateTask(matricule, tache);
+			return  NoContent();
 		}
-		catch (Exception ex)
+		catch (DbUpdateConcurrencyException ex)
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError,
-					  ex.Message.Trim());
+			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
 
+	// NoContent(204) Vs OK(200) Vs NotFound(404)
+	/*
+		- 204: operation réussie mais pas de contenu à renvoyer
+		- 200 : opération réussie avec contenu à renvoyer
+		- 404 : opération échouée on arrive pas à retrouver la ressource demandée
+	
+	*/
 }
