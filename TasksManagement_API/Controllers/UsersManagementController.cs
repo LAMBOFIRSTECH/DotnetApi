@@ -96,8 +96,7 @@ public class UsersManagementController : ControllerBase
 				Nom = utilisateur.Nom,
 				Pass = utilisateur.Pass,
 				Role = utilisateur.Role,
-				Email = utilisateur.Email,
-
+				Email = utilisateur.Email
 			};
 			if (!Enum.IsDefined(typeof(Utilisateur.Privilege), utilisateur.Role))
 			{
@@ -133,6 +132,7 @@ public class UsersManagementController : ControllerBase
 					newUtilisateur.LesTaches.Add(tache);
 				}
 			}
+			Console.WriteLine(newUtilisateur);
 
 			await writeMethods.CreateUser(newUtilisateur);
 			return Ok("La ressource a bien été créée");

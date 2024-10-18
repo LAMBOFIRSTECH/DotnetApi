@@ -61,6 +61,11 @@ public class TasksManagementController : ControllerBase
 	public async Task<IActionResult> CreateTask([FromBody] Tache tache)
 	{
 		string Titre = tache.Titre;
+		int ID = tache.UserId; // si rien alors ne meme pas créer la tache 
+		if(ID ==0)
+		{
+			return BadRequest("les noyaux");
+		}
 		try
 		{
 			Tache newTache = new()
@@ -69,16 +74,17 @@ public class TasksManagementController : ControllerBase
 				Summary = tache.Summary,
 				StartDateH = tache.StartDateH,
 				EndDateH = tache.EndDateH,
-				utilisateur = new Utilisateur()
-				{
-					ID = tache.UserId,
-					Nom = tache.utilisateur.Nom,
-					Pass = tache.utilisateur.Pass,
-					Role = tache.utilisateur.Role,
-					Email = tache.utilisateur.Email
-				}
+				UserId = tache.utilisateur.ID
+				// utilisateur = new Utilisateur()
+				// {
+				// 	ID = tache.UserId,
+				// 	Nom = tache.utilisateur.Nom,
+				// 	Pass = tache.utilisateur.Pass,
+				// 	Role = tache.utilisateur.Role,
+				// 	Email = tache.utilisateur.Email
+				// }
 			};
-			var Taches = await readMethods.GetTaches(query => query.Where(t => t.Titre.Equals(tache.Titre) && t.utilisateur.ID.Equals(t.UserId)));
+			var Taches = await readMethods.GetTaches(query => query.Where(t => t.Titre.Equals(tache.Titre) && t.utilisateur!.ID.Equals(t.UserId)));
 			var tacheExistante = Taches.FirstOrDefault();
 			if (tache.StartDateH.Date >= tache.EndDateH.Date)
 			{

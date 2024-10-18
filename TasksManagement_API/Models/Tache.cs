@@ -25,5 +25,5 @@ public class Tache
 	[DataType(DataType.Date)]
 	public DateTime EndDateH { get; set; }
 	public int UserId { get; set; }
-	public Utilisateur? utilisateur { get; set; }
+	public Utilisateur utilisateur { get; set; }
 }
