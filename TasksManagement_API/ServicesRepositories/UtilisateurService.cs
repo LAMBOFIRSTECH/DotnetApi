@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Configuration;
 namespace TasksManagement_API.ServicesRepositories
 {
 	public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
@@ -10,9 +11,9 @@ namespace TasksManagement_API.ServicesRepositories
 		private readonly IDataProtectionProvider provider;
 		private readonly IJwtTokenService jwtTokenService;
 
-		private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
+		private readonly IConfiguration configuration;
 		private const string Purpose = "my protection purpose"; //On donne une intention pour l'encryptage explire dans 90jours
-		public UtilisateurService(DailyTasksMigrationsContext dataBaseSqlServerContext, IJwtTokenService jwtTokenService, Microsoft.Extensions.Configuration.IConfiguration configuration, IDataProtectionProvider provider)
+		public UtilisateurService(DailyTasksMigrationsContext dataBaseSqlServerContext, IJwtTokenService jwtTokenService, IConfiguration configuration, IDataProtectionProvider provider)
 		{
 			this.dataBaseSqlServerContext = dataBaseSqlServerContext;
 			this.jwtTokenService = jwtTokenService;
@@ -103,7 +104,6 @@ namespace TasksManagement_API.ServicesRepositories
 			}
 			return utilisateur;
 		}
-
 		public async Task<Utilisateur> SetUserPassword(string nom, string mdp)
 		{
 			var utilisateur = (await GetUsers(query => query.Where(u => u.Nom!.Equals(nom)))).FirstOrDefault();
@@ -120,10 +120,11 @@ namespace TasksManagement_API.ServicesRepositories
 		}
 		public async Task DeleteUserByDetails(string nom, Utilisateur.Privilege role)
 		{
-			var result = await GetSingleUserByNameRole(nom, role);
-			if (result != null)
+			var utilisateur = dataBaseSqlServerContext.Utilisateurs.Include(user => user.LesTaches).FirstOrDefault(user => user.Nom == nom && user.Role == role);
+			//var result = await GetSingleUserByNameRole(nom, role);
+			if (utilisateur != null)
 			{
-				dataBaseSqlServerContext.Utilisateurs.Remove(result);
+				dataBaseSqlServerContext.Utilisateurs.Remove(utilisateur);
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 		}

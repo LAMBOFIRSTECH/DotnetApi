@@ -12,6 +12,8 @@ public class UsersManagementController : ControllerBase
 {
 	private readonly IReadUsersMethods readMethods;
 	private readonly IWriteUsersMethods writeMethods;
+	private int i;
+
 	public UsersManagementController(IReadUsersMethods readMethods, IWriteUsersMethods writeMethods)
 	{
 		this.readMethods = readMethods; this.writeMethods = writeMethods;
@@ -26,7 +28,7 @@ public class UsersManagementController : ControllerBase
 	{
 		var users = await readMethods.GetUsers();
 		if (users.Any()) { return Ok(users); }
-		return NotFound();
+		return NoContent();
 	}
 
 	/// <summary>
@@ -46,7 +48,7 @@ public class UsersManagementController : ControllerBase
 				var utilisateur = await readMethods.GetSingleUserByNameRole(Nom, result);
 				if (utilisateur != null)
 				{
-					return Ok(utilisateur); 
+					return Ok(utilisateur);
 				}
 				return NotFound("Utilisateur non trouvé.");
 			}
@@ -94,7 +96,8 @@ public class UsersManagementController : ControllerBase
 				Nom = utilisateur.Nom,
 				Pass = utilisateur.Pass,
 				Role = utilisateur.Role,
-				Email = utilisateur.Email
+				Email = utilisateur.Email,
+
 			};
 			if (!Enum.IsDefined(typeof(Utilisateur.Privilege), utilisateur.Role))
 			{
@@ -111,16 +114,27 @@ public class UsersManagementController : ControllerBase
 			if (utilisateurAvecMemeNom != null)
 			{
 				var nouveauNomUtilisateur = $"{utilisateur.Nom}_1";
-				if (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
+
+				// if (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
+				// {
+				// 	return Conflict("Cet utilisateur possède déjà ce rôle");
+				// }
+				while (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
 				{
-					return Conflict("Cet utilisateur possède déjà ce rôle");
+					nouveauNomUtilisateur = $"{utilisateur.Nom}_{++i}";
 				}
 				newUtilisateur.Nom = nouveauNomUtilisateur;
 			}
+			if (utilisateur.LesTaches != null && utilisateur.LesTaches.Count > 0)
+			{
+				foreach (var tache in utilisateur.LesTaches)
+				{
+					tache.utilisateur = utilisateur;  // Associer l'utilisateur à chaque tâche
+					newUtilisateur.LesTaches.Add(tache);
+				}
+			}
 
 			await writeMethods.CreateUser(newUtilisateur);
-
-			//string newUrl=await removeParametersInUrl.EraseParametersInUri();
 			return Ok("La ressource a bien été créée");
 
 		}

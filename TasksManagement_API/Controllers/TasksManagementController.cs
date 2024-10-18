@@ -68,9 +68,17 @@ public class TasksManagementController : ControllerBase
 				Titre = tache.Titre,
 				Summary = tache.Summary,
 				StartDateH = tache.StartDateH,
-				EndDateH = tache.EndDateH
+				EndDateH = tache.EndDateH,
+				utilisateur = new Utilisateur()
+				{
+					ID = tache.UserId,
+					Nom = tache.utilisateur.Nom,
+					Pass = tache.utilisateur.Pass,
+					Role = tache.utilisateur.Role,
+					Email = tache.utilisateur.Email
+				}
 			};
-			var Taches = await readMethods.GetTaches(query => query.Where(t => t.Titre.Equals(tache.Titre)));
+			var Taches = await readMethods.GetTaches(query => query.Where(t => t.Titre.Equals(tache.Titre) && t.utilisateur.ID.Equals(t.UserId)));
 			var tacheExistante = Taches.FirstOrDefault();
 			if (tache.StartDateH.Date >= tache.EndDateH.Date)
 			{
@@ -152,5 +160,5 @@ public class TasksManagementController : ControllerBase
 		}
 	}
 
-	
+
 }

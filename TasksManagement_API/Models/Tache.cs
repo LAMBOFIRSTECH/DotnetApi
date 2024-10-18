@@ -26,5 +26,4 @@ public class Tache
 	public DateTime EndDateH { get; set; }
 	public int UserId { get; set; }
 	public Utilisateur? utilisateur { get; set; }
-
 }
