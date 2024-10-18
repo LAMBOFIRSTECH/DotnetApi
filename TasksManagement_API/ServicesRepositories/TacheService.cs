@@ -29,6 +29,17 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public async Task<Tache> CreateTask(Tache tache)
 		{
+			var utilisateur = await dataBaseSqlServerContext.Utilisateurs.FindAsync(tache.UserId);
+			if (utilisateur == null)
+			{
+				throw new ArgumentException("L'utilisateur associé à la tâche n'existe pas.");
+			}
+			else
+			{
+				utilisateur.LesTaches = new List<Tache>(); // Initialiser la liste de tâches si elle est null
+			}
+
+			tache.utilisateur = utilisateur;  // Associer la tâche à l'utilisateur
 			await dataBaseSqlServerContext.Taches.AddAsync(tache);
 			await dataBaseSqlServerContext.SaveChangesAsync();
 			return tache;
@@ -56,7 +67,7 @@ namespace TasksManagement_API.ServicesRepositories
 			await dataBaseSqlServerContext.SaveChangesAsync();
 			return newTache;
 		}
-    }
+	}
 	/*
 	- Changer la propriété qui permet de rechercher de façon unique une tache. Fait
 	- La fonction update ne prends pas en considération les date de debut et fin. Fait

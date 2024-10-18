@@ -65,12 +65,12 @@ namespace TasksManagement_API.ServicesRepositories
 			{
 				query = filter(query);
 			}
-		
+
 			return await query.ToListAsync();
 		}
 		public async Task<Utilisateur?> GetSingleUserByNameRole(string nom, Utilisateur.Privilege role)
 		{
-			return ( await GetUsers(query => query.Where(user => user.Nom == nom && user.Role == role))).FirstOrDefault();
+			return (await GetUsers(query => query.Where(user => user.Nom == nom && user.Role == role))).FirstOrDefault();
 		}
 
 		public string EncryptUserSecret(string plainText)
@@ -99,6 +99,14 @@ namespace TasksManagement_API.ServicesRepositories
 			}
 			if (utilisateur.CheckHashPassword(password) && utilisateur.CheckEmailAdress(email))
 			{
+				// Si l'utilisateur a des tâches, on les associe à l'utilisateur avant l'insertion
+				if (utilisateur.LesTaches != null && utilisateur.LesTaches.Count > 0)
+				{
+					foreach (var tache in utilisateur.LesTaches)
+					{
+						tache.utilisateur = utilisateur;  // Associer l'utilisateur à chaque tâche
+					}
+				}
 				await dataBaseSqlServerContext.Utilisateurs.AddAsync(utilisateur);
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}

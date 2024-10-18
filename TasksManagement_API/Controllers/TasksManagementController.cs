@@ -64,7 +64,7 @@ public class TasksManagementController : ControllerBase
 		int ID = tache.UserId; // si rien alors ne meme pas créer la tache 
 		if(ID ==0)
 		{
-			return BadRequest("les noyaux");
+			return BadRequest("L'ID utilisateur est requis pour créer une tâche.");
 		}
 		try
 		{
@@ -73,16 +73,7 @@ public class TasksManagementController : ControllerBase
 				Titre = tache.Titre,
 				Summary = tache.Summary,
 				StartDateH = tache.StartDateH,
-				EndDateH = tache.EndDateH,
-				UserId = tache.utilisateur.ID
-				// utilisateur = new Utilisateur()
-				// {
-				// 	ID = tache.UserId,
-				// 	Nom = tache.utilisateur.Nom,
-				// 	Pass = tache.utilisateur.Pass,
-				// 	Role = tache.utilisateur.Role,
-				// 	Email = tache.utilisateur.Email
-				// }
+				EndDateH = tache.EndDateH
 			};
 			var Taches = await readMethods.GetTaches(query => query.Where(t => t.Titre.Equals(tache.Titre) && t.utilisateur!.ID.Equals(t.UserId)));
 			var tacheExistante = Taches.FirstOrDefault();

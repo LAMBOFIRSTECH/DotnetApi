@@ -12,7 +12,6 @@ public class UsersManagementController : ControllerBase
 {
 	private readonly IReadUsersMethods readMethods;
 	private readonly IWriteUsersMethods writeMethods;
-	private int i;
 
 	public UsersManagementController(IReadUsersMethods readMethods, IWriteUsersMethods writeMethods)
 	{
@@ -81,23 +80,14 @@ public class UsersManagementController : ControllerBase
 	[HttpPost("user")]
 	public async Task<ActionResult> CreateUser([FromBody] Utilisateur utilisateur)
 	{
+
 		if (!ModelState.IsValid)
 		{
 			// Retourne les erreurs de validation pour diagnostic
 			return BadRequest(ModelState);
 		}
-
 		try
 		{
-			//Utilisateur.Privilege privilege;
-
-			Utilisateur newUtilisateur = new()
-			{
-				Nom = utilisateur.Nom,
-				Pass = utilisateur.Pass,
-				Role = utilisateur.Role,
-				Email = utilisateur.Email
-			};
 			if (!Enum.IsDefined(typeof(Utilisateur.Privilege), utilisateur.Role))
 			{
 				return BadRequest("Le rôle spécifié n'est pas valide.");
@@ -112,28 +102,31 @@ public class UsersManagementController : ControllerBase
 			var utilisateurAvecMemeNom = listUtilisateurs.FirstOrDefault(item => item.Nom == utilisateur.Nom);
 			if (utilisateurAvecMemeNom != null)
 			{
-				var nouveauNomUtilisateur = $"{utilisateur.Nom}_1";
-
-				// if (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
-				// {
-				// 	return Conflict("Cet utilisateur possède déjà ce rôle");
-				// }
+				var i=1;
+				var nouveauNomUtilisateur = $"{utilisateur.Nom}_{i}";
 				while (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
 				{
-					nouveauNomUtilisateur = $"{utilisateur.Nom}_{++i}";
+					i++;
+					nouveauNomUtilisateur = $"{utilisateur.Nom}_{i}";
 				}
-				newUtilisateur.Nom = nouveauNomUtilisateur;
+				utilisateur.Nom = nouveauNomUtilisateur;
 			}
+			Utilisateur newUtilisateur = new()
+			{
+				Nom = utilisateur.Nom,
+				Pass = utilisateur.Pass,
+				Role = utilisateur.Role,
+				Email = utilisateur.Email,
+				LesTaches = new List<Tache>(){}
+			};
 			if (utilisateur.LesTaches != null && utilisateur.LesTaches.Count > 0)
 			{
 				foreach (var tache in utilisateur.LesTaches)
 				{
-					tache.utilisateur = utilisateur;  // Associer l'utilisateur à chaque tâche
+					tache.utilisateur = newUtilisateur;  // Associer l'utilisateur à chaque tâche
 					newUtilisateur.LesTaches.Add(tache);
 				}
 			}
-			Console.WriteLine(newUtilisateur);
-
 			await writeMethods.CreateUser(newUtilisateur);
 			return Ok("La ressource a bien été créée");
 

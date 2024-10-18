@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -25,5 +26,6 @@ public class Tache
 	[DataType(DataType.Date)]
 	public DateTime EndDateH { get; set; }
 	public int UserId { get; set; }
-	public Utilisateur utilisateur { get; set; }
+	[JsonIgnore]
+	public Utilisateur? utilisateur { get; set; }
 }
