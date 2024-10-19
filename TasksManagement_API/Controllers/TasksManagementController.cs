@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 using TasksManagement_API.ServicesRepositories;
+using Microsoft.AspNetCore.Authentication.OAuth;
 namespace TasksManagement_API.Controllers;
 [ApiController]
 [Route("api/v1.1/")]
@@ -60,9 +61,8 @@ public class TasksManagementController : ControllerBase
 	[HttpPost("tache/")]
 	public async Task<IActionResult> CreateTask([FromBody] Tache tache)
 	{
-		string Titre = tache.Titre;
-		int ID = tache.UserId; // si rien alors ne meme pas créer la tache 
-		if(ID ==0)
+		int ID = tache.UserId;
+		if (ID == 0)
 		{
 			return BadRequest("L'ID utilisateur est requis pour créer une tâche.");
 		}
@@ -73,9 +73,10 @@ public class TasksManagementController : ControllerBase
 				Titre = tache.Titre,
 				Summary = tache.Summary,
 				StartDateH = tache.StartDateH,
-				EndDateH = tache.EndDateH
+				EndDateH = tache.EndDateH,
+				// UserId= tache.UserId
 			};
-			var Taches = await readMethods.GetTaches(query => query.Where(t => t.Titre.Equals(tache.Titre) && t.utilisateur!.ID.Equals(t.UserId)));
+			var Taches = await readMethods.GetTaches(query => query.Where(t => t.Titre.Equals(tache.Titre) && t.utilisateur!.ID.Equals(tache.UserId)));
 			var tacheExistante = Taches.FirstOrDefault();
 			if (tache.StartDateH.Date >= tache.EndDateH.Date)
 			{

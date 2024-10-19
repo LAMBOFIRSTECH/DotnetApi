@@ -128,7 +128,7 @@ public class UsersManagementController : ControllerBase
 				}
 			}
 			await writeMethods.CreateUser(newUtilisateur);
-			return Ok("La ressource a bien été créée");
+			return CreatedAtAction(nameof(GetSingleUser), new { Nom = newUtilisateur.Nom }, newUtilisateur);
 
 		}
 		catch (Exception ex)

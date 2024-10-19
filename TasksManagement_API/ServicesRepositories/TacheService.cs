@@ -36,7 +36,7 @@ namespace TasksManagement_API.ServicesRepositories
 			}
 			else
 			{
-				utilisateur.LesTaches = new List<Tache>(); // Initialiser la liste de tâches si elle est null
+				utilisateur.LesTaches.Add(tache); // Initialiser la liste de tâches si elle est null
 			}
 
 			tache.utilisateur = utilisateur;  // Associer la tâche à l'utilisateur
