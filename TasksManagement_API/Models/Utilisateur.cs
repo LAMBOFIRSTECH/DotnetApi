@@ -14,6 +14,7 @@ public class Utilisateur
 	/// Représente l'identifiant unique d'un utilisateur.
 	/// </summary>
 	[Key]
+	[System.Text.Json.Serialization.JsonIgnore]
 	public int ID { get; set; }
 	[Required]
 	public string Nom { get; set; } = string.Empty;
@@ -30,9 +31,7 @@ public class Utilisateur
 	[Category("Security")]
 	//[System.Text.Json.Serialization.JsonIgnore] // set à disable le mot de passe dans la serialisation json
 	public string Pass { get; set; } = string.Empty;
-	
-	[JsonIgnore]
-	public ICollection<Tache> LesTaches { get; set; }// = new List<Tache>();
+	public ICollection<Tache>? LesTaches { get; set; }
 
 	public bool CheckHashPassword(string password)
 	{

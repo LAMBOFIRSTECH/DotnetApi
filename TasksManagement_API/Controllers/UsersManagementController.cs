@@ -61,6 +61,7 @@ public class UsersManagementController : ControllerBase
 			return BadRequest("Le rôle spécifié n'est pas valide.");
 		}
 	}
+
 	/// <summary>
 	/// Créée un utilisateur.
 	/// </summary>
@@ -69,11 +70,11 @@ public class UsersManagementController : ControllerBase
 	///
 	///     POST /CreateUser
 	///     {
-	///        "id": This value is autoincremented,
-	///        "Nom": "username",
-	///        "mdp": "password",
-	///        "role": "Utilisateur",
-	///        "email": "adress_name@mailing_server.domain"  
+	///        "nom": "username",
+	///        "email": "adress_name@mailing_server.domain" 
+	///        "role": enum {Utilisateur, Administrateur},
+	///        "pass": "password",
+	///        "lesTaches": []
 	///     }
 	/// </remarks>
 
@@ -99,7 +100,7 @@ public class UsersManagementController : ControllerBase
 				Email = utilisateur.Email
 			};
 			await writeMethods.CreateUser(newUtilisateur);
-			return CreatedAtAction(nameof(GetUsers), new { Nom = newUtilisateur.Nom,Email=newUtilisateur.Email }, newUtilisateur);
+			return CreatedAtAction(nameof(GetUsers), new { Nom = newUtilisateur.Nom, Email=newUtilisateur.Email });
 		}
 		catch (Exception ex)
 		{

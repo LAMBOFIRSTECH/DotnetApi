@@ -125,7 +125,8 @@ namespace TasksManagement_API.ServicesRepositories
 				{
 					foreach (var tache in utilisateur.LesTaches)
 					{
-						tache.UserId = utilisateur.ID;  // Associer l'utilisateur à chaque tâche
+						tache.NomUtilisateur = utilisateur.Nom; 
+						tache.EmailUtilisateur = utilisateur.Email; 
 						utilisateur.LesTaches.Add(tache);
 					}
 				}
@@ -150,13 +151,12 @@ namespace TasksManagement_API.ServicesRepositories
 		}
 		public async Task DeleteUserByDetails(string nom, Utilisateur.Privilege role)
 		{
-			var utilisateur = dataBaseSqlServerContext.Utilisateurs.Include(user => user.LesTaches).FirstOrDefault(user => user.Nom == nom && user.Role == role);
+			var utilisateur= (await GetUsers(query=>query.Where(user => user.Nom == nom && user.Role == role))).FirstOrDefault();
 			if (utilisateur != null)
 			{
 				dataBaseSqlServerContext.Utilisateurs.Remove(utilisateur);
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 		}
-
 	}
 }

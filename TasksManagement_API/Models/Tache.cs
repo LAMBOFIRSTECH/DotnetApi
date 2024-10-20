@@ -13,6 +13,7 @@ public class Tache
 	/// <summary>
 	/// Représente l'identifiant unique d'une tache.
 	/// </summary>
+	[JsonIgnore]
 	[Key]
 	public int Matricule { get; set; }
 	[Required]
@@ -25,7 +26,11 @@ public class Tache
 	[Required(ErrorMessage = "Le format de date doit être comme l'exemple suivant : 01/01/2024")]
 	[DataType(DataType.Date)]
 	public DateTime EndDateH { get; set; }
+	
+	[JsonIgnore]
 	public int UserId { get; set; }
+	public string? NomUtilisateur { get; set; }
+	public string? EmailUtilisateur { get; set; }
 	[JsonIgnore]
 	public Utilisateur? utilisateur { get; set; }
 

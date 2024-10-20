@@ -29,10 +29,10 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public async Task<Tache> CreateTask(Tache tache)
 		{
-			//var utilisateur = await dataBaseSqlServerContext.Utilisateurs.FindAsync(tache.UserId);
 			var utilisateur = await dataBaseSqlServerContext.Utilisateurs
-                        .Include(u => u.LesTaches)  // Inclure les tâches associées à l'utilisateur
-                        .FirstOrDefaultAsync(u => u.ID == tache.UserId);
+						.Include(u => u.LesTaches)  // Inclure les tâches associées à l'utilisateur
+						.FirstOrDefaultAsync(u =>
+					   u.Nom.Equals(tache.NomUtilisateur) && u.Email.Equals(tache.EmailUtilisateur));
 
 			if (utilisateur == null)
 			{
@@ -54,24 +54,17 @@ namespace TasksManagement_API.ServicesRepositories
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 		}
-
-		public async Task<Tache> UpdateTask(int matricule, Tache tache)
+		public async Task<Tache> UpdateTask(string titre, Tache tache)
 		{
-			var Taches = await GetTaches(query => query.Where(t => t.Matricule.Equals(matricule)));
-			var newTache = Taches.First();
-			// newTache.Matricule = tache.Matricule;
+			var newTache = (await GetTaches(query => query.Where(t => t.Matricule.Equals(titre)))).First();
 			newTache.Titre = tache.Titre;
 			newTache.Summary = tache.Summary;
 			newTache.StartDateH = tache.StartDateH;
 			newTache.EndDateH = tache.EndDateH;
 			await dataBaseSqlServerContext.SaveChangesAsync();
 			return newTache;
+			
+			// Pa encore achevé complètement
 		}
 	}
-	/*
-	- Changer la propriété qui permet de rechercher de façon unique une tache. Fait
-	- La fonction update ne prends pas en considération les date de debut et fin. Fait
-	- Mettre la logique de vérification de la date dans le controller et pas dans le service. Fait
-	- Revoir la fonction getByTitle pour rajouter une regex qui prend en considération le fait que deux titres peuvent commencer de la meme façon sans pour autant etre identique.
-	*/
 }

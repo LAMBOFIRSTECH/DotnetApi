@@ -1,14 +1,8 @@
 using System.Data;
-using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-using System.Runtime.InteropServices;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
-using TasksManagement_API.ServicesRepositories;
-using Microsoft.AspNetCore.Authentication.OAuth;
 namespace TasksManagement_API.Controllers;
 [ApiController]
 [Route("api/v1.1/")]
@@ -61,9 +55,13 @@ public class TasksManagementController : ControllerBase
 	[HttpPost("tache/")]
 	public async Task<IActionResult> CreateTask([FromBody] Tache tache)
 	{
-		if (tache.UserId == 0)
+		if (tache.NomUtilisateur is null)
 		{
-			return BadRequest("L'ID utilisateur est requis pour créer une tâche.");
+			return BadRequest("Le nom de l'utilisateur est requis pour créer une tâche.");
+		}
+		if (tache.EmailUtilisateur is null)
+		{
+			return BadRequest("L'email de l'utilisateur est requis pour créer une tâche.");
 		}
 		try
 		{
@@ -84,15 +82,8 @@ public class TasksManagementController : ControllerBase
 				Summary = tache.Summary,
 				StartDateH = tache.StartDateH,
 				EndDateH = tache.EndDateH,
-				UserId = tache.UserId
-				// utilisateur = new Utilisateur()
-				// {
-				// 	Nom = tache.utilisateur.Nom,
-				// 	Email = tache.utilisateur.Email,
-				// 	Pass = tache.utilisateur.Pass,
-				// 	Role
-				// = tache.utilisateur.Role
-				// }
+				NomUtilisateur = tache.NomUtilisateur,
+				EmailUtilisateur = tache.EmailUtilisateur
 			};
 			await writeMethods.CreateTask(newTache);
 			return CreatedAtAction(nameof(GetSingleOrAllTasks), new { Titre = newTache.Titre }, newTache);
@@ -134,20 +125,20 @@ public class TasksManagementController : ControllerBase
 	/// <summary>
 	/// Met à jour les informations d'une tache.
 	/// </summary>
-	/// <param name="matricule"></param>
+	/// <param name="titre"></param>
 	/// <param name="tache"></param>
 	/// <returns></returns>
 	//[Authorize(Policy = "AdminPolicy")]
-	[HttpPut("tache/{matricule}")]
-	public async Task<IActionResult> UpdateTask(int matricule, [FromBody] Tache tache)
+	[HttpPut("tache/{titre}")]
+	public async Task<IActionResult> UpdateTask(string titre, [FromBody] Tache tache)
 	{
 		try
 		{
-			if (matricule <= 0)
-			{
-				return BadRequest("Le matricule doit etre strictement positif");
-			}
-			if (matricule != tache.Matricule)
+			// if (matricule <= 0)
+			// {
+			// 	return BadRequest("Le matricule doit etre strictement positif");
+			// }
+			if (titre != tache.Titre)
 			{
 				return NotFound();
 			}
@@ -156,7 +147,7 @@ public class TasksManagementController : ControllerBase
 				var message = "Exemple : Date de debut ->  01/01/2024  (doit etre '>' Supérieur) Date de fin -> 02/02/2024";
 				return StatusCode(StatusCodes.Status406NotAcceptable, message);
 			}
-			await writeMethods.UpdateTask(matricule, tache);
+			await writeMethods.UpdateTask(titre, tache);
 			return NoContent();
 		}
 		catch (DbUpdateConcurrencyException ex)

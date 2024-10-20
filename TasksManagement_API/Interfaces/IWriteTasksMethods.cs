@@ -4,7 +4,7 @@ namespace TasksManagement_API.Interfaces
 	public interface IWriteTasksMethods
 	{
 		Task<Tache> CreateTask(Tache Tache);
-		Task<Tache> UpdateTask(int matricule,Tache Tache);
+		Task<Tache> UpdateTask(string titre,Tache Tache);
 		Task DeleteTaskByTitle(string titre);
 	}
 }
