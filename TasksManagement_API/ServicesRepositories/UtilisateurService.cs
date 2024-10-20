@@ -2,10 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.Configuration;
 namespace TasksManagement_API.ServicesRepositories
 {
-	public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
+    public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
 	{
 		private readonly DailyTasksMigrationsContext dataBaseSqlServerContext;
 		private readonly IDataProtectionProvider provider;

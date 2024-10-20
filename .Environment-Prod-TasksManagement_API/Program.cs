@@ -45,7 +45,9 @@ builder.Services.AddCors(options =>
 	options.AddPolicy(name: MyAllowSpecificOrigins,
 					  policy =>
 					  {
-						  policy.WithOrigins("https://localhost:7250", "http://localhost:5195/");
+						  policy.AllowAnyOrigin()
+						   .AllowAnyMethod()
+						   .AllowAnyHeader();
 					  });
 });
 
@@ -62,9 +64,9 @@ if (connectionStrings == null || !connectionStrings.ContainsKey("DefaultConnecti
 	throw new Exception("La chaine de connexion à la base de données est nulle");
 }
 
-builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseSqlServer(connectionStrings["DefaultConnection"],sqlOptions => sqlOptions.EnableRetryOnFailure(
-maxRetryCount: 10, 
-maxRetryDelay: TimeSpan.FromSeconds(40),  
+builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseSqlServer(connectionStrings["DefaultConnection"], sqlOptions => sqlOptions.EnableRetryOnFailure(
+maxRetryCount: 10,
+maxRetryDelay: TimeSpan.FromSeconds(40),
 errorNumbersToAdd: null)));
 
 builder.Services.AddControllersWithViews();
@@ -119,14 +121,14 @@ builder.Services.AddAuthentication("JwtAuthorization")
 		options.RequireHttpsMetadata = false;
 		options.TokenValidationParameters = new TokenValidationParameters
 		{
-			ValidateIssuer = true,             
-			ValidateAudience = true,           
-			ValidateLifetime = true,          
-			ValidateIssuerSigningKey = true,   
+			ValidateIssuer = true,
+			ValidateAudience = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
 
-			ValidIssuer = JwtSettings["Issuer"],      
-			ValidAudience = JwtSettings["Audience"],  
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)) 
+			ValidIssuer = JwtSettings["Issuer"],
+			ValidAudience = JwtSettings["Audience"],
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey))
 		};
 	});
 
@@ -150,22 +152,7 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-	app.UseSwagger();
-	app.UseSwaggerUI(con =>
-	 {
-		 con.SwaggerEndpoint("/swagger/1.0/swagger.json", "Daily Tasks Management API");
-
-		 con.RoutePrefix = string.Empty;
-
-	 });
-}
-else if (app.Environment.IsStaging())
-{
-
-}
-else if (app.Environment.IsProduction())
+if (app.Environment.IsProduction())
 {
 	// Gérer les erreurs dans un environnement de production
 	app.UseExceptionHandler("/Error");
@@ -180,13 +167,7 @@ else if (app.Environment.IsProduction())
 	 });
 }
 
-//app.UseCors(MyAllowSpecificOrigins);
-var rewriteOptions = new RewriteOptions()
-	.AddRewrite(@"^index\.html$", "https://lambo.net/index.html", true)
-	.AddRedirectToHttpsPermanent();
-app.UseRewriter(rewriteOptions);
-
-
+app.UseCors(MyAllowSpecificOrigins);
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
@@ -197,7 +178,7 @@ app.UseEndpoints(endpoints =>
 	 endpoints.MapHealthChecks("/health");
 	 endpoints.MapGet("/version", async context =>
 		{
-			await context.Response.WriteAsync("Version de l'API : 2.0");
+			await context.Response.WriteAsync("Version de l'API : 1.1");
 		});
  });
 app.Run();
