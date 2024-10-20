@@ -61,21 +61,12 @@ public class TasksManagementController : ControllerBase
 	[HttpPost("tache/")]
 	public async Task<IActionResult> CreateTask([FromBody] Tache tache)
 	{
-		int ID = tache.UserId;
-		if (ID == 0)
+		if (tache.UserId == 0)
 		{
 			return BadRequest("L'ID utilisateur est requis pour créer une tâche.");
 		}
 		try
 		{
-			Tache newTache = new()
-			{
-				Titre = tache.Titre,
-				Summary = tache.Summary,
-				StartDateH = tache.StartDateH,
-				EndDateH = tache.EndDateH,
-				// UserId= tache.UserId
-			};
 			var Taches = await readMethods.GetTaches(query => query.Where(t => t.Titre.Equals(tache.Titre) && t.utilisateur!.ID.Equals(tache.UserId)));
 			var tacheExistante = Taches.FirstOrDefault();
 			if (tache.StartDateH.Date >= tache.EndDateH.Date)
@@ -87,6 +78,22 @@ public class TasksManagementController : ControllerBase
 			{
 				return Conflict("Cette tache est déjà présente");
 			}
+			Tache newTache = new()
+			{
+				Titre = tache.Titre,
+				Summary = tache.Summary,
+				StartDateH = tache.StartDateH,
+				EndDateH = tache.EndDateH,
+				UserId = tache.UserId
+				// utilisateur = new Utilisateur()
+				// {
+				// 	Nom = tache.utilisateur.Nom,
+				// 	Email = tache.utilisateur.Email,
+				// 	Pass = tache.utilisateur.Pass,
+				// 	Role
+				// = tache.utilisateur.Role
+				// }
+			};
 			await writeMethods.CreateTask(newTache);
 			return CreatedAtAction(nameof(GetSingleOrAllTasks), new { Titre = newTache.Titre }, newTache);
 		}

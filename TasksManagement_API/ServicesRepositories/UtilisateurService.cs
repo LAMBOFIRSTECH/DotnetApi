@@ -60,7 +60,8 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public async Task<ICollection<Utilisateur>> GetUsers(Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = null)
 		{
-			IQueryable<Utilisateur> query = dataBaseSqlServerContext.Utilisateurs;
+			IQueryable<Utilisateur> query = dataBaseSqlServerContext.Utilisateurs
+								   .Include(u => u.LesTaches);
 			if (filter != null)
 			{
 				query = filter(query);
@@ -84,32 +85,53 @@ namespace TasksManagement_API.ServicesRepositories
 			var protector = provider.CreateProtector(Purpose);
 			return protector.Unprotect(cipherText);
 		}
+
+		public async Task<string?> CheckExistedUser(Utilisateur utilisateur)
+		{
+			var listUtilisateurs = dataBaseSqlServerContext.Utilisateurs.ToList();
+			var utilisateurExistant = await GetSingleUserByNameRole(utilisateur.Nom, utilisateur.Role);
+			if (utilisateurExistant == null)
+			{
+				return utilisateur.Nom;
+			}
+			var i = 1;
+			var nouveauNomUtilisateur = $"{utilisateur.Nom}_{i}";
+			if (utilisateurExistant.Nom == utilisateur.Nom)
+			{
+				while (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
+				{
+					i++;
+					nouveauNomUtilisateur = $"{utilisateur.Nom}_{i}";
+				}
+			}
+			utilisateur.Nom = nouveauNomUtilisateur;
+			return utilisateur.Nom;
+		}
 		public async Task<Utilisateur> CreateUser(Utilisateur utilisateur)
 		{
-			var password = utilisateur.Pass;
-			var email = utilisateur.Email;
-			if (!string.IsNullOrEmpty(password))
+			if (!string.IsNullOrEmpty(utilisateur.Pass))
 			{
-				utilisateur.SetHashPassword(password);
+				utilisateur.SetHashPassword(utilisateur.Pass);
 			}
 
-			if (!utilisateur.CheckEmailAdress(email))
+			if (!utilisateur.CheckEmailAdress(utilisateur.Email))
 			{
 				throw new ArgumentException("Adresse e-mail invalide");
 			}
-			if (utilisateur.CheckHashPassword(password) && utilisateur.CheckEmailAdress(email))
+			if (utilisateur.CheckHashPassword(utilisateur.Pass) && utilisateur.CheckEmailAdress(utilisateur.Email))
 			{
 				// Si l'utilisateur a des tâches, on les associe à l'utilisateur avant l'insertion
 				if (utilisateur.LesTaches != null && utilisateur.LesTaches.Count > 0)
 				{
 					foreach (var tache in utilisateur.LesTaches)
 					{
-						tache.utilisateur = utilisateur;  // Associer l'utilisateur à chaque tâche
+						tache.UserId = utilisateur.ID;  // Associer l'utilisateur à chaque tâche
+						utilisateur.LesTaches.Add(tache);
 					}
 				}
-				await dataBaseSqlServerContext.Utilisateurs.AddAsync(utilisateur);
-				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
+			await dataBaseSqlServerContext.Utilisateurs.AddAsync(utilisateur);
+			await dataBaseSqlServerContext.SaveChangesAsync();
 			return utilisateur;
 		}
 		public async Task<Utilisateur> SetUserPassword(string nom, string mdp)
@@ -129,12 +151,12 @@ namespace TasksManagement_API.ServicesRepositories
 		public async Task DeleteUserByDetails(string nom, Utilisateur.Privilege role)
 		{
 			var utilisateur = dataBaseSqlServerContext.Utilisateurs.Include(user => user.LesTaches).FirstOrDefault(user => user.Nom == nom && user.Role == role);
-			//var result = await GetSingleUserByNameRole(nom, role);
 			if (utilisateur != null)
 			{
 				dataBaseSqlServerContext.Utilisateurs.Remove(utilisateur);
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 		}
+
 	}
 }

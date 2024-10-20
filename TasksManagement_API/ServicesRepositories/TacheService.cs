@@ -29,16 +29,16 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public async Task<Tache> CreateTask(Tache tache)
 		{
-			var utilisateur = await dataBaseSqlServerContext.Utilisateurs.FindAsync(tache.UserId);
+			//var utilisateur = await dataBaseSqlServerContext.Utilisateurs.FindAsync(tache.UserId);
+			var utilisateur = await dataBaseSqlServerContext.Utilisateurs
+                        .Include(u => u.LesTaches)  // Inclure les tâches associées à l'utilisateur
+                        .FirstOrDefaultAsync(u => u.ID == tache.UserId);
+
 			if (utilisateur == null)
 			{
 				throw new ArgumentException("L'utilisateur associé à la tâche n'existe pas.");
 			}
-			else
-			{
-				utilisateur.LesTaches.Add(tache); // Initialiser la liste de tâches si elle est null
-			}
-
+			utilisateur.LesTaches.Add(tache); // Initialiser la liste de tâches si elle est null
 			tache.utilisateur = utilisateur;  // Associer la tâche à l'utilisateur
 			await dataBaseSqlServerContext.Taches.AddAsync(tache);
 			await dataBaseSqlServerContext.SaveChangesAsync();
@@ -59,7 +59,7 @@ namespace TasksManagement_API.ServicesRepositories
 		{
 			var Taches = await GetTaches(query => query.Where(t => t.Matricule.Equals(matricule)));
 			var newTache = Taches.First();
-			newTache.Matricule = tache.Matricule;
+			// newTache.Matricule = tache.Matricule;
 			newTache.Titre = tache.Titre;
 			newTache.Summary = tache.Summary;
 			newTache.StartDateH = tache.StartDateH;

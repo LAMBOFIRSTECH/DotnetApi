@@ -80,10 +80,8 @@ public class UsersManagementController : ControllerBase
 	[HttpPost("user")]
 	public async Task<ActionResult> CreateUser([FromBody] Utilisateur utilisateur)
 	{
-
 		if (!ModelState.IsValid)
 		{
-			// Retourne les erreurs de validation pour diagnostic
 			return BadRequest(ModelState);
 		}
 		try
@@ -92,44 +90,16 @@ public class UsersManagementController : ControllerBase
 			{
 				return BadRequest("Le rôle spécifié n'est pas valide.");
 			}
-			var listUtilisateurs = await readMethods.GetUsers();
-			var utilisateurExistant = listUtilisateurs.FirstOrDefault(item => item.Nom == utilisateur.Nom && item.Role == utilisateur.Role);
-			if (utilisateurExistant != null)
-			{
-				return Conflict("Cet utilisateur est déjà présent");
-			}
-
-			var utilisateurAvecMemeNom = listUtilisateurs.FirstOrDefault(item => item.Nom == utilisateur.Nom);
-			if (utilisateurAvecMemeNom != null)
-			{
-				var i=1;
-				var nouveauNomUtilisateur = $"{utilisateur.Nom}_{i}";
-				while (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
-				{
-					i++;
-					nouveauNomUtilisateur = $"{utilisateur.Nom}_{i}";
-				}
-				utilisateur.Nom = nouveauNomUtilisateur;
-			}
+			var nouveauNomUtilisateur = await readMethods.CheckExistedUser(utilisateur);
 			Utilisateur newUtilisateur = new()
 			{
-				Nom = utilisateur.Nom,
+				Nom = nouveauNomUtilisateur!,
 				Pass = utilisateur.Pass,
 				Role = utilisateur.Role,
-				Email = utilisateur.Email,
-				LesTaches = new List<Tache>(){}
+				Email = utilisateur.Email
 			};
-			if (utilisateur.LesTaches != null && utilisateur.LesTaches.Count > 0)
-			{
-				foreach (var tache in utilisateur.LesTaches)
-				{
-					tache.utilisateur = newUtilisateur;  // Associer l'utilisateur à chaque tâche
-					newUtilisateur.LesTaches.Add(tache);
-				}
-			}
 			await writeMethods.CreateUser(newUtilisateur);
-			return CreatedAtAction(nameof(GetSingleUser), new { Nom = newUtilisateur.Nom }, newUtilisateur);
-
+			return CreatedAtAction(nameof(GetUsers), new { Nom = newUtilisateur.Nom,Email=newUtilisateur.Email }, newUtilisateur);
 		}
 		catch (Exception ex)
 		{
@@ -156,7 +126,7 @@ public class UsersManagementController : ControllerBase
 					return NotFound($"L'utilisateur [{Nom}] n'a pas été trouvé dans le contexte de base de données");
 				}
 				await writeMethods.DeleteUserByDetails(Nom, result);
-				return Ok("La donnée a bien été supprimée");
+				return NoContent();
 			}
 			catch (Exception ex)
 			{
@@ -169,23 +139,23 @@ public class UsersManagementController : ControllerBase
 		}
 	}
 	/// <summary>
-	/// Met à jour le mot de passe d'un utilisateur en fonction de son nom
+	/// Met à jour le mot de passe d'un utilisateur en fonction de son nom.
 	/// </summary>
 	/// <param name="nom"></param>
-	/// <param name="password"></param>
+	/// <param name="currentpassword"></param>
 	/// <param name="newpassword"></param>
 	/// <returns></returns>
-	[HttpPatch("user")]
-	public async Task<ActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string password, [DataType(DataType.Password)] string newpassword)
+	[HttpPatch("user/{nom}/{currentpassword}/{newpassword}")]
+	public async Task<ActionResult> UpdateUserPassword(string nom, [DataType(DataType.Password)] string currentpassword, [DataType(DataType.Password)] string newpassword)
 	{
 		try
 		{
-			if (password == newpassword)
+			if (currentpassword == newpassword)
 			{
 				return Conflict("Le mot de passe saisi existe déjà.");
 			}
 			await writeMethods.SetUserPassword(nom, newpassword);
-			return Ok($"Le mot de passe de l'utilisateur [{nom}] a bien été modifié.");
+			return NoContent();
 		}
 		catch (Exception ex)
 		{

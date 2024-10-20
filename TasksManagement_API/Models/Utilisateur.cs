@@ -30,7 +30,9 @@ public class Utilisateur
 	[Category("Security")]
 	//[System.Text.Json.Serialization.JsonIgnore] // set à disable le mot de passe dans la serialisation json
 	public string Pass { get; set; } = string.Empty;
-	public ICollection<Tache> LesTaches { get; set; } = new List<Tache>();
+	
+	[JsonIgnore]
+	public ICollection<Tache> LesTaches { get; set; }// = new List<Tache>();
 
 	public bool CheckHashPassword(string password)
 	{
