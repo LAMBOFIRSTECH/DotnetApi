@@ -1,6 +1,5 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using TasksManagement_API.Models;
@@ -11,8 +10,6 @@ using TasksManagement_API.SwaggerFilters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Server.Kestrel.Https;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -21,11 +18,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {
-	opt.SwaggerDoc("1.0", new OpenApiInfo
+	opt.SwaggerDoc("1.1", new OpenApiInfo
 	{
 		Title = "DailyTasks | Api",
 		Description = "An ASP.NET Core Web API for managing Tasks App",
-		Version = "1.0",
+		Version = "1.1",
 		Contact = new OpenApiContact
 		{
 			Name = "Artur Lambo",
@@ -43,7 +40,9 @@ builder.Services.AddCors(options =>
 	options.AddPolicy(name: MyAllowSpecificOrigins,
 					  policy =>
 					  {
-						  policy.WithOrigins("https://localhost:7250", "http://localhost:5195/");
+						  policy.AllowAnyOrigin()
+						   .AllowAnyMethod()  
+						   .AllowAnyHeader();
 					  });
 });
 
@@ -66,26 +65,26 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
 builder.Services.AddHealthChecks();
 
-var kestrelSection=builder.Configuration.GetSection("Kestrel:EndPoints:Https");
-var certificateFile = kestrelSection["Certificate:File"];
-var certificatePassword = kestrelSection["Certificate:Password"];
-builder.Services.Configure<KestrelServerOptions>(options =>
-{
-    if (string.IsNullOrEmpty(certificateFile) || string.IsNullOrEmpty(certificatePassword))
-    {
-        throw new InvalidOperationException("Certificate path or password not configured");
-    }
-    options.ListenAnyIP(7081, listenOptions =>
-    {
-        listenOptions.UseHttps(certificateFile, certificatePassword);
-    });
-    options.Limits.MaxConcurrentConnections = 5;
-    options.ConfigureHttpsDefaults(opt =>
-    {
-        opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+// var kestrelSection=builder.Configuration.GetSection("Kestrel:EndPoints:Https");
+// var certificateFile = kestrelSection["Certificate:File"];
+// var certificatePassword = kestrelSection["Certificate:Password"];
+// builder.Services.Configure<KestrelServerOptions>(options =>
+// {
+//     if (string.IsNullOrEmpty(certificateFile) || string.IsNullOrEmpty(certificatePassword))
+//     {
+//         throw new InvalidOperationException("Certificate path or password not configured");
+//     }
+//     options.ListenAnyIP(7081, listenOptions =>
+//     {
+//         listenOptions.UseHttps(certificateFile, certificatePassword);
+//     });
+//     options.Limits.MaxConcurrentConnections = 5;
+//     options.ConfigureHttpsDefaults(opt =>
+//     {
+//         opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
 
-    });
-});
+//     });
+// });
 
 
 builder.Services.AddScoped<IReadUsersMethods, UtilisateurService>();
@@ -130,14 +129,14 @@ builder.Services.AddAuthorization(options =>
  {
 	 // Politique d'autorisation pour les administrateurs
 	 options.AddPolicy("AdminPolicy", policy =>
-		 policy.RequireRole(nameof(Utilisateur.Privilege.Admin))
+		 policy.RequireRole(nameof(Utilisateur.Privilege.Administrateur))
 			   .RequireAuthenticatedUser()
 			   .AddAuthenticationSchemes("JwtAuthorization"));
 
 
 	 // Politique d'autorisation pour les utilisateurs non-administrateurs
 	 options.AddPolicy("UserPolicy", policy =>
-		policy.RequireRole(nameof(Utilisateur.Privilege.UserX))
+		policy.RequireRole(nameof(Utilisateur.Privilege.Utilisateur))
 			   .RequireAuthenticatedUser()  // L'utilisateur doit être authentifié
 			   .AddAuthenticationSchemes("BasicAuthentication"));
 
@@ -150,7 +149,7 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI(con =>
 	 {
-		 con.SwaggerEndpoint("/swagger/1.0/swagger.json", "Daily Tasks Management API");
+		 con.SwaggerEndpoint("/swagger/1.1/swagger.json", "Daily Tasks Management API");
 
 		 con.RoutePrefix = string.Empty;
 
@@ -168,20 +167,14 @@ else if (app.Environment.IsProduction())
 	app.UseSwagger();
 	app.UseSwaggerUI(con =>
 	 {
-		 con.SwaggerEndpoint("/swagger/1.0/swagger.json", "Daily Tasks Management API");
+		 con.SwaggerEndpoint("/swagger/1.1/swagger.json", "Daily Tasks Management API");
 
 		 con.RoutePrefix = string.Empty;
 
 	 });
 }
 
-//app.UseCors(MyAllowSpecificOrigins);
-var rewriteOptions = new RewriteOptions()
-	.AddRewrite(@"^index\.html$", "https://lambo.net/index.html", true)
-	.AddRedirectToHttpsPermanent();
-app.UseRewriter(rewriteOptions);
-
-
+app.UseCors(MyAllowSpecificOrigins);
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
@@ -192,7 +185,7 @@ app.UseEndpoints(endpoints =>
 	 endpoints.MapHealthChecks("/health");
 	 endpoints.MapGet("/version", async context =>
 		{
-			await context.Response.WriteAsync("Version de l'API : 1.0");
+			await context.Response.WriteAsync("Version de l'API : 1.1");
 		});
  });
 app.Run();

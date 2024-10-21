@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 #nullable disable
 namespace TasksManagement_API.ServicesRepositories
 {
-	public class TacheService :IReadTasksMethods,IWriteTasksMethods
+	public class TacheService : IReadTasksMethods, IWriteTasksMethods
 	{
 		private readonly DailyTasksMigrationsContext dataBaseSqlServerContext;
 		public TacheService(DailyTasksMigrationsContext dataBaseSqlServerContext)
@@ -16,58 +16,53 @@ namespace TasksManagement_API.ServicesRepositories
 		/// Renvoie la liste des taches.
 		/// </summary>
 		/// <returns></returns>
-		public async Task<List<Tache>> GetTaches()
+
+		public async Task<ICollection<Tache>> GetTaches(Func<IQueryable<Tache>, IQueryable<Tache>> filter = null)
 		{
-			var listTache = await dataBaseSqlServerContext.Taches.ToListAsync();
-			await dataBaseSqlServerContext.SaveChangesAsync();
-			return listTache;
+			IQueryable<Tache> query = dataBaseSqlServerContext.Taches;
+			if (filter != null)
+			{
+				query = filter(query);
+			}
+			return await query.ToListAsync();
 		}
 
-		/// <summary>
-		/// Renvoie une tache spécifique en fonction de son matricule
-		/// </summary>
-		/// <param name="matricule"></param>
-		/// <returns></returns>
-
-		public async Task<Tache> GetTaskById(int? matricule)
-		{
-			var tache = await dataBaseSqlServerContext.Taches.FirstOrDefaultAsync(t => t.Matricule == matricule);
-			await Task.Delay(200);
-			return tache!;
-		}
 		public async Task<Tache> CreateTask(Tache tache)
 		{
+			var utilisateur = await dataBaseSqlServerContext.Utilisateurs
+						.Include(u => u.LesTaches)  // Inclure les tâches associées à l'utilisateur
+						.FirstOrDefaultAsync(u =>
+					   u.Nom.Equals(tache.NomUtilisateur) && u.Email.Equals(tache.EmailUtilisateur));
+
+			if (utilisateur == null)
+			{
+				throw new ArgumentException("L'utilisateur associé à la tâche n'existe pas.");
+			}
+			utilisateur.LesTaches.Add(tache); // Initialiser la liste de tâches si elle est null
+			tache.utilisateur = utilisateur;  // Associer la tâche à l'utilisateur
 			await dataBaseSqlServerContext.Taches.AddAsync(tache);
 			await dataBaseSqlServerContext.SaveChangesAsync();
 			return tache;
 		}
 
-		public async Task DeleteTaskById(int matricule)
+		public async Task DeleteTaskByTitle(string titre)
 		{
-			var result = await dataBaseSqlServerContext.Taches.FirstOrDefaultAsync(t => t.Matricule == matricule);
-			if (result != null)
+			var Taches = await GetTaches(query => query.Where(t => t.Titre.Equals(titre)));
+			if (Taches.FirstOrDefault() != null)
 			{
-				dataBaseSqlServerContext.Taches.Remove(result);
-
+				dataBaseSqlServerContext.Taches.Remove(Taches.FirstOrDefault());
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 		}
-
-		public async Task<Tache> UpdateTask(Tache tache)
+		public async Task<Tache> UpdateTask(string username, Tache tache)
 		{
-			var tache1 = await dataBaseSqlServerContext.Taches.FindAsync(tache.Matricule);
-			dataBaseSqlServerContext.Taches.Remove(tache1);
-			Tache newtache = new()
-			{
-				Matricule = tache.Matricule,
-				Titre = tache.Titre,
-				Summary = tache.Summary,
-				StartDateH = tache.StartDateH,
-				EndDateH= tache.EndDateH
-			};
-			await dataBaseSqlServerContext.Taches.AddAsync(newtache);
+			var newTache = (await GetTaches(query => query.Where(t => t.NomUtilisateur.Equals(username)))).First();
+			newTache.Titre = tache.Titre;
+			newTache.Summary = tache.Summary;
+			newTache.StartDateH = tache.StartDateH;
+			newTache.EndDateH = tache.EndDateH;
 			await dataBaseSqlServerContext.SaveChangesAsync();
-			return newtache;
+			return newTache;
 		}
 	}
 }

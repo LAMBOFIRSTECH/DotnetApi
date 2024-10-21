@@ -2,17 +2,18 @@ using Microsoft.EntityFrameworkCore;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 using Microsoft.AspNetCore.DataProtection;
+using DotNetEnv;
 namespace TasksManagement_API.ServicesRepositories
 {
-	public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
+    public class UtilisateurService : IReadUsersMethods, IWriteUsersMethods
 	{
 		private readonly DailyTasksMigrationsContext dataBaseSqlServerContext;
 		private readonly IDataProtectionProvider provider;
 		private readonly IJwtTokenService jwtTokenService;
 
-		private readonly Microsoft.Extensions.Configuration.IConfiguration configuration;
+		private readonly IConfiguration configuration;
 		private const string Purpose = "my protection purpose"; //On donne une intention pour l'encryptage explire dans 90jours
-		public UtilisateurService(DailyTasksMigrationsContext dataBaseSqlServerContext, IJwtTokenService jwtTokenService, Microsoft.Extensions.Configuration.IConfiguration configuration, IDataProtectionProvider provider)
+		public UtilisateurService(DailyTasksMigrationsContext dataBaseSqlServerContext, IJwtTokenService jwtTokenService, IConfiguration configuration, IDataProtectionProvider provider)
 		{
 			this.dataBaseSqlServerContext = dataBaseSqlServerContext;
 			this.jwtTokenService = jwtTokenService;
@@ -22,10 +23,8 @@ namespace TasksManagement_API.ServicesRepositories
 
 		public async Task<TokenResult> GetToken(string email)
 		{
-			var utilisateur = dataBaseSqlServerContext.Utilisateurs
-				.SingleOrDefault(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Administrateur));
-
-			if (utilisateur is null)
+			var utilisateurs = await GetUsers(query => query.Where(u => u.Email.ToUpper().Equals(email.ToUpper()) && u.Role.Equals(Utilisateur.Privilege.Administrateur)));
+			if (utilisateurs is null || utilisateurs.Count == 0)
 			{
 				return new TokenResult
 				{
@@ -34,18 +33,18 @@ namespace TasksManagement_API.ServicesRepositories
 				};
 			}
 			await Task.Delay(500);
+			var utilisateur = utilisateurs.First();
 			return new TokenResult
 			{
 				Success = true,
 				Token = jwtTokenService.GenerateJwtToken(utilisateur.Email)
 			};
-
 		}
 
 		public bool CheckUserSecret(string secretPass)
 		{
-			//Env.Load("ServicesRepositories/.env");
-			string secretUserPass = configuration["JwtSettings:JwtSecretKey"]; // Prod Environment.GetEnvironmentVariable("PasswordSecret")!; //
+			Env.Load("ServicesRepositories/.env");
+			string secretUserPass =  Environment.GetEnvironmentVariable("PasswordSecret")!; // Dev configuration["JwtSettings:JwtSecretKey"]; // Prod Environment.GetEnvironmentVariable("PasswordSecret")!; //
 
 			if (string.IsNullOrEmpty(secretUserPass))
 			{
@@ -58,24 +57,21 @@ namespace TasksManagement_API.ServicesRepositories
 			if (!BCryptResult.Equals(true)) { return false; }
 			return true;
 		}
-	
-		public async Task<List<Utilisateur>> GetUsers(Func<Utilisateur, bool>? filter = null)
-		{
-			var listUtilisateurs = await dataBaseSqlServerContext.Utilisateurs.ToListAsync();
 
-			// Si un filtre est fourni, appliquer ce filtre
+		public async Task<ICollection<Utilisateur>> GetUsers(Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = null)
+		{
+			IQueryable<Utilisateur> query = dataBaseSqlServerContext.Utilisateurs
+								   .Include(u => u.LesTaches);
 			if (filter != null)
 			{
-				return listUtilisateurs.Where(filter).ToList();
+				query = filter(query);
 			}
-			// Retourner tous les utilisateurs si aucun filtre n'est donné
-			return listUtilisateurs;
+
+			return await query.ToListAsync();
 		}
-		
 		public async Task<Utilisateur?> GetSingleUserByNameRole(string nom, Utilisateur.Privilege role)
 		{
-			var utilisateur= await GetUsers(user => user.Nom == nom && user.Role == role);
-			return utilisateur.FirstOrDefault();
+			return (await GetUsers(query => query.Where(user => user.Nom == nom && user.Role == role))).FirstOrDefault();
 		}
 
 		public string EncryptUserSecret(string plainText)
@@ -89,55 +85,78 @@ namespace TasksManagement_API.ServicesRepositories
 			var protector = provider.CreateProtector(Purpose);
 			return protector.Unprotect(cipherText);
 		}
+
+		public async Task<string?> CheckExistedUser(Utilisateur utilisateur)
+		{
+			var listUtilisateurs = dataBaseSqlServerContext.Utilisateurs.ToList();
+			var utilisateurExistant = await GetSingleUserByNameRole(utilisateur.Nom, utilisateur.Role);
+			if (utilisateurExistant == null)
+			{
+				return utilisateur.Nom;
+			}
+			var i = 1;
+			var nouveauNomUtilisateur = $"{utilisateur.Nom}_{i}";
+			if (utilisateurExistant.Nom == utilisateur.Nom)
+			{
+				while (listUtilisateurs.Any(item => item.Nom == nouveauNomUtilisateur))
+				{
+					i++;
+					nouveauNomUtilisateur = $"{utilisateur.Nom}_{i}";
+				}
+			}
+			utilisateur.Nom = nouveauNomUtilisateur;
+			return utilisateur.Nom;
+		}
 		public async Task<Utilisateur> CreateUser(Utilisateur utilisateur)
 		{
-			var password = utilisateur.Pass;
-			var email = utilisateur.Email;
-			if (!string.IsNullOrEmpty(password))
+			if (!string.IsNullOrEmpty(utilisateur.Pass))
 			{
-				utilisateur.SetHashPassword(password);
+				utilisateur.SetHashPassword(utilisateur.Pass);
 			}
 
-			if (!utilisateur.CheckEmailAdress(email))
+			if (!utilisateur.CheckEmailAdress(utilisateur.Email))
 			{
 				throw new ArgumentException("Adresse e-mail invalide");
 			}
-			if (utilisateur.CheckHashPassword(password) && utilisateur.CheckEmailAdress(email))
+			if (utilisateur.CheckHashPassword(utilisateur.Pass) && utilisateur.CheckEmailAdress(utilisateur.Email))
 			{
-				await dataBaseSqlServerContext.Utilisateurs.AddAsync(utilisateur);
+				// Si l'utilisateur a des tâches, on les associe à l'utilisateur avant l'insertion
+				if (utilisateur.LesTaches != null && utilisateur.LesTaches.Count > 0)
+				{
+					foreach (var tache in utilisateur.LesTaches)
+					{
+						tache.NomUtilisateur = utilisateur.Nom; 
+						tache.EmailUtilisateur = utilisateur.Email; 
+						utilisateur.LesTaches.Add(tache);
+					}
+				}
+			}
+			await dataBaseSqlServerContext.Utilisateurs.AddAsync(utilisateur);
+			await dataBaseSqlServerContext.SaveChangesAsync();
+			return utilisateur;
+		}
+		public async Task<Utilisateur> SetUserPassword(string nom, string mdp)
+		{
+			var utilisateur = (await GetUsers(query => query.Where(u => u.Nom!.Equals(nom)))).FirstOrDefault();
+			if (utilisateur == null)
+			{
+				throw new InvalidOperationException("Utilisateur non trouvé");
+			}
+			if (!utilisateur.CheckHashPassword(mdp))
+			{
+				utilisateur.Pass = utilisateur.SetHashPassword(mdp);
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 			return utilisateur;
 		}
-
-		public async Task<Utilisateur> SetUserPassword(string nom, string mdp)
-		{
-			var adminUser = await dataBaseSqlServerContext.Utilisateurs!
-			.Where(u => u.Role!.Equals(Utilisateur.Privilege.Administrateur))
-			.Select(u => u.Nom).ToListAsync();
-
-			var user = await dataBaseSqlServerContext.Utilisateurs!.Where(u => u.Nom!.Equals(nom)).SingleOrDefaultAsync();
-			if (user == null)
-			{
-				throw new InvalidOperationException("Utilisateur non trouvé");
-			}
-			if (!user.CheckHashPassword(mdp))
-			{
-				user.Pass = user.SetHashPassword(mdp);
-				await dataBaseSqlServerContext.SaveChangesAsync();
-			}
-			return user;
-		}
-
 		public async Task DeleteUserByDetails(string nom, Utilisateur.Privilege role)
 		{
-			var result = await GetSingleUserByNameRole(nom,role);
-			if (result != null)
+			var utilisateur= (await GetUsers(query=>query.Where(user => user.Nom == nom && user.Role == role))).FirstOrDefault();
+			if (utilisateur != null)
 			{
-				dataBaseSqlServerContext.Utilisateurs.Remove(result);
+				dataBaseSqlServerContext.Utilisateurs.Remove(utilisateur);
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 		}
-
 	}
 }

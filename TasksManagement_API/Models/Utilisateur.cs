@@ -14,15 +14,13 @@ public class Utilisateur
 	/// Représente l'identifiant unique d'un utilisateur.
 	/// </summary>
 	[Key]
+	[System.Text.Json.Serialization.JsonIgnore]
 	public int ID { get; set; }
-	//public Guid UserId { get; set; } A revoir
 	[Required]
-	public string? Nom { get; set; }
+	public string Nom { get; set; } = string.Empty;
 
 	[Required]
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-	public string Email { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+	public string Email { get; set; } = string.Empty;
 
 	public enum Privilege { Administrateur, Utilisateur }
 	[EnumDataType(typeof(Privilege))]
@@ -32,12 +30,14 @@ public class Utilisateur
 	[Required]
 	[Category("Security")]
 	//[System.Text.Json.Serialization.JsonIgnore] // set à disable le mot de passe dans la serialisation json
-	public string? Pass { get; set; }
-	public bool CheckHashPassword(string? password)
+	public string Pass { get; set; } = string.Empty;
+	public ICollection<Tache>? LesTaches { get; set; }
+
+	public bool CheckHashPassword(string password)
 	{
 		return BCrypt.Net.BCrypt.Verify(password, Pass);
 	}
-	public string SetHashPassword(string? password)
+	public string SetHashPassword(string password)
 	{
 		if (!string.IsNullOrEmpty(password))
 		{
@@ -45,7 +45,7 @@ public class Utilisateur
 		}
 		return Pass!;
 	}
-	public bool CheckEmailAdress(string? email)
+	public bool CheckEmailAdress(string email)
 	{
 		string regexMatch = "(?<alpha>\\w+)@(?<mailing>[aA-zZ]+)\\.(?<domaine>[aA-zZ]+$)";
 		if (string.IsNullOrEmpty(email))

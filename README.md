@@ -1,6 +1,6 @@
 # DotnetApi project
 ----------------------------------------------------------------------------------------------------
-Mettre en place une API swagger en net6.0 !!&&Artur01102021
+Mettre en place une API swagger en net6.0 
 ----------------------------------------------------------------------------------------------------
 
 ## 1- Les prérequis
@@ -50,6 +50,7 @@ Mettre en place une API swagger en net6.0 !!&&Artur01102021
 
 - [X] Principe SOLID
     > - [X] Single-Responsabilities
+    > - [X] Open and Close
     > - [X] Interfaces-Segragation
     > - [X] Dependances-Inversion
 
@@ -58,10 +59,9 @@ Mettre en place une API swagger en net6.0 !!&&Artur01102021
 
 - [X] Tests unitaires
     > - [X] Test de retour d'actions
-    > - [X] Test d'authentification
     
 - [ ] Tests de charge
-    > - [ ] Mettre en place des Threads permettant de simuler des appels simultanés sur l'api
+    > - [ ] Mettre en place ...
 
 - [ ] Tests de Sécurité
     > - [ ] Test d'injection SQL
@@ -77,35 +77,34 @@ Mettre en place une API swagger en net6.0 !!&&Artur01102021
 ## 6- Création de contexte de base de données par environnement
  
 - [X] Environnement de Développement : Base de Données en mémoire
-- [ ] Environnement de Préproduction : Base de Données via SQLite
-- [ ] Environnement de Production : Base de Données en SQL via MySql (elle meme dans Docker)
+- [X] Environnement de Production :    Base de Données en SQL via MSSQL 
 
 
 ## 7- Endpoints d'API
 
 ### 7.1- UsersManagementController 
 
-> - `/api/v1.0/UsersManagement/GetAllUsers`
-> - `/api/v1.0/UsersManagement/GetSingleUser/{Nom}/{Role}`
-> - `/api/v1.0/UsersManagement/CreateUser`
-> - `/api/v1.0/UsersManagement/SetUserPassword/?{nom}&{mdp}`
-> - `/api/v1.0/UsersManagement/Delete/{Nom}/{Role}`
+> - [GET]    `/api/v1.1/users` 
+> - [GET]    `/api/v1.1/SingleUser/{Nom}/{Role}` 
+> - [POST]   `/api/v1.1/user`
+> - [UPDATE] `/api/v1.1/user/{nom}/{currentpassword}/{newpassword}`
+> - [DELETE] `/api/v1.1/user/{Nom}/{Role}`
 
 ### 7.2- TasksManagementController
 
-> - `/api/v1.0/TasksManagement/GetAllTasks`
-> - `/api/v1.0/TasksManagement/GetTaskByID/{Matricule}`
-> - `/api/v1.0/TasksManagement/CreateTask`
-> - `/api/v1.0/TasksManagement/DeleteTask/{Matricule}`
-> - `/api/v1.0/TasksManagement/UpdateTask`
+> - [GET]    `/api/v1.1/singleOrAllTasks` 
+> - [POST]   `/api/v1.1/tache`  
+> - [DELETE] `/api/v1.1/tache/{titre}`
+> - [UPDATE] `/api/v1.1/tache`
 
 ### 7.3- AccessTokenController
 
-> - `/api/v1.0/AccessToken/Login/?{email}`
+> - [POST]   `/api/v1.1/token/{email}`
 
 ## 8- Representation du swagger d'api
 ![](TasksManagement_API.png)
 ![](schemaTaskManagement.png)
+![](schema1TaskManagement.png)
 
 
 
