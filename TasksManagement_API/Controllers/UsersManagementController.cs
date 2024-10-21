@@ -99,7 +99,7 @@ public class UsersManagementController : ControllerBase
 				Email = utilisateur.Email
 			};
 			await writeMethods.CreateUser(newUtilisateur);
-			return CreatedAtAction(nameof(GetUsers), new { Nom = newUtilisateur.Nom, Email=newUtilisateur.Email });
+			return CreatedAtAction(nameof(GetUsers), new { Nom = newUtilisateur.Nom, Email = newUtilisateur.Email,Role = newUtilisateur.Role.ToString()});
 		}
 		catch (Exception ex)
 		{

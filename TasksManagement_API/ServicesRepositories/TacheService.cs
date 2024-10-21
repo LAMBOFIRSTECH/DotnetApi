@@ -54,17 +54,15 @@ namespace TasksManagement_API.ServicesRepositories
 				await dataBaseSqlServerContext.SaveChangesAsync();
 			}
 		}
-		public async Task<Tache> UpdateTask(string titre, Tache tache)
+		public async Task<Tache> UpdateTask(string username, Tache tache)
 		{
-			var newTache = (await GetTaches(query => query.Where(t => t.Matricule.Equals(titre)))).First();
+			var newTache = (await GetTaches(query => query.Where(t => t.NomUtilisateur.Equals(username)))).First();
 			newTache.Titre = tache.Titre;
 			newTache.Summary = tache.Summary;
 			newTache.StartDateH = tache.StartDateH;
 			newTache.EndDateH = tache.EndDateH;
 			await dataBaseSqlServerContext.SaveChangesAsync();
 			return newTache;
-			
-			// Pa encore achevé complètement
 		}
 	}
 }

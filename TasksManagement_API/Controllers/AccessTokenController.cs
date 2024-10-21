@@ -20,7 +20,7 @@ namespace TasksManagement_API.Controllers
 		/// <param name="email"></param>
 		/// <param name="secretUser"></param>
 		/// <returns></returns>
-		[HttpPost("Token")]
+		[HttpPost("token")]
 		public async Task<ActionResult> Login(string email, [DataType(DataType.Password)] string secretUser)
 		{
 			string regexMatch = "(?<alpha>\\w+)@(?<mailing>[aA-zZ]+)\\.(?<domaine>[aA-zZ]+$)";

@@ -84,22 +84,22 @@ Mettre en place une API swagger en net6.0
 
 ### 7.1- UsersManagementController 
 
-> - [GET]    `/api/v1.1/GetAllUsers` 
-> - [GET]    `/api/v1.1/GetSingleUser/{Nom}/{Role}` 
-> - [POST]   `/api/v1.1/CreateUser`
-> - [UPDATE] `/api/v1.1/SetUserPassword/?{nom}&{mdp}`
-> - [DELETE] `/api/v1.1/Delete/{Nom}/{Role}`
+> - [GET]    `/api/v1.1/users` 
+> - [GET]    `/api/v1.1/SingleUser/{Nom}/{Role}` 
+> - [POST]   `/api/v1.1/user`
+> - [UPDATE] `/api/v1.1/user/{nom}/{currentpassword}/{newpassword}`
+> - [DELETE] `/api/v1.1/user/{Nom}/{Role}`
 
 ### 7.2- TasksManagementController
 
-> - [GET]    `/api/v1.1/SingleOrAllTasks` 
+> - [GET]    `/api/v1.1/singleOrAllTasks` 
 > - [POST]   `/api/v1.1/tache`  
 > - [DELETE] `/api/v1.1/tache/{titre}`
 > - [UPDATE] `/api/v1.1/tache`
 
 ### 7.3- AccessTokenController
 
-> - [POST]   `/api/v1.1/Login/{email}`
+> - [POST]   `/api/v1.1/token/{email}`
 
 ## 8- Representation du swagger d'api
 ![](TasksManagement_API.png)

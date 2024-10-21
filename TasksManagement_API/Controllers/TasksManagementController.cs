@@ -24,7 +24,7 @@ public class TasksManagementController : ControllerBase
 
 	/// <returns></returns>
 	//[Authorize(Policy = "UserPolicy")]
-	[HttpGet("SingleOrAllTasks/")]
+	[HttpGet("singleOrAllTasks/")]
 	public async Task<IActionResult> GetSingleOrAllTasks([FromQuery] string? Titre)
 	{
 		try
@@ -56,13 +56,9 @@ public class TasksManagementController : ControllerBase
 	[HttpPost("tache/")]
 	public async Task<IActionResult> CreateTask([FromBody] Tache tache)
 	{
-		if (tache.NomUtilisateur is null)
+		if (tache.NomUtilisateur is null || tache.EmailUtilisateur is null)
 		{
-			return BadRequest("Le nom de l'utilisateur est requis pour créer une tâche.");
-		}
-		if (tache.EmailUtilisateur is null)
-		{
-			return BadRequest("L'email de l'utilisateur est requis pour créer une tâche.");
+			return BadRequest("Le nom ou l'email de l'utilisateur est requis pour créer une tâche.");
 		}
 		try
 		{
@@ -126,20 +122,16 @@ public class TasksManagementController : ControllerBase
 	/// <summary>
 	/// Met à jour les informations d'une tache.
 	/// </summary>
-	/// <param name="titre"></param>
+	/// <param name="username"></param>
 	/// <param name="tache"></param>
 	/// <returns></returns>
 	//[Authorize(Policy = "AdminPolicy")]
 	[HttpPut("tache/{titre}")]
-	public async Task<IActionResult> UpdateTask(string titre, [FromBody] Tache tache)
+	public async Task<IActionResult> UpdateTask(string username, [FromBody] Tache tache)
 	{
 		try
 		{
-			// if (matricule <= 0)
-			// {
-			// 	return BadRequest("Le matricule doit etre strictement positif");
-			// }
-			if (titre != tache.Titre)
+			if (username != tache.NomUtilisateur)
 			{
 				return NotFound();
 			}
@@ -148,7 +140,7 @@ public class TasksManagementController : ControllerBase
 				var message = "Exemple : Date de debut ->  01/01/2024  (doit etre '>' Supérieur) Date de fin -> 02/02/2024";
 				return StatusCode(StatusCodes.Status406NotAcceptable, message);
 			}
-			await writeMethods.UpdateTask(titre, tache);
+			await writeMethods.UpdateTask(username, tache);
 			return NoContent();
 		}
 		catch (DbUpdateConcurrencyException ex)
@@ -156,6 +148,4 @@ public class TasksManagementController : ControllerBase
 			return StatusCode(StatusCodes.Status500InternalServerError, ex.Message.Trim());
 		}
 	}
-
-
 }
