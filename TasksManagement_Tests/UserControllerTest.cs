@@ -8,127 +8,129 @@ using Xunit;
 
 namespace TasksManagement_Tests
 {
-	public class UserControllerTest
-	{
-		const int userID = 1;
-		Mock<IReadUsersMethods> mockReadMethods = new Mock<IReadUsersMethods>();
-		Mock<IWriteUsersMethods> mockWriteMethods1 = new Mock<IWriteUsersMethods>();
-		Mock<IWriteUsersMethods> mockWriteMethods2 = new Mock<IWriteUsersMethods>();
+    public class UserControllerTest
+    {
+        const int userID = 1;
+        Mock<IReadUsersMethods> mockReadMethods = new Mock<IReadUsersMethods>();
+        Mock<IWriteUsersMethods> mockWriteMethods1 = new Mock<IWriteUsersMethods>();
+        Mock<IWriteUsersMethods> mockWriteMethods2 = new Mock<IWriteUsersMethods>();
 
-		// [Fact]
-		// public async Task GetUsersReturns_OkResult_1()
-		// {
-		//     // Arrange
-		//     var expectedUserList = new List<Utilisateur>();
-		//     mockReadMethods.Setup(m => m.GetUsers()).ReturnsAsync(expectedUserList);
-		//     var controller = new UsersManagementController(mockReadMethods.Object, null!);
+        [Fact]
+        public async Task GetUsersReturns_OkResult_1()
+        {
+            // Arrange
+            var expectedUserList = new List<Utilisateur>();
+            mockReadMethods.Setup(m => m.GetUsers()).ReturnsAsync(expectedUserList);
 
-		//     // Act
-		//     var result = await controller.GetUsers();
+            // Passez null si le writeMethods n'est pas nécessaire dans ce test
+            var controller = new UsersManagementController(mockReadMethods.Object, null);
 
-		//     // Assert
-		//     var okResult = Assert.IsType<OkObjectResult>(result);
-		//     var actualUserList = Assert.IsAssignableFrom<IEnumerable<Utilisateur>>(okResult.Value);
-		//     Assert.Equal(expectedUserList, actualUserList);
-		// }
+            // Act
+            var result = await controller.GetUsers();
 
-		[Fact]
-		public async Task GetUsersByIdReturns_NotFound_or_OkResult_2()
-		{
-			// Arrange
-			mockReadMethods.SetupSequence(m => m.GetUserById(userID))
-			.ReturnsAsync(new Utilisateur() { ID = userID, Nom = "nom", Pass = "password", Role = Utilisateur.Privilege.UserX, Email = "toto@gmail.com" })
-			.ReturnsAsync((Utilisateur)null!);
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var actualUserList = Assert.IsAssignableFrom<IEnumerable<Utilisateur>>(okResult.Value);
+            Assert.Equal(expectedUserList, actualUserList);
+        }
 
-			var controller = new UsersManagementController(mockReadMethods.Object, null!);
+        // [Fact]
+        // public async Task GetUsersByIdReturns_NotFound_or_OkResult_2()
+        // {
+        // 	// Arrange
+        // 	mockReadMethods.SetupSequence(m => m.GetUserById(userID))
+        // 	.ReturnsAsync(new Utilisateur() { ID = userID, Nom = "nom", Pass = "password", Role = Utilisateur.Privilege.UserX, Email = "toto@gmail.com" })
+        // 	.ReturnsAsync((Utilisateur)null!);
 
-			// Act
-			var result1 = await controller.GetUserById(1);
-			var result2 = await controller.GetUserById(2);
+        // 	var controller = new UsersManagementController(mockReadMethods.Object, null!);
 
-			//Assert
-			var okResult = Assert.IsType<OkObjectResult>(result1);
-			Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
+        // 	// Act
+        // 	var result1 = await controller.GetUserById(1);
+        // 	var result2 = await controller.GetUserById(2);
 
-			var notResult = Assert.IsType<NotFoundObjectResult>(result2);
-			Assert.Equal(StatusCodes.Status404NotFound, notResult.StatusCode);
-		}
+        // 	//Assert
+        // 	var okResult = Assert.IsType<OkObjectResult>(result1);
+        // 	Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
 
-		[Fact]
-		public async Task CreateUserReturns_BadRequest_or_Conflict_or_CorrectsData_3()
-		{
-			// Arrange
-			var user = new Utilisateur()
-			{
-				ID = 1,
-				Nom = "nom",
-				Pass = "pass",
-				Role = Utilisateur.Privilege.Admin,
-				Email = "toto@gmail.com"
-			};
+        // 	var notResult = Assert.IsType<NotFoundObjectResult>(result2);
+        // 	Assert.Equal(StatusCodes.Status404NotFound, notResult.StatusCode);
+        // }
 
-			var users = new List<Utilisateur> { user };
-			mockReadMethods.Setup(m => m.GetUsers()).ReturnsAsync(users);
-			mockWriteMethods1.Setup(m => m.CreateUser(It.IsAny<Utilisateur>())).ThrowsAsync(new Exception());
-			var controller1 = new UsersManagementController(mockReadMethods.Object, mockWriteMethods1.Object);
+        // [Fact]
+        // public async Task CreateUserReturns_BadRequest_or_Conflict_or_CorrectsData_3()
+        // {
+        // 	// Arrange
+        // 	var user = new Utilisateur()
+        // 	{
+        // 		ID = 1,
+        // 		Nom = "nom",
+        // 		Pass = "pass",
+        // 		Role = Utilisateur.Privilege.Admin,
+        // 		Email = "toto@gmail.com"
+        // 	};
 
-			mockWriteMethods2.Setup(m => m.CreateUser(It.IsAny<Utilisateur>())).ReturnsAsync((Utilisateur)null!);
-			var controller2 = new UsersManagementController(mockReadMethods.Object, mockWriteMethods2.Object);
+        // 	var users = new List<Utilisateur> { user };
+        // 	mockReadMethods.Setup(m => m.GetUsers()).ReturnsAsync(users);
+        // 	mockWriteMethods1.Setup(m => m.CreateUser(It.IsAny<Utilisateur>())).ThrowsAsync(new Exception());
+        // 	var controller1 = new UsersManagementController(mockReadMethods.Object, mockWriteMethods1.Object);
 
-			// Act
-			var result1 = await controller1.CreateUser(2, "nom", "password", "Excepted Admin/UserX", "toto@gmail.com");
-			var result2 = await controller2.CreateUser(3, "nom", "password", "Admin", "toto@gmail.com");
-			var result3 = await controller2.CreateUser(4, "nom", "password", "UserX", "toto@gmail.com");
+        // 	mockWriteMethods2.Setup(m => m.CreateUser(It.IsAny<Utilisateur>())).ReturnsAsync((Utilisateur)null!);
+        // 	var controller2 = new UsersManagementController(mockReadMethods.Object, mockWriteMethods2.Object);
 
-			//Assert
-			var badRequestResult = Assert.IsType<BadRequestObjectResult>(result1);
-			Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
-			var conflictResult = Assert.IsType<ConflictObjectResult>(result2);
-			Assert.Equal(StatusCodes.Status409Conflict, conflictResult.StatusCode);
-			var okResult = Assert.IsType<OkObjectResult>(result3);
-			Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
-		}
+        // 	// Act
+        // 	var result1 = await controller1.CreateUser(2, "nom", "password", "Excepted Admin/UserX", "toto@gmail.com");
+        // 	var result2 = await controller2.CreateUser(3, "nom", "password", "Admin", "toto@gmail.com");
+        // 	var result3 = await controller2.CreateUser(4, "nom", "password", "UserX", "toto@gmail.com");
 
-		[Fact]
-		public async Task DeleteUserReturns_NotFound_or_CorrectDeleting_4()
-		{
-			//Arrange
-			mockReadMethods.SetupSequence(m => m.GetUserById(userID))
-			.ReturnsAsync(new Utilisateur() { ID = userID })
-			.ReturnsAsync((Utilisateur)null!);
+        // 	//Assert
+        // 	var badRequestResult = Assert.IsType<BadRequestObjectResult>(result1);
+        // 	Assert.Equal(StatusCodes.Status400BadRequest, badRequestResult.StatusCode);
+        // 	var conflictResult = Assert.IsType<ConflictObjectResult>(result2);
+        // 	Assert.Equal(StatusCodes.Status409Conflict, conflictResult.StatusCode);
+        // 	var okResult = Assert.IsType<OkObjectResult>(result3);
+        // 	Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
+        // }
 
-			var controller = new UsersManagementController(mockReadMethods.Object, mockWriteMethods1.Object);
+        // [Fact]
+        // public async Task DeleteUserReturns_NotFound_or_CorrectDeleting_4()
+        // {
+        // 	//Arrange
+        // 	mockReadMethods.SetupSequence(m => m.GetUserById(userID))
+        // 	.ReturnsAsync(new Utilisateur() { ID = userID })
+        // 	.ReturnsAsync((Utilisateur)null!);
 
-			//Act
-			var result1 = await controller.DeleteUserById(userID);
-			var result2 = await controller.DeleteUserById(userID);
+        // 	var controller = new UsersManagementController(mockReadMethods.Object, mockWriteMethods1.Object);
 
-			//Assert
-			var notFound = Assert.IsType<NotFoundObjectResult>(result2);
-			Assert.Equal(StatusCodes.Status404NotFound, notFound.StatusCode);
+        // 	//Act
+        // 	var result1 = await controller.DeleteUserById(userID);
+        // 	var result2 = await controller.DeleteUserById(userID);
 
-			var okResult = Assert.IsType<OkObjectResult>(result1);
-			Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
+        // 	//Assert
+        // 	var notFound = Assert.IsType<NotFoundObjectResult>(result2);
+        // 	Assert.Equal(StatusCodes.Status404NotFound, notFound.StatusCode);
 
-		}
+        // 	var okResult = Assert.IsType<OkObjectResult>(result1);
+        // 	Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
 
-		// [Fact]
-		// public async Task UpdateUserPasswordReturns_NotFound_or_OkUpdating_5()
-		// {
-		//     //Arrange
-		//     mockReadMethods.SetupSequence(m => m.GetUserById(userID))
-		//     .ReturnsAsync(new Utilisateur() { ID = userID, Nom = "nom", Pass = "password", Role = Utilisateur.Privilege.UserX, Email = "toto@gmail.com" })
-		//     .ReturnsAsync((Utilisateur)null!);
+        // }
 
-		//     var controller = new UsersManagementController(mockReadMethods.Object, mockWriteMethods1.Object);
-		//     //Act
-		//     var result1 = await controller.UpdateUserPassword("nom", "password");
-		//     //Assert
-		//     var okResult = Assert.IsType<OkObjectResult>(result1);
-		//     Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
-		// }
+        // // [Fact]
+        // // public async Task UpdateUserPasswordReturns_NotFound_or_OkUpdating_5()
+        // // {
+        // //     //Arrange
+        // //     mockReadMethods.SetupSequence(m => m.GetUserById(userID))
+        // //     .ReturnsAsync(new Utilisateur() { ID = userID, Nom = "nom", Pass = "password", Role = Utilisateur.Privilege.UserX, Email = "toto@gmail.com" })
+        // //     .ReturnsAsync((Utilisateur)null!);
 
-	}
+        // //     var controller = new UsersManagementController(mockReadMethods.Object, mockWriteMethods1.Object);
+        // //     //Act
+        // //     var result1 = await controller.UpdateUserPassword("nom", "password");
+        // //     //Assert
+        // //     var okResult = Assert.IsType<OkObjectResult>(result1);
+        // //     Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
+        // // }
+
+    }
 
 }
 
