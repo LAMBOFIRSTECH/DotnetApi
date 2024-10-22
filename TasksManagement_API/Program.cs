@@ -86,6 +86,7 @@ builder.Services.AddHealthChecks();
 // });
 
 
+// Conteneur d'enregistrement d'injection de dépendances 
 builder.Services.AddScoped<IReadUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IWriteUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IReadTasksMethods, TacheService>();

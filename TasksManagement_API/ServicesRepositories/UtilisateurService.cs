@@ -15,7 +15,7 @@ namespace TasksManagement_API.ServicesRepositories
 		public UtilisateurService(DailyTasksMigrationsContext dataBaseSqlServerContext, IJwtTokenService jwtTokenService, IConfiguration configuration, IDataProtectionProvider provider)
 		{
 			this.dataBaseSqlServerContext = dataBaseSqlServerContext;
-			this.jwtTokenService = jwtTokenService;
+			this.jwtTokenService = jwtTokenService; // Injection de dépendances
 			this.configuration = configuration;
 			this.provider = provider;
 		}
