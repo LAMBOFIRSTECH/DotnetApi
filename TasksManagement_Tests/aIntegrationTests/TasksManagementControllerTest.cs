@@ -6,7 +6,7 @@ using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models; 
 using Xunit;
 
-namespace TasksManagement_Tests
+namespace TasksManagement_Tests.aIntegrationTests
 {
 	public class TasksManagementControllerTest
 	{

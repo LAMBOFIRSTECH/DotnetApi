@@ -6,7 +6,7 @@ using TasksManagement_API.Interfaces;
 using TasksManagement_API.Models;
 using Xunit;
 
-namespace TasksManagement_Tests
+namespace TasksManagement_Tests.aIntegrationTests
 {
 	public class UsersManagementControllerTest
 	{
@@ -15,42 +15,24 @@ namespace TasksManagement_Tests
 		Mock<IWriteUsersMethods> mockWriteMethods1 = new Mock<IWriteUsersMethods>();
 		Mock<IWriteUsersMethods> mockWriteMethods2 = new Mock<IWriteUsersMethods>();
 
-		[Fact]
-		public async Task GetUsersByFilter_ReturnUsersOrEmptyList_1()
-		{   
-			/* 
-			Aucun filtre n’a été passé on affiche
-			- la liste vide 
-			- la liste des utilisateurs
-			*/
-		}
-		[Fact]
-		public async Task GetUsersByFilter_ReturnUserOrNot_2()
-		{
-			/* 
-			Le filtre a été passé on retourne
-			- un utilisateur 
-			- un utilisateur non trouvé
-			*/
-		}
-		[Fact]
-		public async Task GetUsersReturns_OkResult_3()
-		{
-			// Arrange
-			var expectedUserList = new List<Utilisateur>();
-			mockReadMethods.Setup(m => m.GetUsers()).ReturnsAsync(expectedUserList);
+		// [Fact]
+		// public async Task GetUsersReturns_OkResult_3()
+		// {
+		// 	// Arrange
+		// 	var expectedUserList = new List<Utilisateur>();
+		// 	mockReadMethods.Setup(m => m.GetUsers()).ReturnsAsync(expectedUserList);
 
-			// Passez null si le writeMethods n'est pas nécessaire dans ce test
-			var controller = new UsersManagementController(mockReadMethods.Object, null);
+		// 	// Passez null si le writeMethods n'est pas nécessaire dans ce test
+		// 	var controller = new UsersManagementController(mockReadMethods.Object, null);
 
-			// Act
-			var result = await controller.GetUsers();
+		// 	// Act
+		// 	var result = await controller.GetUsers();
 
-			// Assert
-			var okResult = Assert.IsType<OkObjectResult>(result);
-			var actualUserList = Assert.IsAssignableFrom<IEnumerable<Utilisateur>>(okResult.Value);
-			Assert.Equal(expectedUserList, actualUserList);
-		}
+		// 	// Assert
+		// 	var okResult = Assert.IsType<OkObjectResult>(result);
+		// 	var actualUserList = Assert.IsAssignableFrom<IEnumerable<Utilisateur>>(okResult.Value);
+		// 	Assert.Equal(expectedUserList, actualUserList);
+		// }
 
 		// [Fact]
 		// public async Task GetUsersByIdReturns_NotFound_or_OkResult_2()

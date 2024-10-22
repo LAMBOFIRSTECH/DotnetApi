@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 using RestSharp; 
 
-namespace TasksManagement_Tests
+namespace TasksManagement_Tests.b_FunctionnaleTests
 {
 	public class TacheApiFunctionalTests
 	{
