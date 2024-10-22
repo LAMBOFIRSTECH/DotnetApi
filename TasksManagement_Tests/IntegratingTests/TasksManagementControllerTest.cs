@@ -8,7 +8,7 @@ using Xunit;
 
 namespace TasksManagement_Tests
 {
-	public class TaskControllerTest
+	public class TasksManagementControllerTest
 	{
 		const int matricule = 1;
 		
