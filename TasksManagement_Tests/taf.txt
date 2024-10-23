@@ -1,4 +1,6 @@
-
+- Tests unitaires : sur les services gérant les responsabilités des classes
+- Tests d'intégration : sur les endpoints de controleurs Moq la bd en mémoire
+- Tests fonctionnel : sur les endpoints de controleurs sans interactions externes
 
 
 

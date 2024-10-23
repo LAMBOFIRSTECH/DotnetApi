@@ -1,12 +1,10 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Rewrite;
 using Microsoft.OpenApi.Models;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
 using TasksManagement_API.ServicesRepositories;
 using TasksManagement_API.Authentifications;
-using TasksManagement_API.SwaggerFilters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
@@ -34,7 +32,7 @@ builder.Services.AddSwaggerGen(opt =>
 			Email = "lamboartur94@gmail.com"
 		}
 	});
-	opt.OperationFilter<RemoveParameterFilter>();
+	// opt.OperationFilter<RemoveParameterFilter>();
 	var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 	opt.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 
@@ -137,14 +135,14 @@ builder.Services.AddAuthorization(options =>
  {
 	 // Politique d'autorisation pour les administrateurs
 	 options.AddPolicy("AdminPolicy", policy =>
-		 policy.RequireRole(nameof(Utilisateur.Privilege.Admin))
+		 policy.RequireRole(nameof(Utilisateur.Privilege.Administrateur))
 			   .RequireAuthenticatedUser()
 			   .AddAuthenticationSchemes("JwtAuthorization"));
 
 
 	 // Politique d'autorisation pour les utilisateurs non-administrateurs
 	 options.AddPolicy("UserPolicy", policy =>
-		policy.RequireRole(nameof(Utilisateur.Privilege.UserX))
+		policy.RequireRole(nameof(Utilisateur.Privilege.Utilisateur))
 			   .RequireAuthenticatedUser()  // L'utilisateur doit être authentifié
 			   .AddAuthenticationSchemes("BasicAuthentication"));
 

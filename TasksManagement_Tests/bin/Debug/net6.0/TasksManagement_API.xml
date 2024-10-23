@@ -12,17 +12,10 @@
             <param name="secretUser"></param>
             <returns></returns>
         </member>
-        <member name="M:TasksManagement_API.Controllers.TasksManagementController.GetAllTasks">
+        <member name="M:TasksManagement_API.Controllers.TasksManagementController.GetSingleOrAllTasks(System.String)">
             <summary>
             Affiche la liste de toutes les taches.
             </summary>
-            <returns></returns>
-        </member>
-        <member name="M:TasksManagement_API.Controllers.TasksManagementController.SelectTask(System.Int32)">
-            <summary>
-            Affiche les informations sur une tache précise.
-            </summary>
-            <param name="Matricule"></param>
             <returns></returns>
         </member>
         <member name="M:TasksManagement_API.Controllers.TasksManagementController.CreateTask(TasksManagement_API.Models.Tache)">
@@ -32,17 +25,18 @@
             <param name="tache"></param>
             <returns></returns>
         </member>
-        <member name="M:TasksManagement_API.Controllers.TasksManagementController.DeleteTaskById(System.Int32)">
+        <member name="M:TasksManagement_API.Controllers.TasksManagementController.DeleteTaskById(System.String)">
             <summary>
             Supprime une tache en fonction de son matricule.
             </summary>
-            <param name="Matricule"></param>
+            <param name="titre"></param>
             <returns></returns>
         </member>
-        <member name="M:TasksManagement_API.Controllers.TasksManagementController.UpdateTask(TasksManagement_API.Models.Tache)">
+        <member name="M:TasksManagement_API.Controllers.TasksManagementController.UpdateTask(System.String,TasksManagement_API.Models.Tache)">
             <summary>
             Met à jour les informations d'une tache.
             </summary>
+            <param name="username"></param>
             <param name="tache"></param>
             <returns></returns>
         </member>
@@ -51,49 +45,45 @@
             Affiche la liste de tous les utilisateurs.
             </summary>
         </member>
-        <member name="M:TasksManagement_API.Controllers.UsersManagementController.GetUserById(System.Int32)">
+        <member name="M:TasksManagement_API.Controllers.UsersManagementController.GetSingleUser(System.String,System.String)">
             <summary>
             Affiche les informations sur un utilisateur en fonction de son ID.
             </summary>
-            <param name="ID"></param>
+            <param name="Nom"></param>
+            <param name="Role"></param>
             <returns></returns>
         </member>
-        <member name="M:TasksManagement_API.Controllers.UsersManagementController.CreateUser(System.Int32,System.String,System.String,System.String,System.String)">
+        <member name="M:TasksManagement_API.Controllers.UsersManagementController.CreateUser(TasksManagement_API.Models.Utilisateur)">
              <summary>
              Créée un utilisateur.
              </summary>
-             <param name="identifiant"></param>
-             <param name="nom"></param>
-             <param name="mdp"></param>
-             <param name="role"></param>
-             <param name="email"></param>
-             <returns></returns>
              <remarks>
              Sample request:
             
                  POST /CreateUser
                  {
-                    "id": This value is autoincremented,
-                    "Nom": "username",
-                    "mdp": "password",
-                    "role": "UserX",
-                    "email": "adress_name@mailing_server.domain"  
+                    "nom": "username",
+                    "email": "adress_name@mailing_server.domain" 
+                    "role": enum {Utilisateur, Administrateur},
+                    "pass": "password",
+                    "lesTaches": []
                  }
              </remarks>
         </member>
-        <member name="M:TasksManagement_API.Controllers.UsersManagementController.DeleteUserById(System.Int32)">
+        <member name="M:TasksManagement_API.Controllers.UsersManagementController.DeleteUserByDetails(System.String,System.String)">
             <summary>
             Supprime un utilisateur en fonction de son ID.
             </summary>
-            <param name="ID"></param>
+            <param name="Nom"></param>
+            <param name="Role"></param>
             <returns></returns>
         </member>
         <member name="M:TasksManagement_API.Controllers.UsersManagementController.UpdateUserPassword(System.String,System.String,System.String)">
             <summary>
-            Met à jour le mot de passe d'un utilisateur en fonction de son nom
+            Met à jour le mot de passe d'un utilisateur en fonction de son nom.
             </summary>
             <param name="nom"></param>
-            <param name="password"></param>
+            <param name="currentpassword"></param>
             <param name="newpassword"></param>
             <returns></returns>
         </member>
@@ -121,19 +111,6 @@
             <summary>
             Représente l'identifiant unique d'un utilisateur.
             </summary>
-        </member>
-        <member name="M:TasksManagement_API.ServicesRepositories.TacheService.GetTaches">
-            <summary>
-            Renvoie la liste des taches.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:TasksManagement_API.ServicesRepositories.TacheService.GetTaskById(System.Nullable{System.Int32})">
-            <summary>
-            Renvoie une tache spécifique en fonction de son matricule
-            </summary>
-            <param name="matricule"></param>
-            <returns></returns>
         </member>
     </members>
 </doc>
