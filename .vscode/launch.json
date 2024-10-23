@@ -17,7 +17,7 @@
                 "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
             },
             "env": {
-                "ASPNETCORE_ENVIRONMENT":  "Development"
+                "ASPNETCORE_ENVIRONMENT":  "Production"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/TasksManagement_Tests/Views"
@@ -38,7 +38,7 @@
             "cwd": "${workspaceFolder}/TasksManagement_Tests",
             "stopAtEntry": false,
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Production"
             },
             "internalConsoleOptions": "openOnSessionStart"
         }

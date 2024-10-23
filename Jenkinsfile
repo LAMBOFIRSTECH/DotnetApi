@@ -7,7 +7,7 @@ pipeline {
         scannerHome = tool 'sonarscanner'
         PROJECT_KEY = 'Sonar-web-api'
         PROJECT_NAME = 'TasksManagement-API'
-        PROJECT_VERSION = '1.0'
+        PROJECT_VERSION = '1.1'
         SONAR_SCANNER_PATH = "${scannerHome}/sonar-scanner-5.0.1.3006/bin/sonar-scanner"
         SONAR_LANGUAGE = 'cs'
         SONAR_ENCODING = 'UTF-8'
@@ -28,12 +28,9 @@ pipeline {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                    rm *.txt *.png *.md
+                    rm *.txt *.png *.md *.crt *.key
                     mkdir -p ${COVERAGE_PATH}
                     chmod -R 777 ${COVERAGE_PATH}
-                    rm ${API_DIR}/appsettings.Development.json
-                    rm ${API_DIR}/appsettings.Preproduction.json
-
                 '''
             }
         }
@@ -98,8 +95,7 @@ pipeline {
     post {
         success {
             echo 'Le pipeline s\'est exécuté avec succès!'
-            sh 'rm -f Jenkinsfile *.crt *.key'
-            sh 'rm -f Docker*'
+            sh 'rm -f Jenkinsfile Docker* '
         }
         failure {
             echo 'Le pipeline a échoué!'
