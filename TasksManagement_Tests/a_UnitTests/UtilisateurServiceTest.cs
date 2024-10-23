@@ -24,7 +24,7 @@ namespace TasksManagement_Tests.a_UnitTests
 				.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // Très important quand on souhaite lancer plusieurs tests en meme temps Permet d'utiliser un nom de base de données unique à chaque exécution
 				.Options;
 			dbContext = new DailyTasksMigrationsContext(options);
-			// Initialisation du service avec le contexte || dans le cas des mocks on doit initialiser le service avec les mocks
+			// Initialisation du service avec le contexte | dans le cas des mocks on doit initialiser le service avec les mocks
 			utilisateurService = new UtilisateurService(
 				dbContext,
 				Mock.Of<IJwtTokenService>(),
