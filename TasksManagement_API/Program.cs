@@ -1,5 +1,6 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
@@ -8,11 +9,6 @@ using TasksManagement_API.Authentifications;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Server.Kestrel.Https;
-using DotNetEnv;
-using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -32,7 +28,7 @@ builder.Services.AddSwaggerGen(opt =>
 			Email = "lamboartur94@gmail.com"
 		}
 	});
-	// opt.OperationFilter<RemoveParameterFilter>();
+
 	var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 	opt.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 
@@ -44,28 +40,23 @@ builder.Services.AddCors(options =>
 					  policy =>
 					  {
 						  policy.AllowAnyOrigin()
-						   .AllowAnyMethod()
+						   .AllowAnyMethod()  
 						   .AllowAnyHeader();
 					  });
 });
 
 
-Env.Load();
-
-var environment = $"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json";
-builder.Configuration.SetBasePath(Directory.GetCurrentDirectory())
-	  .AddJsonFile(environment, optional: false, reloadOnChange: true);
-
-var connectionStrings = builder.Configuration.GetSection("ConnectionStrings").Get<Dictionary<string, string>>();
-if (connectionStrings == null || !connectionStrings.ContainsKey("DefaultConnection"))
+builder.Configuration.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development"}.json",
+optional: true, reloadOnChange: true
+);
+var item = builder.Configuration.GetSection("ConnectionStrings");
+var conStrings = item["DefaultConnection"];
+if (conStrings == null)
 {
-	throw new Exception("La chaine de connexion à la base de données est nulle");
+	throw new Exception("La chaine de connection à la base de données est nulle");
 }
+builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseInMemoryDatabase(conStrings));
 
-builder.Services.AddDbContext<DailyTasksMigrationsContext>(opt => opt.UseSqlServer(connectionStrings["DefaultConnection"], sqlOptions => sqlOptions.EnableRetryOnFailure(
-maxRetryCount: 10,
-maxRetryDelay: TimeSpan.FromSeconds(40),
-errorNumbersToAdd: null)));
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRouting();
@@ -73,41 +64,44 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDataProtection();
 builder.Services.AddHealthChecks();
 
-var certificateFile = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Path");
-var certificateKey = Environment.GetEnvironmentVariable("ASPNETCORE_Kestrel__Certificates__Default__Key");
+// var kestrelSection=builder.Configuration.GetSection("Kestrel:EndPoints:Https");
+// var certificateFile = kestrelSection["Certificate:File"];
+// var certificatePassword = kestrelSection["Certificate:Password"];
+// builder.Services.Configure<KestrelServerOptions>(options =>
+// {
+//     if (string.IsNullOrEmpty(certificateFile) || string.IsNullOrEmpty(certificatePassword))
+//     {
+//         throw new InvalidOperationException("Certificate path or password not configured");
+//     }
+//     options.ListenAnyIP(7081, listenOptions =>
+//     {
+//         listenOptions.UseHttps(certificateFile, certificatePassword);
+//     });
+//     options.Limits.MaxConcurrentConnections = 5;
+//     options.ConfigureHttpsDefaults(opt =>
+//     {
+//         opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
 
-builder.Services.Configure<KestrelServerOptions>(options =>
-{
-	if (string.IsNullOrEmpty(certificateFile) || string.IsNullOrEmpty(certificateKey))
-	{
-		throw new InvalidOperationException("Le chemin du certificat ou sa clé privée n'est pas configuré");
-	}
-	var certificate = X509Certificate2.CreateFromPemFile(certificateFile, certificateKey);
-	options.ListenAnyIP(5195);
-	options.ListenAnyIP(7251, listenOptions =>
-	{
-		listenOptions.UseHttps(certificate);
-	});
-	options.Limits.MaxConcurrentConnections = 5;
-	options.ConfigureHttpsDefaults(opt =>
-	{
-		opt.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
-
-	});
-});
+//     });
+// });
 
 
+// Conteneur d'enregistrement d'injection de dépendances 
 builder.Services.AddScoped<IReadUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IWriteUsersMethods, UtilisateurService>();
 builder.Services.AddScoped<IReadTasksMethods, TacheService>();
 builder.Services.AddScoped<IWriteTasksMethods, TacheService>();
 builder.Services.AddTransient<IJwtTokenService, JwtBearerAuthentificationService>();
+builder.Services.AddLogging();
 builder.Services.AddAuthorization();
 
-
+// On va ajouter l'authentification basic avec le nom "BasicAuthentication" sans options
 builder.Services.AddAuthentication("BasicAuthentication")
 	.AddScheme<AuthenticationSchemeOptions, AuthentificationBasic>("BasicAuthentication", options => { });
+
+// On va ajouter l'authentification JWT Bearer avec le nom "JwtAuthentification"
 builder.Services.AddAuthentication("JwtAuthorization")
+	// On va ajouter le schéma d'authentification personnalisé JwtBearer avec les options par défaut
 	.AddScheme<JwtBearerOptions, JwtBearerAuthorizationServer>("JwtAuthorization", options =>
 	{
 		var JwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -119,14 +113,14 @@ builder.Services.AddAuthentication("JwtAuthorization")
 		options.RequireHttpsMetadata = false;
 		options.TokenValidationParameters = new TokenValidationParameters
 		{
-			ValidateIssuer = true,
-			ValidateAudience = true,
-			ValidateLifetime = true,
-			ValidateIssuerSigningKey = true,
+			ValidateIssuer = true,             // Valider l'émetteur (issuer) du jeton
+			ValidateAudience = true,           // Valider l'audience du jeton
+			ValidateLifetime = true,           // Valider la durée de vie du jeton
+			ValidateIssuerSigningKey = true,   // Valider la signature du jeton
 
-			ValidIssuer = JwtSettings["Issuer"],
-			ValidAudience = JwtSettings["Audience"],
-			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey))
+			ValidIssuer = JwtSettings["Issuer"],       // Émetteur (issuer) valide
+			ValidAudience = JwtSettings["Audience"],   // Audience valide
+			IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)) // Clé de signature
 		};
 	});
 
@@ -150,7 +144,22 @@ builder.Services.AddAuthorization(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsProduction())
+if (app.Environment.IsDevelopment())
+{
+	app.UseSwagger();
+	app.UseSwaggerUI(con =>
+	 {
+		 con.SwaggerEndpoint("/swagger/1.1/swagger.json", "Daily Tasks Management API");
+
+		 con.RoutePrefix = string.Empty;
+
+	 });
+}
+else if (app.Environment.IsStaging())
+{
+
+}
+else if (app.Environment.IsProduction())
 {
 	// Gérer les erreurs dans un environnement de production
 	app.UseExceptionHandler("/Error");
@@ -158,7 +167,7 @@ if (app.Environment.IsProduction())
 	app.UseSwagger();
 	app.UseSwaggerUI(con =>
 	 {
-		 con.SwaggerEndpoint("/swagger/1.0/swagger.json", "Daily Tasks Management API");
+		 con.SwaggerEndpoint("/swagger/1.1/swagger.json", "Daily Tasks Management API");
 
 		 con.RoutePrefix = string.Empty;
 

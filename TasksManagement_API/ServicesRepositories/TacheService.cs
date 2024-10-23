@@ -12,11 +12,6 @@ namespace TasksManagement_API.ServicesRepositories
 		{
 			this.dataBaseSqlServerContext = dataBaseSqlServerContext;
 		}
-		/// <summary>
-		/// Renvoie la liste des taches.
-		/// </summary>
-		/// <returns></returns>
-
 		public async Task<ICollection<Tache>> GetTaches(Func<IQueryable<Tache>, IQueryable<Tache>> filter = null)
 		{
 			IQueryable<Tache> query = dataBaseSqlServerContext.Taches;
