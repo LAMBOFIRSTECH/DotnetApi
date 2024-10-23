@@ -21,7 +21,7 @@ public class Tache
 	[DataType(DataType.Date)]
 	public DateTime StartDateH { get; set; }
 
-	[Required(ErrorMessage = "Le format de date doit être comme l'exemple suivant : 01/01/2024")]
+	[Required(ErrorMessage = "Le format de date doit être comme l'exemple suivant : 01/01/2024")] // prendre en compte le temps complet avec les heures et les minutes
 	[DataType(DataType.Date)]
 	public DateTime EndDateH { get; set; }
 	
