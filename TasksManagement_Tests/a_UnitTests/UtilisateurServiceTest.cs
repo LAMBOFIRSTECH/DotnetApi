@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 
-namespace TasksManagement_Tests
+namespace TasksManagement_Tests.a_UnitTests
 {
 	public class UtilisateurServiceTest
 	{
@@ -35,12 +35,11 @@ namespace TasksManagement_Tests
 			dbContext.Utilisateurs.AddRange(new List<Utilisateur>
 		{
 			new Utilisateur { ID = 1, Nom = "Alice", Email = "alice@example.com", Role = Utilisateur.Privilege.Administrateur },
-			new Utilisateur { ID = 2, Nom = "Bob", Email = "bob@example.com", Role = Utilisateur.Privilege.Utilisateur },
-			new Utilisateur { ID = 3, Nom = "Charlie", Email = "charlie@example.com", Role = Utilisateur.Privilege.Administrateur },
+			new Utilisateur { ID = 2, Nom = "Alice_1", Email = "alice@example.com", Role = Utilisateur.Privilege.Administrateur },
+			new Utilisateur { ID = 3, Nom = "Bob", Email = "bob@example.com", Role = Utilisateur.Privilege.Utilisateur },
+			new Utilisateur { ID = 4, Nom = "Charlie", Email = "charlie@example.com", Role = Utilisateur.Privilege.Administrateur },
 		});
-
 			dbContext.SaveChanges();
-
 		}
 
 		[Fact]
@@ -49,17 +48,35 @@ namespace TasksManagement_Tests
 			// Act
 			var result = await utilisateurService.GetUsers();
 			// Assert
-			Assert.Equal(3, result.Count);
+			Assert.Equal(4, result.Count);
 		}
-
-		[Fact]
-		public async Task GetUsers_ReturnsAllUsers_WhenFilterIsProvided_2()
+		[Theory]
+		[InlineData("Alice")]
+		[InlineData("Bob")]
+		public async Task GetUsers_ReturnsSpecificUser_WhenFilterIsProvided_2(string Nom)
 		{
-			Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = query => query.Where(u => u.Role == Utilisateur.Privilege.Administrateur);
+			// Arrange
+			Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = query => query.Where(u => u.Role == Utilisateur.Privilege.Administrateur && u.Nom.Equals(Nom) || u.Role == Utilisateur.Privilege.Utilisateur && u.Nom.Equals(Nom));
 			// Act
 			var result = await utilisateurService.GetUsers(filter);
 			// Assert
-			Assert.Equal(2, result.Count);
+			Assert.Equal(1, result.Count);
+
+		}
+		[Theory]
+		[InlineData("Alice", 2)]
+		public async Task CheckExistedUser_ReturnsUserNewName_3(string Nom,int i)
+		{
+			// Arrange
+			//var expectedUsername1 = $"{Nom}_1";
+			var expectedUsername2 = $"{Nom}_{i}";
+			Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = query => query.Where(u => u.Role == Utilisateur.Privilege.Administrateur && u.Nom.Equals(Nom) || u.Role == Utilisateur.Privilege.Utilisateur && u.Nom.Equals(Nom));
+			// Act
+			var utilisateur = (await utilisateurService.GetUsers(filter)).First();
+			var currentUsername = utilisateurService.CheckExistedUser(utilisateur!).Result;
+			// Assert
+			Assert.Equal(expectedUsername2, currentUsername);
+
 
 		}
 	}
