@@ -28,7 +28,7 @@ pipeline {
             steps {
                 /* groovylint-disable-next-line GStringExpressionWithinString */
                 sh '''
-                    rm *.txt *.png *.md *.crt *.key
+                    rm *.txt *.png *.md
                     mkdir -p ${COVERAGE_PATH}
                     chmod -R 777 ${COVERAGE_PATH}
                 '''
@@ -95,7 +95,8 @@ pipeline {
     post {
         success {
             echo 'Le pipeline s\'est exécuté avec succès!'
-            sh 'rm -f Jenkinsfile Docker* '
+            sh 'rm -f Jenkinsfile *.crt *.key'
+            sh 'rm -f Docker*'
         }
         failure {
             echo 'Le pipeline a échoué!'
