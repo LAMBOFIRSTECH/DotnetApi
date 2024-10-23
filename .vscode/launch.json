@@ -38,7 +38,7 @@
             "cwd": "${workspaceFolder}/TasksManagement_Tests",
             "stopAtEntry": false,
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Production"
+                "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "internalConsoleOptions": "openOnSessionStart"
         }

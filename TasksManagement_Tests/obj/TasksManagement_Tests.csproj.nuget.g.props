@@ -13,6 +13,8 @@
     <SourceRoot Include="/home/lambo-ubuntu/.nuget/packages/" />
   </ItemGroup>
   <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)xunit.runner.visualstudio/2.4.3/build/netcoreapp2.1/xunit.runner.visualstudio.props" Condition="Exists('$(NuGetPackageRoot)xunit.runner.visualstudio/2.4.3/build/netcoreapp2.1/xunit.runner.visualstudio.props')" />
+    <Import Project="$(NuGetPackageRoot)xunit.core/2.4.1/build/xunit.core.props" Condition="Exists('$(NuGetPackageRoot)xunit.core/2.4.1/build/xunit.core.props')" />
     <Import Project="$(NuGetPackageRoot)microsoft.testplatform.testhost/17.7.0/build/netcoreapp3.1/Microsoft.TestPlatform.TestHost.props" Condition="Exists('$(NuGetPackageRoot)microsoft.testplatform.testhost/17.7.0/build/netcoreapp3.1/Microsoft.TestPlatform.TestHost.props')" />
     <Import Project="$(NuGetPackageRoot)microsoft.entityframeworkcore/6.0.20/buildTransitive/net6.0/Microsoft.EntityFrameworkCore.props" Condition="Exists('$(NuGetPackageRoot)microsoft.entityframeworkcore/6.0.20/buildTransitive/net6.0/Microsoft.EntityFrameworkCore.props')" />
     <Import Project="$(NuGetPackageRoot)microsoft.codecoverage/17.1.0/build/netstandard1.0/Microsoft.CodeCoverage.props" Condition="Exists('$(NuGetPackageRoot)microsoft.codecoverage/17.1.0/build/netstandard1.0/Microsoft.CodeCoverage.props')" />

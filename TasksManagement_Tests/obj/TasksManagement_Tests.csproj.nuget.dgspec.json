@@ -76,17 +76,9 @@
               "target": "Package",
               "version": "[17.7.0, )"
             },
-            "Moq": {
-              "target": "Package",
-              "version": "[4.16.1, )"
-            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
-            },
-            "RestSharp": {
-              "target": "Package",
-              "version": "[112.0.0, )"
             },
             "Serilog": {
               "target": "Package",
@@ -109,14 +101,6 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[6.0.2, )"
-            },
-            "xunit": {
-              "target": "Package",
-              "version": "[2.4.1, )"
-            },
-            "xunit.runner.visualstudio": {
-              "target": "Package",
-              "version": "[2.4.3, )"
             }
           },
           "imports": [
@@ -187,6 +171,22 @@
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
               "version": "[17.1.0, )"
+            },
+            "Moq": {
+              "target": "Package",
+              "version": "[4.16.1, )"
+            },
+            "RestSharp": {
+              "target": "Package",
+              "version": "[112.0.0, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.4.1, )"
+            },
+            "xunit.runner.visualstudio": {
+              "target": "Package",
+              "version": "[2.4.3, )"
             }
           },
           "imports": [

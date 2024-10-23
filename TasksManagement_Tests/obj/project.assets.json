@@ -2568,10 +2568,12 @@
           "xunit.extensibility.execution": "[2.4.1]"
         },
         "build": {
-          "build/_._": {}
+          "build/xunit.core.props": {},
+          "build/xunit.core.targets": {}
         },
         "buildMultiTargeting": {
-          "buildMultiTargeting/_._": {}
+          "buildMultiTargeting/xunit.core.props": {},
+          "buildMultiTargeting/xunit.core.targets": {}
         }
       },
       "xunit.extensibility.core/2.4.1": {
@@ -2611,7 +2613,7 @@
       "xunit.runner.visualstudio/2.4.3": {
         "type": "package",
         "build": {
-          "build/netcoreapp2.1/_._": {}
+          "build/netcoreapp2.1/xunit.runner.visualstudio.props": {}
         }
       },
       "TasksManagement_API/1.0.0": {
@@ -2626,15 +2628,11 @@
           "Microsoft.Extensions.Configuration.UserSecrets": "6.0.0",
           "Microsoft.Extensions.Logging": "6.0.0",
           "Microsoft.TestPlatform.TestHost": "17.7.0",
-          "Moq": "4.16.1",
           "Newtonsoft.Json": "13.0.3",
-          "RestSharp": "112.0.0",
           "Serilog": "3.1.1",
           "Serilog.Sinks.File": "5.0.0",
           "Swashbuckle.AspNetCore": "6.0.0",
-          "Swashbuckle.AspNetCore.Annotations": "6.0.0",
-          "xunit": "2.4.1",
-          "xunit.runner.visualstudio": "2.4.3"
+          "Swashbuckle.AspNetCore.Annotations": "6.0.0"
         },
         "compile": {
           "bin/placeholder/TasksManagement_API.dll": {}
@@ -7876,7 +7874,11 @@
     "net6.0": [
       "Microsoft.Extensions.Configuration >= 6.0.0",
       "Microsoft.NET.Test.Sdk >= 17.1.0",
-      "TasksManagement_API >= 1.0.0"
+      "Moq >= 4.16.1",
+      "RestSharp >= 112.0.0",
+      "TasksManagement_API >= 1.0.0",
+      "xunit >= 2.4.1",
+      "xunit.runner.visualstudio >= 2.4.3"
     ]
   },
   "packageFolders": {
@@ -7927,6 +7929,22 @@
           "Microsoft.NET.Test.Sdk": {
             "target": "Package",
             "version": "[17.1.0, )"
+          },
+          "Moq": {
+            "target": "Package",
+            "version": "[4.16.1, )"
+          },
+          "RestSharp": {
+            "target": "Package",
+            "version": "[112.0.0, )"
+          },
+          "xunit": {
+            "target": "Package",
+            "version": "[2.4.1, )"
+          },
+          "xunit.runner.visualstudio": {
+            "target": "Package",
+            "version": "[2.4.3, )"
           }
         },
         "imports": [
