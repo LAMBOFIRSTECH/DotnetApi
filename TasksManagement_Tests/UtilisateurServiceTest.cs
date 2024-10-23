@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 using TasksManagement_API.Models;
 using TasksManagement_API.Interfaces;
@@ -11,64 +7,61 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Configuration;
 
-namespace TasksManagement_Tests.a_UnitTests
+namespace TasksManagement_Tests
 {
 	public class UtilisateurServiceTest
 	{
-		private readonly Mock<DailyTasksMigrationsContext> mockDbContext;
-		private readonly Mock<IJwtTokenService> mockJwtTokenService;
-		private readonly Mock<IConfiguration> mockConfig;
-		private readonly Mock<IDataProtectionProvider> mockDataProtectionProvider;
+
+		private readonly DailyTasksMigrationsContext dbContext;
 		private readonly UtilisateurService utilisateurService;
+
 
 		public UtilisateurServiceTest()
 		{
-			// Initialisation des mocks
-			mockDbContext = new Mock<DailyTasksMigrationsContext>();
-			mockJwtTokenService = new Mock<IJwtTokenService>();
-			mockConfig = new Mock<IConfiguration>();
-			mockDataProtectionProvider = new Mock<IDataProtectionProvider>();
+			// Configuration de la base de données en mémoire
 
-			// Initialisation du service avec les mocks
+			var options = new DbContextOptionsBuilder<DailyTasksMigrationsContext>()
+				.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // Très important quand on souhaite lancer plusieurs tests en meme temps Permet d'utiliser un nom de base de données unique à chaque exécution
+				.Options;
+			dbContext = new DailyTasksMigrationsContext(options);
+			// Initialisation du service avec le contexte || dans le cas des mocks on doit initialiser le service avec les mocks
 			utilisateurService = new UtilisateurService(
-				mockDbContext.Object,
-				mockJwtTokenService.Object,
-				mockConfig.Object,
-				mockDataProtectionProvider.Object
+				dbContext,
+				Mock.Of<IJwtTokenService>(),
+				Mock.Of<IConfiguration>(),
+				Mock.Of<IDataProtectionProvider>()
 			);
+			// Ajout de données de test à la base de données
+			dbContext.Utilisateurs.AddRange(new List<Utilisateur>
+		{
+			new Utilisateur { ID = 1, Nom = "Alice", Email = "alice@example.com", Role = Utilisateur.Privilege.Administrateur },
+			new Utilisateur { ID = 2, Nom = "Bob", Email = "bob@example.com", Role = Utilisateur.Privilege.Utilisateur },
+			new Utilisateur { ID = 3, Nom = "Charlie", Email = "charlie@example.com", Role = Utilisateur.Privilege.Administrateur },
+		});
+
+			dbContext.SaveChanges();
+
 		}
 
-		// [Fact]
-		// public async Task<ICollection<Utilisateur>> GetUsersByFilter_ReturnUsersOrEmptyList_1()
-		// {
-		// 	IQueryable<Utilisateur> query = mockDbContext.Utilisateurs
-		// 						   .Include(u => u.LesTaches);
-		// 	// Act
+		[Fact]
+		public async Task GetUsers_ReturnsAllUsers_WhenNoFilterIsProvided_1()
+		{
+			// Act
+			var result = await utilisateurService.GetUsers();
+			// Assert
+			Assert.Equal(3, result.Count);
+		}
 
+		[Fact]
+		public async Task GetUsers_ReturnsAllUsers_WhenFilterIsProvided_2()
+		{
+			Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = query => query.Where(u => u.Role == Utilisateur.Privilege.Administrateur);
+			// Act
+			var result = await utilisateurService.GetUsers(filter);
+			// Assert
+			Assert.Equal(2, result.Count);
 
-		// 	// Arrange
-
-		// 	// Assert
-
-
-		// 	/* 
-		// 	Aucun filtre n’a été passé on affiche
-		// 	- la liste vide 
-		// 	- la liste des utilisateurs
-		// 	*/
-		// 	await Task.Delay(100);
-		// }
-		// [Fact]
-		// public async Task GetUsersByFilter_ReturnUserOrNot_2()
-		// {
-		//     /* 
-		// 	Le filtre a été passé on retourne
-		// 	- un utilisateur 
-		// 	- un utilisateur non trouvé
-		// 	*/
-		//     await Task.Delay(100);
-
-		// }
+		}
 	}
 
 }

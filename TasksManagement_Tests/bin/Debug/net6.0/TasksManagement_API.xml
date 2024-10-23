@@ -112,11 +112,5 @@
             Représente l'identifiant unique d'un utilisateur.
             </summary>
         </member>
-        <member name="M:TasksManagement_API.ServicesRepositories.TacheService.GetTaches(System.Func{System.Linq.IQueryable{TasksManagement_API.Models.Tache},System.Linq.IQueryable{TasksManagement_API.Models.Tache}})">
-            <summary>
-            Renvoie la liste des taches.
-            </summary>
-            <returns></returns>
-        </member>
     </members>
 </doc>
