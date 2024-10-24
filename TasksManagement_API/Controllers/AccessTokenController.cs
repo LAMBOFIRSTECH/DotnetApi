@@ -35,7 +35,7 @@ namespace TasksManagement_API.Controllers
 				return NotFound("Cette adresse mail est invalide");
 			};
 
-			if (readMethods.CheckUserSecret(secretUser) == true)
+			if (readMethods.CheckUserSecret(secretUser) == true)// Revoic ceci
 			{
 				return Unauthorized("Votre clé secrète incorrect");
 			}
