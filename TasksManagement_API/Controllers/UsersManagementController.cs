@@ -91,6 +91,15 @@ public class UsersManagementController : ControllerBase
 				return BadRequest("Le rôle spécifié n'est pas valide.");
 			}
 			var nouveauNomUtilisateur = await readMethods.CheckExistedUser(utilisateur);
+			if (!string.IsNullOrEmpty(utilisateur.Pass))
+			{
+				utilisateur.SetHashPassword(utilisateur.Pass);
+			}
+			if (!utilisateur.CheckEmailAdress(utilisateur.Email))
+			{
+				var message = "Adresse e-mail invalide";
+				return StatusCode(StatusCodes.Status406NotAcceptable, message);
+			}
 			Utilisateur newUtilisateur = new()
 			{
 				Nom = nouveauNomUtilisateur!,
@@ -99,7 +108,7 @@ public class UsersManagementController : ControllerBase
 				Email = utilisateur.Email
 			};
 			await writeMethods.CreateUser(newUtilisateur);
-			return CreatedAtAction(nameof(GetUsers), new { Nom = newUtilisateur.Nom, Email = newUtilisateur.Email,Role = newUtilisateur.Role.ToString()});
+			return CreatedAtAction(nameof(GetUsers), new { Nom = newUtilisateur.Nom, Email = newUtilisateur.Email, Role = newUtilisateur.Role.ToString() });
 		}
 		catch (Exception ex)
 		{
@@ -125,7 +134,10 @@ public class UsersManagementController : ControllerBase
 				{
 					return NotFound($"L'utilisateur [{Nom}] n'a pas été trouvé dans le contexte de base de données");
 				}
-				await writeMethods.DeleteUserByDetails(Nom, result);
+				else
+				{
+					await writeMethods.DeleteUserByDetails(Nom, result);
+				}
 				return NoContent();
 			}
 			catch (Exception ex)
@@ -150,11 +162,20 @@ public class UsersManagementController : ControllerBase
 	{
 		try
 		{
+			var utilisateur = (await readMethods.GetUsers(query => query.Where(u => u.Nom!.Equals(nom)))).FirstOrDefault();
+			if (utilisateur == null)
+			{
+				return NotFound("Utilisateur non trouvé");
+			}
 			if (currentpassword == newpassword)
 			{
-				return Conflict("Le mot de passe saisi existe déjà.");
+				return Conflict("Ce mot de passe existe déjà Changez le !");
 			}
-			await writeMethods.SetUserPassword(nom, newpassword);
+			if (!utilisateur.CheckHashPassword(newpassword))
+			{
+				utilisateur.Pass = utilisateur.SetHashPassword(newpassword);
+				await writeMethods.SetUserPassword(nom, newpassword);
+			}
 			return NoContent();
 		}
 		catch (Exception ex)

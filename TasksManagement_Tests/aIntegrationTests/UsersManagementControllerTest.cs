@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using TasksManagement_API.Controllers;
 using TasksManagement_API.Interfaces;
@@ -14,7 +15,39 @@ namespace TasksManagement_Tests.aIntegrationTests
 		Mock<IReadUsersMethods> mockReadMethods = new Mock<IReadUsersMethods>();
 		Mock<IWriteUsersMethods> mockWriteMethods1 = new Mock<IWriteUsersMethods>();
 		Mock<IWriteUsersMethods> mockWriteMethods2 = new Mock<IWriteUsersMethods>();
+		private readonly DailyTasksMigrationsContext dbContext;
+		public UsersManagementControllerTest()
+		{
+			// Configuration de la base de données en mémoire // on aura presque pas besoin
+			var options = new DbContextOptionsBuilder<DailyTasksMigrationsContext>()
+				.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) 
+				.Options;
+			dbContext = new DailyTasksMigrationsContext(options);
+			//dans le cas des mocks on doit initialiser le service avec les mocks
+			// utilisateurService = new UtilisateurService(
+			// 	dbContext,
+			// 	Mock.Of<IJwtTokenService>(),
+			// 	Mock.Of<IConfiguration>(),
+			// 	Mock.Of<IDataProtectionProvider>()
+			// );
+			// Ajout de données de test à la base de données
+			dbContext.Utilisateurs.AddRange(new List<Utilisateur>
+		{
+			new Utilisateur { ID = 1, Nom = "Alice", Email = "alice@example.com", Role = Utilisateur.Privilege.Administrateur },
+			new Utilisateur { ID = 2, Nom = "Alice_1", Email = "alice@example.com", Role = Utilisateur.Privilege.Administrateur },
+			new Utilisateur { ID = 3, Nom = "Bob", Email = "bob@example.com", Role = Utilisateur.Privilege.Utilisateur },
+			new Utilisateur { ID = 4, Nom = "Charlie", Email = "charlie@example.com", Role = Utilisateur.Privilege.Administrateur },
+		});
+			dbContext.SaveChanges();
+		}
+		[Theory]
+		[InlineData("password")]
+		public async Task CheckEncryptedPassword_Returns_Ok_1(string password)
+		{
+			Utilisateur utilisateur = new Utilisateur(); // Test sur les endpoints d'api test d'intégration
+			await Task.Delay(1000);
 
+		}
 		// [Fact]
 		// public async Task GetUsersReturns_OkResult_3()
 		// {

@@ -19,7 +19,6 @@ namespace TasksManagement_Tests.a_UnitTests
 		public UtilisateurServiceTest()
 		{
 			// Configuration de la base de données en mémoire
-
 			var options = new DbContextOptionsBuilder<DailyTasksMigrationsContext>()
 				.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // Très important quand on souhaite lancer plusieurs tests en meme temps Permet d'utiliser un nom de base de données unique à chaque exécution
 				.Options;
@@ -53,6 +52,7 @@ namespace TasksManagement_Tests.a_UnitTests
 		[Theory]
 		[InlineData("Alice")]
 		[InlineData("Bob")]
+
 		public async Task GetUsers_ReturnsSpecificUser_WhenFilterIsProvided_2(string Nom)
 		{
 			// Arrange
@@ -61,24 +61,32 @@ namespace TasksManagement_Tests.a_UnitTests
 			var result = await utilisateurService.GetUsers(filter);
 			// Assert
 			Assert.Equal(1, result.Count);
-
 		}
 		[Theory]
 		[InlineData("Alice", 2)]
-		public async Task CheckExistedUser_ReturnsUserNewName_3(string Nom,int i)
+		public async Task CheckExistedUser_ReturnsUserNewName_3(string Nom, int i)
 		{
 			// Arrange
-			//var expectedUsername1 = $"{Nom}_1";
-			var expectedUsername2 = $"{Nom}_{i}";
+			var expectedUsername = $"{Nom}_{i}";
 			Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = query => query.Where(u => u.Role == Utilisateur.Privilege.Administrateur && u.Nom.Equals(Nom) || u.Role == Utilisateur.Privilege.Utilisateur && u.Nom.Equals(Nom));
 			// Act
-			var utilisateur = (await utilisateurService.GetUsers(filter)).First();
-			var currentUsername = utilisateurService.CheckExistedUser(utilisateur!).Result;
+			var utilisateurs = (await utilisateurService.GetUsers(filter)).ToList();
+			var currentUsername = utilisateurService.CheckExistedUser(utilisateurs.First()!).Result;
 			// Assert
-			Assert.Equal(expectedUsername2, currentUsername);
-
-
+			Assert.Equal(expectedUsername, currentUsername);
 		}
+		[Theory]
+		[InlineData("Alice")]
+		public async Task GetUsers_ReturnsSpecificUser_WhenFilterIsProvided_WithTasks_4(string Nom) // Peut redondant mettre en évidence le service Tache
+		{
+			// Arrange
+			Func<IQueryable<Utilisateur>, IQueryable<Utilisateur>>? filter = query => query.Where(u => u.Role == Utilisateur.Privilege.Administrateur && u.Nom.Equals(Nom) || u.Role == Utilisateur.Privilege.Utilisateur && u.Nom.Equals(Nom));
+			// Act
+			var result = await utilisateurService.GetUsers(filter);
+			// Assert
+			Assert.Equal(1, result.Count);
+		}
+		
 	}
 
 }
